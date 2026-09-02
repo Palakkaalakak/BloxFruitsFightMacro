@@ -1,0 +1,7 @@
+{
+  "enabledPlugins": {
+    "brightdata-plugin@knowledge-work-plugins": true,
+    "tinyfish@knowledge-work-plugins": true,
+    "browser-use@knowledge-work-plugins": true
+  }
+}
