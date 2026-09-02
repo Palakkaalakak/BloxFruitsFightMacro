@@ -1,160 +1,159 @@
 # Blox Fruits — Kitsune One-Shot Combo Macro
 
-Build notes + an AutoHotkey v2 macro for a Kitsune + Godhuman combo. This is an
-**external keystroke macro** (AutoHotkey sends OS-level key/mouse events) — no
-memory reading, no injection, no touching the Roblox process. That's the line
+Kitsune + Godhuman, **fruit and fighting style only** (no sword, no gun), with an
+AutoHotkey v2 macro that runs the combo on a hotkey.
+
+External keystroke macro — AutoHotkey sends OS-level key/mouse events. No memory
+reading, no injection, nothing touching the Roblox process. That's the line
 between "macro" (allowed) and "exploit" (banned).
 
-Moveset below is from the Blox Fruits Wiki, supplied directly. Earlier revisions
-of this file were built on scraped summaries that were wrong — see
-[Corrections](#corrections).
+**All data below is from the Blox Fruits Wiki**, pulled via its MediaWiki API
+(`api.php` returns 200 even though the HTML pages 403):
 
----
-
-## Kitsune moveset
-
-### Human form (fighting styles / swords / guns usable)
-
-| Key | Move | Mastery | Properties | Tails cost |
-|---|---|---|---|---|
-| M1 | Normal Attack | — | 5-slash string. 4th is a whirlwind; last is a ground slam (or air kick if airborne). **At 3 tails**: ticking damage + target covered in blue flames 4–5s + increased base damage | 7.5% (all 5) |
-| Z | **Accursed Enchantment** | 1 | **If it hits**: flames circle the target *for some time*, then hit multiple times — **delayed damage**. If it misses: small weak AoE | 10% |
-| X | **Tails of Burning Agony** | 50 | Zig-zag: corner, corner, then target. **Stuns ~0.65s** | 12.5% |
-| C | **Fox Fire Disruption** | 100 | **Charge on hold, fires on release.** Huge explosion + ground flames. **Breaks Instinct.** Bonus damage on direct hit | 15% |
-| F | **Wild Assault** | 200 | Dash forward; on hit, multi-slash claw flurry (TTK Wolf Fang Rush / Rengoku style). **No grab, no Instinct break** | 10% |
-| V | **Transformation** | 300 | Transform. **Immune to all basic damage for 1s while transforming** | 30% |
-
-### Transformed form (fighting styles / swords / guns **DISABLED**)
-
-| Key | Move | Properties | Tails cost |
-|---|---|---|---|
-| M1 | Enhanced Slash | As 3-tail human M1 but larger AoE/hitbox/damage | 7.5% |
-| Z | Accursed Enchantment | Three fireballs + dash. **If it hits**: hits 1–3 targets, **launches them backward**, fires a flame ball per target + ticking damage. If it misses: spin flurry AoE | 15% |
-| X | **Tails of Burning Agony** | Zig-zag dash → **GRABS** → carries into air → **slams to ground**. **Breaks Instinct.** **Slams instantly if used airborne** | 20% |
-| C | Fox Fire Disruption | Fireball, widespread damage, then flames dealing **extremely large DoT** | 25% |
-| F | Wild Assault | Dash + tail swipe | 15% |
-| V | Revert | Back to human form; **restores fighting style / sword / gun access** | — |
-
-## Godhuman
-
-| Key | Move | Properties |
-|---|---|---|
-| Z | **Soaring Beast** | Dash, punches all directions, final punch knocks back. Good range, **stuns**, has **i-frames** |
-| X | **Heaven and Earth** | Tap: gust that **launches airborne**. Hold: charged AoE whirlwind. Used to wear off Instinct |
-| C | **Sixth Realm Gun** | Tap: dash-punch + knockback. **Hold: breaks Instinct**, hits harder |
-
-⚠️ Godhuman data is still from scraped sources and sources conflicted on its
-Instinct-breaking (one said all three moves break it; another said only C-held,
-and that Z/C-tap are "instinct-trickable"). Verify before trusting.
-
----
-
-## Stat build — fruit + fighting style only
-
-Max level caps **3 stats at 2800**:
-
-- **Melee 2800** — Godhuman
-- **Fruit 2800** — Kitsune damage + DoT scaling
-- **Defense 2800** — survive a dropped combo
-
-**Sword 0 / Gun 0.** Neither is used, and both are dead weight in transformed
-form anyway since the fruit locks them out.
-
-**Race:** Human V4 (V3 minimum) for passive damage/Haki. The combo is built to
-kill without it.
-
-**Accessories:** prioritise **% damage** and **stun duration**. Specific picks
-rotate with events — check a current tier list.
+- [`Kitsune`](https://blox-fruits.fandom.com/wiki/Kitsune)
+- [`Kitsune/Combos`](https://blox-fruits.fandom.com/wiki/Kitsune/Combos)
+- [`Godhuman`](https://blox-fruits.fandom.com/wiki/Godhuman)
+- [`Godhuman/Combos`](https://blox-fruits.fandom.com/wiki/Godhuman/Combos)
 
 ---
 
 ## The combo
 
-Two phases, because **transforming disables Godhuman**. All fighting-style
-damage must land *before* V.
-
-### Phase 1 — Human form
-
 ```
-Godhuman [Z]      Soaring Beast    — dash opener, stuns, i-frames on entry
-Kitsune  [Z]      Accursed Ench.   — flames circle, hit later (free delayed damage)
-Godhuman [X] tap  Heaven and Earth — launches them airborne
-Kitsune  [C] hold Fox Fire Disr.   — BREAKS INSTINCT, big explosion
-Kitsune  [X]      Tails of B.Agony — ~0.65s stun, bridges into transform
-Kitsune  [V]      Transformation   — 1s damage immunity covers the animation
+Godhuman [C] HELD  ->  Kitsune [F]  ->  [X]  ->  [C]  ->  [Z]  ->  Godhuman [Z]  ->  [X]
+   grab, invuln,        grab,          drains    breaks             breaks         breaks
+   UNDODGEABLE          breaks         Instinct  Instinct           Instinct       Instinct
+                        Instinct                                    (point blank)  (both variants)
 ```
 
-### Phase 2 — Transformed
+This is the wiki's own community combo `Godhuman [C] + Kitsune [F][X][C][Z] +
+Godhuman [Z][X]` ("veryyyy easy combo for beginners", by Rip chaitanya),
+with the **held** variant of Godhuman C specified as the opener — see below for
+why that specific detail matters more than anything else in the sequence.
 
-```
-Kitsune [X]  Tails of B.Agony — GRAB → air carry → slam. BREAKS INSTINCT. Longest lock in the kit
-Kitsune [C]  Fox Fire Disr.   — widespread hit + extremely large DoT. Finisher
-```
+**No transformation.** The wiki's transformed combo list is almost entirely
+marked *"Works well on NPCs, not for PvP"*. Transforming also costs 30% of the
+Tails meter and **disables fighting styles, swords and guns** outright. The PvP
+one-shots are all untransformed.
 
-### Why this order
+### Why the opener is Godhuman [C] held
 
-- **Godhuman Z opens** because it's the longest-range engage that stuns and has
-  i-frames — you're protected during the approach. It is still a dash that can
-  miss (see caveat below).
-- **Kitsune Z goes early on purpose.** Its flames circle before striking, so
-  casting it at the start means that damage lands *during* the middle of the
-  combo for free, stacked on top of everything else.
-- **Godhuman X launches them airborne** — and airborne targets have far worse
-  escape options. It also wears off Instinct going into C.
-- **Kitsune C breaks Instinct** so ken can't phase them out of the back half.
-- **Kitsune X's 0.65s stun** is the bridge that covers the V cast, and the 1s
-  transform immunity means you can't be punished mid-transform.
-- **Transformed X is the payoff** — a true grab that carries and slams and
-  breaks Instinct. Nothing else in the kit locks a target that long.
-- **Transformed C finishes** with the biggest DoT in the kit, landing while
-  they're still recovering from the slam.
+This is the part that actually delivers "inescapable," and it's a property of
+the held variant specifically:
 
-### Tails meter budget — read this
+> **[C] Sixth Realm Gun — if held:** "The user dashes towards the cursor with a
+> much higher speed and range than if it were tapped. Upon colliding with an
+> enemy, the user **seizes them** and charges up a punch from their left fist.
+> The user is **invulnerable** during this move."
 
-This is the real constraint, more than cooldowns:
+And from the Instinct chart: **"Only tap version can be dodged."** The held
+version cannot.
 
-```
-Phase 1 spend:  Z 10% + C 15% + X 12.5%          = 37.5%
-Transform:      V 30%                             = 30%
-Phase 2 spend:  X 20% + C 25%                     = 45%
-```
+So the opener is a long-range, very fast, teleport-like dash that seizes the
+target, cannot be dodged, and leaves you invulnerable during it. That solves the
+entry problem — every other candidate (Kitsune F, Kitsune X, Godhuman Z) is a
+dash whose *initial hit can be dodged*.
 
-You cannot run the full sequence from a standing start on an empty meter. The
-meter builds as you deal damage, and M1s at 3 tails feed it while draining
-7.5% per full string. **Build tails before engaging** — the combo assumes you
-enter the fight with meter banked, not at zero.
+Godhuman [C] held is also the opener in several of the wiki's other one-shot
+combos, including the Gravity Blade build and the Rocket/Skull Guitar build.
 
-### Honest caveat on "inescapable"
+### Instinct audit of each link
 
-The back half is genuinely hard to escape: Instinct is broken twice (C, then
-transformed X), and the transformed grab is a true lock.
+| Step | Breaks Instinct? | Notes |
+|---|---|---|
+| Godhuman [C] held | Yes (only tap can be dodged) | Seizes target, user invulnerable |
+| Kitsune [F] | **Only if grabbed** | Initial hit can be dodged — but they're already seized |
+| Kitsune [X] | No | *"drains a lot of it when hit"* |
+| Kitsune [C] | Yes | Initial hit + flames. Dodgeable on the edge / during explosion |
+| Kitsune [Z] | **No — neither variant, ever** | Pure damage |
+| Godhuman [Z] | **Only at point blank** | You are point blank here |
+| Godhuman [X] | Yes, both variants | Tap can be dodged if the blast misses the body |
 
-**The opener is the weak link and always will be.** Nothing in Kitsune's kit is
-a guaranteed-hit entry — Z needs to connect for its good variant, F needs to
-connect, X needs to connect. Godhuman Z is the best available engage, but a
-moving target can still avoid a dash. "Inescapable once caught" is achievable
-here; "unmissable entry" is not, and I'd rather say that than sell you a
-combo that assumes step one always lands.
-
-I also have **no frame data** for recovery windows — only X's ~0.65s stun. So
-whether every link is frame-tight is unverified and needs dummy testing.
+The chain works because F's dodgeable entry is covered by C-held's seize, and
+X's lack of an Instinct break is covered by it draining Instinct heavily instead.
 
 ---
 
-## Corrections
+## Moveset reference
 
-Logged so the bad versions don't resurface:
+### Kitsune — untransformed (cooldown / energy)
 
-- **F is not a grab** in either form. An earlier revision built the entire combo
-  around "F = dash-grab that breaks Instinct." That move does not exist. F is a
-  dash + claw flurry (human) / tail swipe (transformed).
-- **The grab is transformed X**, and it's the only grab in the kit.
-- **Transforming disables fighting styles, swords and guns.** An earlier macro
-  swapped hotbar slots to Godhuman *after* transforming, which cannot work.
-- **Untransformed Z does not break Instinct.** Only untransformed C and
-  transformed X do.
-- Earlier revisions cited scraped tables (Gamersberg, search summaries) as
-  "verified/cross-checked" when they disagreed with the wiki on move identity.
+| Key | Move | Mastery | CD | Energy | Properties |
+|---|---|---|---|---|---|
+| TAP | Normal Attack | — | 0.5s | — | 5 slashes. **At 3 tails**: ticking burn 4–5s, +base damage. Up to ~10k with a damage accessory. Grabs (triggers 3-tail passive) |
+| Z | Accursed Enchantment | 1 | 9s | 20 | Hit: flames circle, then strike multiple times (**delayed damage**). Miss: weak AoE. **Never breaks Instinct** |
+| X | Tails of Burning Agony | 50 | 12s | 40 | Zig-zag, **stuns ~0.65s**. No Instinct break but **drains a lot** |
+| C | Fox Fire Disruption | 100 | 15s | 80 | **Charge on hold, fires on release.** **Breaks Instinct** (hit + flames) |
+| F | Wild Assault | 200 | 9s | 60 | Dash → **grab** → claw flurry. **Breaks Instinct if grabbed.** Initial hit dodgeable |
+| V | Transformation | 300 | 3s | 20 | Immune to basic damage 1s while transforming. **Disables fighting style / sword / gun** |
+
+Tails cost per use: M1 7.5%, Z 10%, X 12.5%, C 15%, F 10%, V 30%.
+
+### Godhuman
+
+| Key | Move | Mastery | CD | Energy | Properties |
+|---|---|---|---|---|---|
+| Z | Soaring Beast | 125 | 8s | 25 | Dash toward cursor, flurry of punches, knockback. **Invulnerable during.** Breaks Instinct **only at point blank**. Follows targets who Flash Step away if already hit |
+| X | Heaven and Earth | 250 | 11s | 35 | Tap: gust, **launches target upward**. Hold 4s: clap shockwave, scales with hold, hits above and below. **Both break Instinct** |
+| C | Sixth Realm Gun | 350 | 17s | 75 | Tap: fast dash-punch + knockback. **Hold: much higher speed/range, SEIZES target, invulnerable, undodgeable** |
+
+**Energy cost of the full combo: ~335.** Worth watching — this is a real
+constraint alongside the Tails meter.
+
+---
+
+## Build
+
+**Stats — 3 caps at 2800 each:**
+
+- **Melee 2800** — Godhuman
+- **Fruit 2800** — Kitsune
+- **Defense 2800** — survive a dropped combo
+
+**Sword 0 / Gun 0.** Neither is used.
+
+**Mastery required:** Kitsune 200 (for F), Godhuman 350 (for C). Godhuman C is
+the opener, so 350 Godhuman mastery is non-negotiable for this combo.
+
+**Race:** Human V4 (V3 min). The wiki notes **Cyborg V3** is repeatedly
+recommended in combo entries "to make combo unkentrickable" — if you have it,
+it's the single biggest add-on. Not required.
+
+**Accessories:** wiki combos recommend **Dino Hood** or **Pilot Helmet** (the
+Pilot Helmet note is specifically about landing Kitsune C), plus damage/fruit
+boosting modifiers. Arcanist III/IV trinkets with fruit/melee modifiers are
+named in one build.
+
+---
+
+## Alternative combos (all wiki-sourced, all fruit+style only)
+
+If you want options that don't need 350 Godhuman mastery:
+
+| Combo | Wiki note |
+|---|---|
+| `Kitsune [Z][C][X][F] + Godhuman [Z][X][C]` | "oneshot ez combo" |
+| `Kitsune [C][X][Z] + Godhuman [C] + Kitsune [F] + Godhuman [Z][X]` | "Works for fruit mains only" |
+| `Kitsune [Z][F][X][C] + Sanguine Art [X][Z]` | "Pretty easy combo for fruit mains." Sanguine Art replaceable with Dragon Talon [Z] |
+| `Kitsune [C][X] + Sanguine Art [C][Z][X] + Kitsune [Z][F]` | "Works for fruit mains only" |
+| `Any stun + Kitsune [C][X] + Sanguine Art [C] + Kitsune [F] + Sanguine Art [Z][X]` | "Very easy, very good damage, very versatile" |
+
+The Sanguine Art variants are worth noting — Sanguine Art appears in more
+one-shot entries than Godhuman does, and one entry claims its combo "can
+one-shot even buddha users."
+
+---
+
+## Honest caveats
+
+- **Timings are not from the wiki.** Cooldowns and energy are exact; the
+  *inter-move delays* in the macro are estimates. No source publishes animation
+  or recovery frames. Tune on a dummy.
+- **"Inescapable" means once C-held connects.** The seize is undodgeable and the
+  chain after it is Instinct-covered, but you still have to land the opener —
+  it's a fast long-range dash toward your cursor, not a homing move.
+- Several wiki combos hedge with "most players can't kentrick" rather than
+  "can't be kentricked." Treat that as the realistic ceiling.
 
 ---
 
@@ -165,29 +164,24 @@ Logged so the bad versions don't resurface:
 ## Setup
 
 1. Install [AutoHotkey v2](https://www.autohotkey.com/).
-2. Edit the `CONFIG` block — set move keys to **your** in-game binds and set
-   your hotbar slot numbers for Kitsune and Godhuman.
-3. Run the script (sits in tray).
-4. In-game: bank some Tails meter, get in Godhuman Z range, hover the target,
-   press the trigger (`F1` default). `Esc` aborts.
+2. Edit `CONFIG` — move keys to match your binds, hotbar slots for Kitsune and
+   Godhuman.
+3. Run it (sits in tray).
+4. In-game: target in Godhuman C range, hover them, press `F1`. `Esc` aborts.
 
-## Tuning
+## Tuning priority
 
-Delays are placeholders and drift with patch and ping. Test on a dummy. Priority
-order for tuning:
-
-1. **`chargeTimeC`** — Kitsune C fires *on release*. Too short and it fires
-   underpowered; too long and the combo falls apart. Tune first.
-2. **`delayAfterV`** — the transform animation must fully finish before
-   transformed X registers, or you throw the grab into nothing.
-3. **`delayAfterTransformedX`** — the grab carries them up and slams; C must not
-   fire until the slam resolves.
-4. Slot-swap delays — if a Godhuman move comes out as a Kitsune move, the swap
-   didn't register in time. Raise `slotSwapDelay`.
+1. **`holdTimeGodC`** — must be long enough to register as *held*, not tapped.
+   Tapped C is dodgeable; held is not. Get this wrong and the whole premise of
+   the combo is gone. Tune first.
+2. **`delayAfterGodC`** — the seize + charged punch must resolve before F.
+3. **`chargeTimeKitC`** — Kitsune C fires on release.
+4. **Slot swap delays** — if a Godhuman move comes out as a Kitsune move, raise
+   `slotSwapDelay`.
 
 ## Safety
 
-- `Esc` aborts immediately.
-- Re-entry lock prevents stacked/overlapping sequences.
+- `Esc` aborts immediately; held keys are always released.
+- Re-entry lock prevents overlapping runs.
 - Keystrokes and clicks only. No pixel reading, no memory reading, no
-  auto-targeting — you aim and judge range yourself.
+  auto-targeting — you aim and judge range.

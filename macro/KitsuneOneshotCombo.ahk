@@ -2,66 +2,54 @@
 #SingleInstance Force
 
 ; ============================================================================
-; Blox Fruits — Kitsune + Godhuman one-shot combo macro
+; Blox Fruits — Kitsune + Godhuman one-shot combo
+; Fruit + fighting style only. No sword, no gun, no transformation.
 ;
-; Moveset source: https://blox-fruits.fandom.com/wiki/Kitsune
+; Combo (Blox Fruits Wiki, Kitsune/Combos — by Rip chaitanya, with the
+; HELD variant of Godhuman C specified as opener):
 ;
-; CRITICAL MECHANIC: transforming (Kitsune V) DISABLES fighting styles, swords
-; and guns. So the combo is strictly two-phase — all Godhuman damage lands in
-; human form, then you transform and never touch the fighting style again.
+;   Godhuman [C] HELD  - dash, SEIZES target, invulnerable, UNDODGEABLE
+;   Kitsune  [F]       - dash-grab + claw flurry. Breaks Instinct if grabbed
+;   Kitsune  [X]       - zig-zag, ~0.65s stun, drains a lot of Instinct
+;   Kitsune  [C] HOLD  - charge, fires on release. Breaks Instinct
+;   Kitsune  [Z]       - flames circle then strike (delayed damage)
+;   Godhuman [Z]       - flurry, invulnerable, breaks Instinct at point blank
+;   Godhuman [X] tap   - gust, launches upward. Breaks Instinct
 ;
-; PHASE 1 (human form):
-;   Godhuman [Z] Soaring Beast      - dash opener, stuns, i-frames
-;   Kitsune  [Z] Accursed Enchant.  - flames circle then strike (delayed damage)
-;   Godhuman [X] Heaven and Earth   - tap: launches target airborne
-;   Kitsune  [C] Fox Fire Disrupt.  - HOLD to charge, release to fire. Breaks Instinct
-;   Kitsune  [X] Tails of B. Agony  - ~0.65s stun, bridges into the transform
-;   Kitsune  [V] Transformation     - 1s damage immunity during the animation
+; Only tap-C can be dodged; HELD C cannot. holdTimeGodC MUST be long enough to
+; register as held or the whole premise of the combo is lost.
 ;
-; PHASE 2 (transformed — no fighting style available):
-;   Kitsune  [X] Tails of B. Agony  - GRAB -> air carry -> slam. Breaks Instinct
-;   Kitsune  [C] Fox Fire Disrupt.  - widespread hit + extremely large DoT. Finisher
-;
-; Sends keystrokes/clicks only. No memory reading, no injection.
-; See README.md for the build, tails budget, and tuning. EDIT CONFIG FIRST.
+; Keystrokes and clicks only. No memory reading, no injection.
 ; ============================================================================
 
 ; ---------------------------- CONFIG ---------------------------------------
 
-; Move keys — MUST match your in-game keybinds.
 keyZ := "z"
 keyX := "x"
 keyC := "c"
-keyV := "v"
+keyF := "f"
 mouseM1 := "LButton"
 
-; Hotbar slots. Z/X/C are shared between fruit and fighting style, so phase 1
-; needs swaps. Phase 2 needs none (the fighting style is locked out anyway).
-slotFruit      := "1"    ; slot holding Kitsune
-slotFightStyle := "2"    ; slot holding Godhuman
-slotSwapDelay  := 90     ; ms for a hotbar swap to register before the next key
+; Z/X/C are shared between fruit and fighting style — the combo needs swaps.
+slotFruit      := "1"    ; Kitsune
+slotFightStyle := "2"    ; Godhuman
+slotSwapDelay  := 90     ; ms for a hotbar swap to register
 
-; Macro control.
 hotkeyTrigger := "F1"
 hotkeyAbort   := "Esc"
 
-; --- Timings (ms). PLACEHOLDERS — tune on a dummy. See README "Tuning". ------
+; --- Timings (ms). Cooldowns/energy are wiki-exact; these delays are NOT. ---
 
-; Phase 1
-delayAfterGodZ  := 420   ; Soaring Beast dash+punches -> swap to fruit
-delayAfterKitZ  := 260   ; Accursed Enchantment cast (its damage lands later)
-delayAfterGodX  := 400   ; Heaven and Earth launch -> swap back to fruit
-chargeTimeC     := 350   ; TUNE FIRST: how long to HOLD C before releasing
-delayAfterKitC  := 480   ; Fox Fire explosion resolves
-delayAfterKitX  := 300   ; ~0.65s stun starts here; fire V inside that window
-delayAfterV     := 1100  ; TUNE: transform animation MUST finish before phase 2
+holdTimeGodC   := 600   ; TUNE FIRST. Must register as HELD, not tapped.
+delayAfterGodC := 850   ; seize + charged punch must resolve before F
+delayAfterKitF := 700   ; dash-grab + claw flurry
+delayAfterKitX := 320   ; ~0.65s stun starts here
+chargeTimeKitC := 350   ; Kitsune C fires on release
+delayAfterKitC := 480   ; explosion resolves
+delayAfterKitZ := 300   ; Z's damage lands later; don't wait for it
+delayAfterGodZ := 450   ; punch flurry + knockback
 
-; Phase 2
-delayAfterTX    := 950   ; TUNE: grab carries target up and slams — let it resolve
-                         ; (README: instant slam if used while airborne)
-
-; Optional M1 filler during the 3-tail burn window (0 disables).
-m1Count := 0
+m1Count := 0            ; optional filler during the 3-tail burn (0 = off)
 m1Delay := 120
 
 ; ---------------------------- STATE -----------------------------------------
@@ -74,7 +62,7 @@ Hotkey(hotkeyAbort, AbortCombo)
 FireCombo(*) {
     global running
     if (running)
-        return                  ; mid-sequence — ignore, prevents stacked runs
+        return                  ; mid-run — ignore, prevents stacked sequences
     running := true
     try
         RunCombo()
@@ -92,48 +80,37 @@ AbortCombo(*) {
 RunCombo() {
     global
 
-    ; ---------------- PHASE 1 — human form ----------------
+    ; --- Opener: Godhuman C HELD. Seizes, invulnerable, cannot be dodged. ---
+    if (!Swap(slotFightStyle))
+        return
+    if (!Hold(keyC, holdTimeGodC, delayAfterGodC))
+        return
 
-    ; Godhuman Z — dash opener. Stuns, and i-frames protect the approach.
+    ; --- Kitsune F: grab + claw flurry, breaks Instinct on the grab ---
+    if (!Swap(slotFruit))
+        return
+    if (!Tap(keyF, delayAfterKitF))
+        return
+
+    ; --- Kitsune X: stun, drains Instinct heavily ---
+    if (!Tap(keyX, delayAfterKitX))
+        return
+
+    ; --- Kitsune C: charge and release. Breaks Instinct. ---
+    if (!Hold(keyC, chargeTimeKitC, delayAfterKitC))
+        return
+
+    ; --- Kitsune Z: delayed damage, lands during the rest of the combo ---
+    if (!Tap(keyZ, delayAfterKitZ))
+        return
+
+    ; --- Godhuman Z: point blank here, so it breaks Instinct ---
     if (!Swap(slotFightStyle))
         return
     if (!Tap(keyZ, delayAfterGodZ))
         return
 
-    ; Kitsune Z — cast early so the circling flames strike during the mid-combo.
-    if (!Swap(slotFruit))
-        return
-    if (!Tap(keyZ, delayAfterKitZ))
-        return
-
-    ; Godhuman X (tap) — launch them airborne, wears off Instinct.
-    if (!Swap(slotFightStyle))
-        return
-    if (!Tap(keyX, delayAfterGodX))
-        return
-
-    ; Kitsune C — charge and release. Breaks Instinct.
-    if (!Swap(slotFruit))
-        return
-    if (!Charge(keyC, chargeTimeC, delayAfterKitC))
-        return
-
-    ; Kitsune X — ~0.65s stun to cover the transform cast.
-    if (!Tap(keyX, delayAfterKitX))
-        return
-
-    ; Kitsune V — transform. 1s of damage immunity during the animation.
-    if (!Tap(keyV, delayAfterV))
-        return
-
-    ; ---------------- PHASE 2 — transformed ----------------
-    ; No hotbar swaps here: transforming locks out fighting styles/swords/guns.
-
-    ; Transformed X — the grab. Carries into the air, slams, breaks Instinct.
-    if (!Tap(keyX, delayAfterTX))
-        return
-
-    ; Optional M1 filler while the burn ticks.
+    ; --- Optional M1 filler ---
     Loop m1Count {
         if (!running)
             return
@@ -142,13 +119,12 @@ RunCombo() {
             return
     }
 
-    ; Transformed C — finisher. Widespread damage + extremely large DoT.
-    Tap(keyC, 0)
+    ; --- Godhuman X tap: launcher finisher, breaks Instinct ---
+    Tap(keyX, 0)
 }
 
 ; ---------------------------- HELPERS ---------------------------------------
 
-; Press and release a key, then wait.
 Tap(key, delay) {
     global running
     if (!running)
@@ -157,8 +133,9 @@ Tap(key, delay) {
     return Wait(delay)
 }
 
-; Hold a key to charge, release, then wait. For Kitsune C (fires on release).
-Charge(key, holdTime, delay) {
+; Hold a key for holdTime, release, then wait. Used for Godhuman C (held
+; variant = undodgeable) and Kitsune C (fires on release).
+Hold(key, holdTime, delay) {
     global running
     if (!running)
         return false
@@ -170,12 +147,11 @@ Charge(key, holdTime, delay) {
     return Wait(delay)
 }
 
-; Switch hotbar slot and let the swap register.
 Swap(slot) {
     return Tap(slot, slotSwapDelay)
 }
 
-; Interruptible sleep — returns false if aborted mid-wait.
+; Interruptible sleep — false if aborted mid-wait.
 Wait(delay) {
     global running
     elapsed := 0
