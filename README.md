@@ -79,7 +79,7 @@ where you'd otherwise be exposed.
 |---|---|---|---|---|---|
 | TAP | Normal Attack | — | 0.5s | — | 5 slashes. **At 3 tails**: ticking burn 4–5s, +base damage. Up to ~10k with a damage accessory |
 | Z | Accursed Enchantment | 1 | 9s | 20 | Hit: flames circle, then strike multiple times (**delayed damage**). Miss: weak AoE. **Does not break Instinct** (changed in a recent update) |
-| X | Tails of Burning Agony | 50 | 12s | 40 | Zig-zag, **stuns ~0.65s**. No Instinct break but **drains a lot** |
+| X | Tails of Burning Agony | 50 | 12s | 40 | Zig-zag, **stuns ~0.65s**. No Instinct break, drains only. **31.4: now channels on hit — you cannot cast another ability until the animation finishes.** Unusable mid-combo |
 | C | Fox Fire Disruption | 100 | 15s | 80 | **Charge on hold, fires on release. BREAKS INSTINCT** — the only confirmed break in this build |
 | F | Wild Assault | 200 | 9s | 60 | Dash → claw flurry on connect. **Does not break Instinct.** Initial hit dodgeable |
 | V | Transformation | 300 | 3s | 20 | Immune to basic damage 1s while transforming. **Disables fighting style / sword / gun** |
@@ -142,6 +142,16 @@ one-shot even buddha users."
 ---
 
 ## Sourcing note — read before trusting anything here
+
+**Use the `Updates/<version>` patch-note pages as the source of truth.** The
+per-ability pages are not updated after nerfs — that is the root cause of every
+Instinct error in this file's history. Latest update is **31.4** (31.5 / 32 do
+not exist).
+
+Update 31.4 nerfed Kitsune directly: **[Z] no longer breaks Instinct**, **[X] now
+channels on hit so you cannot cast another ability until it finishes**, and
+**[C] end-lag +0.3s**. Sanguine Art [C] lost 15% range and 10% hitbox. None of
+that is reflected on the ability pages.
 
 The wiki's **Instinct charts and the `Instinct/Break` page are unreliable** —
 they have been wrong three separate times in building this file (Kitsune Z,

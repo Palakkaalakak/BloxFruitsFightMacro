@@ -22,6 +22,13 @@
 ; [Z], [X] and [F] do not break Instinct, and neither does Sanguine [C].
 ; An earlier version of this file claimed otherwise and was wrong.
 ;
+; UPDATE 31.4 (latest) constraints baked in here:
+;  - Kitsune [X] "now channels on hit; the user cannot cast another ability
+;    before the animation completes" -> X is NOT used in this combo. If you add
+;    it, it will block the next macro input regardless of your delay value.
+;  - Kitsune [C] end-lag increased by 0.3s -> delayAfterKitC raised accordingly.
+;  - Kitsune [Z] no longer breaks Instinct (now Instinct-trickable).
+;
 ; Keystrokes and clicks only. No memory reading, no injection.
 ; ============================================================================
 
@@ -44,7 +51,7 @@ hotkeyAbort   := "Esc"
 ; --- Timings (ms). Cooldowns/energy/lock are wiki-exact; delays are NOT. ---
 
 chargeTimeKitC  := 350   ; Kitsune C fires on release
-delayAfterKitC  := 480   ; explosion resolves
+delayAfterKitC  := 780   ; explosion + 31.4 end-lag nerf (+0.3s). Was 480 pre-nerf.
 delayAfterSangC := 260   ; ~1.2s dash/move disable starts here
 delayAfterSangZ := 280   ; drain
 delayAfterSangX := 300   ; scarlet burst

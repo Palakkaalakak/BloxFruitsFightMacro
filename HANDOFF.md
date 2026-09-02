@@ -28,22 +28,76 @@ Branch: `claude/kitsune-oneshot-combo-xk3glg`
 - `macro/KitsuneOneshotCombo.ahk` — AutoHotkey v2 macro
 - `HANDOFF.md` — this file
 
-## CRITICAL — how to get wiki data
+## CRITICAL — sourcing, in priority order
 
-Fandom **HTML pages return 403/402** to the fetcher. **The MediaWiki API works
-via curl.** This is the unblock:
+### 1. PATCH NOTES ARE THE SOURCE OF TRUTH
+
+`Updates/<version>` pages. **The per-ability pages and Instinct charts are STALE
+— they are not updated after nerfs.** Every Instinct-break error in this project
+traces to reading an ability page instead of the patch notes.
+
+**Latest update is 31.4.** Verified: `Updates/31.5`, `31.6`, `32`, `32.1` all
+return `missingtitle`.
+
+### 2. Fandom HTML 403s, but the MediaWiki API works via curl
 
 ```bash
 curl -sS -L --max-time 60 -A "Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/125.0" \
-  "https://blox-fruits.fandom.com/api.php?action=parse&page=Kitsune&prop=wikitext&format=json"
+  "https://blox-fruits.fandom.com/api.php?action=parse&page=Updates%2F31.4&prop=wikitext&format=json"
 ```
 
-Pages already pulled: `Kitsune`, `Kitsune/Combos`, `Godhuman`, `Godhuman/Combos`.
-URL-encode slashes as `%2F`.
+Search the wiki for which update changed something:
 
-**YouTube is still inaccessible** (JS-rendered; fetching returns only the page
-footer). Bright Data / TinyFish plugins are installed on the account and would
-fix this, but were not loaded into the original session.
+```bash
+curl -sS -L -A "Mozilla/5.0 Chrome/125.0" \
+  "https://blox-fruits.fandom.com/api.php?action=query&list=search&srsearch=instinct+break+rework&srlimit=15&format=json"
+```
+
+URL-encode slashes as `%2F`. Pages pulled so far: `Kitsune`, `Kitsune/Combos`,
+`Godhuman`, `Godhuman/Combos`, `Sanguine Art`, `Sanguine Art/Combos`,
+`Instinct`, `Instinct/Break`, `Updates/31.4`.
+
+### 3. For Kitsune specifics, use the Kitsune page — not related pages
+
+User instruction. `Instinct/Break` in particular is wrong about Kitsune.
+
+### 4. Plugins are NOT loaded in-session
+
+Bright Data / TinyFish are installed on the account but this session's plugin
+set was fixed at startup. `ListPlugins` returns empty; no scraping tools appear
+in the registry. **A new session is required to use them.** They would unlock
+YouTube (JS-rendered, unreadable via curl/WebFetch).
+
+## UPDATE 31.4 PATCH NOTES — verbatim, current
+
+**Kitsune was nerfed:**
+- **[Z] No longer breaks Instinct; now Instinct-trickable.**
+- **[X] Now channels on hit; the user cannot cast another ability before the
+  animation completes.** ← hard macro constraint: X blocks your next input.
+- **[C] End-lag increased by 0.3 seconds.**
+
+**Sanguine Art was nerfed:**
+- [C] Range decreased by 15%; hitbox size decreased by 10%.
+
+**Sharkman Karate was buffed:**
+- [X] No longer launches the opponent into the air; orb speed +25%.
+- **[C] Now grants temporary health based on damage absorbed. No longer
+  Instinct-trickable; the hold can no longer be cancelled by incoming damage;
+  damage reduction while holding increased; maximum hold time is now 1.5s.**
+
+**Death Step was buffed** (substantially — worth evaluating as the style):
+- [Z] Range +50%; hitbox +50%.
+- [X] Range +20%; hitbox +20%.
+- [C] DoT +20%; end-lag 0.25s -> 0.1s; hitbox +15%.
+- [V] Cooldown -50%; duration -50%.
+
+**Empyrean Kitsune was nerfed** — a separate form/entity not yet investigated:
+- [Z] (Tapped) No longer breaks Instinct. [Z] (Held) Damage -30%.
+- [X] Now channels on hit. [C] End-lag +0.3s.
+
+Other Instinct changes in 31.4 showing how volatile this is: Ice V2 [X] and
+Dark V2 [X] *now* break Instinct; Diamond [TAP] and Yama [X] *no longer* do;
+Werewolf/Blazing [F] can now be dodged with Instinct.
 
 ## READ THIS BEFORE ASSERTING ANYTHING
 
@@ -134,41 +188,39 @@ Kitsune [C] -> Kitsune [F] -> Sanguine [C] -> Sanguine [Z] -> Sanguine [X]
 ## THE CORE MECHANIC (verified — do not re-derive)
 
 - **Ken-tricking** = the target pressing **[E]** to activate Instinct mid-combo
-  to phase out of damage. Source: `Instinct` page, verbatim: *"Activating
-  Instinct during a move to avoid additional damage or combos is known as
-  'Instinct-Tricking' or more commonly known as 'Ken-Tricking'."*
+  to phase out of damage. `Instinct` page, verbatim: *"Activating Instinct during
+  a move to avoid additional damage or combos is known as 'Instinct-Tricking' or
+  more commonly known as 'Ken-Tricking'."*
 - **It has NOTHING to do with dashing.** An earlier revision claimed Sanguine
-  [C]'s dash-disable made the combo unkentrickable. That was an invented
-  connection between two unrelated mechanics.
+  [C]'s dash-disable made the combo unkentrickable. Invented connection.
 - **Instinct Break** *"instantly sends the players out of the Instinct state"*
-  (`Instinct/Break`). So a chain where every move breaks Instinct leaves no
-  window: the instant they hit [E], the next hit knocks them out of it.
-- Instinct break **requires a real hit** — *"only works if an AoE move's hitbox
-  covers"* the target; *"if the opponent isn't hit directly, they will dodge."*
-- Draining dodges is the slow alternative: up to 8 dodges (11 w/ Pale Scarf,
-  Kitsune Mask, Human V2), 1 charge per hit vs players, ~50s recharge each.
+  (`Instinct/Break`). It **requires a real hit** — *"only works if an AoE move's
+  hitbox covers"* the target.
+- Dodges: up to 8 (11 w/ Pale Scarf, Kitsune Mask, Human V2), 1 charge per hit
+  vs players, ~50s recharge each. Out-draining is not viable.
 
-### Instinct-break table (from `Instinct/Break`)
+### Instinct-break status — USER-CONFIRMED, overrides all wiki pages
 
-- **Sanguine Art — entire moveset.** Z breaks on grab; C breaks on grab + the
-  autotracking orb.
-- **Godhuman — entire moveset.** Z up close; X projectile on direct hit; C held; X held.
-- **Kitsune (untransformed) — Z, C, F.** C at the initial pull and the flames
-  after; F on the **first slash** only.
+| Move | Breaks Instinct? | Source |
+|---|---|---|
+| Kitsune [C] | **YES** — the only confirmed break in this build | user |
+| Kitsune [Z] | **NO** | user + Updates/31.4 nerf |
+| Kitsune [X] | **NO** — drains only | Kitsune page |
+| Kitsune [F] | **NO** (user: "I really don't think it does") | user |
+| Sanguine [C] | **NO** | user |
+| Sanguine [Z] / [X] | Unconfirmed — assume NO | — |
 
-### Excluded on purpose
+**Do not "correct" these from a wiki page. The wiki pages are what got them
+wrong in the first place.** If a patch note contradicts one, raise it with the
+user rather than silently changing it.
 
-- **Kitsune [X]** — does **not** break Instinct (only drains it). As a mid-combo
-  link it is a free ken-trick window. It was step two in an earlier revision.
-- **Kitsune [Z]** — **the wiki contradicts itself.** `Instinct/Break` says it
-  breaks; the Kitsune page's Instinct chart says "both variants cannot break
-  Instinct in any way." Unresolved. Left out rather than guessed at. **Do not
-  silently pick a side — ask the user.**
+### OPEN: which fighting style actually breaks Instinct?
 
-### Sanguine [C]'s 1.2s disable
-
-Real, and useful (blocks repositioning/retaliation), but it is **not** the
-anti-ken-trick mechanism. Bonus only.
+This is the blocking question for a genuinely unkentrickable combo. Kitsune
+supplies exactly one break ([C]), which is not enough for a no-gap chain.
+Sanguine does not supply one. Candidates not yet checked against patch notes:
+**Death Step** (heavily buffed in 31.4), **Sharkman Karate** ([C] is "no longer
+Instinct-trickable"), **Godhuman**, **Dragon Talon**, **Electric Claw**.
 
 ## Build
 
