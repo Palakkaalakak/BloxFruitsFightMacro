@@ -61,9 +61,9 @@ URL-encode slashes as `%2F`. Pages pulled so far: `Kitsune`, `Kitsune/Combos`,
 
 User instruction. `Instinct/Break` in particular is wrong about Kitsune.
 
-### 4. Plugins are declared in the repo now — but only apply to a FRESH session
+### 4. Plugins are NOT loaded in-session — and the repo-config route is a DEAD END
 
-`.claude/settings.json` (already committed on this branch) declares:
+`.claude/settings.json` on this branch declares:
 
 ```json
 {
@@ -75,17 +75,32 @@ User instruction. `Instinct/Break` in particular is wrong about Kitsune.
 }
 ```
 
-Plugins install **at session start only**. Any session that was already running
-when this file landed will NOT pick it up — `ListPlugins` keeps returning empty
-for that session no matter how much later you re-check, even after pulling the
-branch. **An empty `ListPlugins` result does not by itself mean the config is
-broken.** Before troubleshooting further, check whether the current session
-started before or after commit `0ce893c` ("Create settings.json") on this
-branch — if before, the fix is simply: start a brand-new session on this
-branch. That gets Bright Data (Web Unlocker/CAPTCHA bypass, structured
-extraction), TinyFish (fetch-to-markdown, browser agent), and Browser Use (a
-real browser) — which unlocks JS-rendered pages like YouTube that curl/WebFetch
-can't read.
+**Tried this in a fresh cloud session on this branch. It did not work** —
+`ListPlugins` still came back empty. Root cause: `@marketplace-name` in
+`enabledPlugins` is a *lookup*, not a declaration. `knowledge-work-plugins` is
+an account-level plugin catalog (visible via the `SearchPlugins` tool), not a
+git-sourced marketplace. A repo can only auto-register a marketplace via
+`extraKnownMarketplaces` pointing at a real git repo URL — there's no way to
+point that at an account-level catalog. So `enabledPlugins` referencing
+`@knowledge-work-plugins` resolves to nothing in a session that doesn't already
+have that marketplace registered, and cloud sessions don't show the trust
+dialog that would otherwise register it.
+
+**Do not repeat the repo-config approach — it's a confirmed dead end.**
+
+**The actual fix**: enable `brightdata-plugin`, `tinyfish`, and `browser-use`
+directly on the claude.ai account itself (account-level plugin/catalog
+settings — not this repo), so they load as *synced plugins* automatically in
+any future cloud session. This requires the account holder to do it outside
+of this repo/session; it is not something achievable via a file committed
+here. Once enabled there, a fresh session started afterward should show them
+in `ListPlugins`/`ListAgents` without any repo changes.
+
+If a future session still shows no plugins after that: check whether the
+session started before or after the account-level enable (plugins install at
+session start only, same caveat as everything else here), then confirm via
+`ListPlugins` with no `keywords` arg on a definitely-fresh session before
+concluding the account-level enable didn't take.
 
 ## UPDATE 31.4 PATCH NOTES — verbatim, current
 
