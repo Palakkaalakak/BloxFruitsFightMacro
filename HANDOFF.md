@@ -126,49 +126,58 @@ transforming, and **disables fighting styles, swords and guns**.
 ## Current combo
 
 ```
-Godhuman [C] HELD -> Kitsune [F] -> [X] -> [C] -> [Z] -> Godhuman [Z] -> [X]
+Kitsune [C] -> Kitsune [F] -> Sanguine [C] -> Sanguine [Z] -> Sanguine [X]
 ```
 
-Wiki community entry (`Kitsune/Combos`, by Rip chaitanya), fruit+style only,
-with the **held** C variant specified as opener. Rationale for the opener is
-now narrow and should stay narrow: **the Instinct chart says only the tap
-version can be dodged.** Not "it grabs them."
+**Every link breaks Instinct.** That is the design constraint — see below.
 
-No transformation — the wiki marks nearly every transformed combo *"works well
-on NPCs, not for PvP"*, and V locks out the fighting style.
+## THE CORE MECHANIC (verified — do not re-derive)
 
-Full combo energy cost ~335.
+- **Ken-tricking** = the target pressing **[E]** to activate Instinct mid-combo
+  to phase out of damage. Source: `Instinct` page, verbatim: *"Activating
+  Instinct during a move to avoid additional damage or combos is known as
+  'Instinct-Tricking' or more commonly known as 'Ken-Tricking'."*
+- **It has NOTHING to do with dashing.** An earlier revision claimed Sanguine
+  [C]'s dash-disable made the combo unkentrickable. That was an invented
+  connection between two unrelated mechanics.
+- **Instinct Break** *"instantly sends the players out of the Instinct state"*
+  (`Instinct/Break`). So a chain where every move breaks Instinct leaves no
+  window: the instant they hit [E], the next hit knocks them out of it.
+- Instinct break **requires a real hit** — *"only works if an AoE move's hitbox
+  covers"* the target; *"if the opponent isn't hit directly, they will dodge."*
+- Draining dodges is the slow alternative: up to 8 dodges (11 w/ Pale Scarf,
+  Kitsune Mask, Human V2), 1 charge per hit vs players, ~50s recharge each.
+
+### Instinct-break table (from `Instinct/Break`)
+
+- **Sanguine Art — entire moveset.** Z breaks on grab; C breaks on grab + the
+  autotracking orb.
+- **Godhuman — entire moveset.** Z up close; X projectile on direct hit; C held; X held.
+- **Kitsune (untransformed) — Z, C, F.** C at the initial pull and the flames
+  after; F on the **first slash** only.
+
+### Excluded on purpose
+
+- **Kitsune [X]** — does **not** break Instinct (only drains it). As a mid-combo
+  link it is a free ken-trick window. It was step two in an earlier revision.
+- **Kitsune [Z]** — **the wiki contradicts itself.** `Instinct/Break` says it
+  breaks; the Kitsune page's Instinct chart says "both variants cannot break
+  Instinct in any way." Unresolved. Left out rather than guessed at. **Do not
+  silently pick a side — ask the user.**
+
+### Sanguine [C]'s 1.2s disable
+
+Real, and useful (blocks repositioning/retaliation), but it is **not** the
+anti-ken-trick mechanism. Bonus only.
 
 ## Build
 
 Melee 2800 / Fruit 2800 / Defense 2800. Sword 0, Gun 0.
-Mastery: Kitsune 200 (F), Godhuman 350 (C).
-Race: Human V4/V3. Wiki entries repeatedly recommend **Cyborg V3** "to make
-combo unkentrickable" — optional but the strongest add-on.
-Accessories: Dino Hood or Pilot Helmet; damage/fruit modifiers.
-
-## Alternative wiki combos (fruit + fighting style only)
-
-- `Kitsune [Z][C][X][F] + Godhuman [Z][X][C]` — "oneshot ez combo"
-- `Kitsune [C][X][Z] + Godhuman [C] + Kitsune [F] + Godhuman [Z][X]`
-- `Kitsune [Z][F][X][C] + Sanguine Art [X][Z]` — Sanguine Art swappable for Dragon Talon [Z]
-- `Kitsune [C][X] + Sanguine Art [C][Z][X] + Kitsune [Z][F]`
-- `Any stun + Kitsune [C][X] + Sanguine Art [C] + Kitsune [F] + Sanguine Art [Z][X]`
-
-**Sanguine Art appears in more one-shot entries than Godhuman.** One entry
-claims its combo one-shots even Buddha users. Worth evaluating as the primary
-fighting style rather than Godhuman — not yet investigated.
-
-## OPEN QUESTIONS — ask the user, do not guess
-
-1. **Is Godhuman C-held actually undodgeable in practice?** The whole opener
-   rests on one Instinct-chart line. The user has play experience; the wiki has
-   a line of text.
-2. **Inter-move timings are unverified.** No source publishes animation or
-   recovery frames. Only hard number: X's ~0.65s stun. Every delay in the macro
-   is an estimate needing dummy testing.
-3. **Should Sanguine Art replace Godhuman?** See above.
-4. **Does the user actually have Godhuman 350 / Kitsune 200 mastery?** Never confirmed.
+Energy for the combo ~305 (Kitsune C 80 + F 60, Sanguine C 75 + Z 20 + X 30).
+Race: Human V4/V3. Cyborg V3 recommended by several wiki combo entries.
+Accessories: Dino Hood / Pilot Helmet. **Note Pale Scarf and Kitsune Mask raise
+an opponent's dodge count to 11** — relevant to what you're fighting, not what you wear.
+Mastery: user said to ignore mastery requirements for now.
 
 ## Macro notes
 

@@ -21,70 +21,72 @@ between "macro" (allowed) and "exploit" (banned).
 ## The combo
 
 ```
-Kitsune [C] -> [X]  ->  Sanguine [C] -> [Z] -> [X]  ->  Kitsune [Z] -> [F]
- breaks      ~0.65s      DASHES/FLASH   heals   burst     delayed     finisher
- Instinct    stun        STEP/MOVES     20% HP            flames
-                         OFF ~1.2s
+Kitsune [C]  ->  Kitsune [F]  ->  Sanguine [C]  ->  Sanguine [Z]  ->  Sanguine [X]
+ breaks          breaks on       breaks on        breaks on        breaks
+ Instinct        first slash     grab             grab             Instinct
+ (pull + flames)                 + disables       + heals 20% HP
+                                 dash/moves 1.2s
 ```
 
-Wiki community combo (`Kitsune/Combos`): `Kitsune [C][X] + Sanguine Art [C][Z][X]
-+ Kitsune [Z][F]` — *"Works for fruit mains only."*
+**Every move in this chain breaks Instinct. There is no gap to ken-trick in.**
 
-**Timing inside the lock** (macro defaults): Sanguine C at 0ms, Z at 260ms,
-X at 540ms — all three land with ~660ms of margin before the lock expires.
+### What ken-tricking actually is
 
-### Why this actually can't be kentricked
+From the [`Instinct`](https://blox-fruits.fandom.com/wiki/Instinct) page:
 
-**Kentricking requires a dash.** Sanguine Art [C] "Devourer of Worlds":
+> "Activating Instinct during a move to avoid additional damage or combos is
+> known as 'Instinct-Tricking' or more commonly known as **'Ken-Tricking'**."
 
-> "The user grabs the enemy and pulls them in, and then summons five energy
-> balls to spawn around the enemy and then attack them. **This skill can disable
-> the enemy's Dashes, Flash Step, and moves for ~1.2 seconds.** If the enemy is
-> stunned in midair, the stun duration is increased."
+The Instinct toggle is **[E]**. So ken-tricking is the target hitting [E]
+mid-combo to phase out of your damage. It has nothing to do with dashing.
 
-That is a hard input-disable, not descriptive flavour. For ~1.2 seconds the
-target cannot dash, cannot Flash Step, and cannot use moves — so they cannot
-kentrick out, by mechanic rather than by reaction time. **This is the single
-most important move in the build.**
+From [`Instinct/Break`](https://blox-fruits.fandom.com/wiki/Instinct/Break):
 
-### Why Sanguine [C] is not the opener
+> "Instinct breaking is the act of **forcing someone out of their Instinct
+> state**... Instinct Breaking **instantly sends the players out of the Instinct
+> state.** Instinct breaking is distinguished from wearing out Instinct dodges."
 
-The Instinct chart says the projectiles and the pull can both be dodged, so
-firing it cold at a mobile target risks whiffing your only real lock.
+So the counter is direct: if the next move in your chain breaks Instinct, the
+moment they hit [E] they're immediately knocked back out of it. **A combo with
+no non-breaking links cannot be ken-tricked.** That — not stun, not dash
+denial — is the actual design constraint.
 
-Instead, **Kitsune [C] and [X] go first** to break Instinct and land the ~0.65s
-stun. Sanguine [C] is then thrown into an already-stunned target, where it is
-very hard to miss — and *that* is what buys the 1.2s no-dash window that the
-rest of the combo dumps into.
+Draining dodges is the slower alternative and not worth building around: players
+have up to 8 dodges (11 with Pale Scarf / Kitsune Mask / Human V2), each hit
+removes only 1 charge against players, and each recharges in ~50s.
 
-**Hit them airborne if you can** — the wiki notes the stun lasts longer when the
-target is stunned in midair.
+### Why these five moves
 
-### Why this ordering over the other wiki variant
+`Instinct/Break` lists **Sanguine Art's entire moveset** as Instinct-breaking
+(Z on grab, C on grab + the autotracking orb). For Kitsune it lists **Z, C, F**
+untransformed — C at the initial pull and the flames after, F on the first slash.
 
-There's a near-identical community entry ordered `Sanguine [C] + Kitsune [F] +
-Sanguine [Z][X]`. It's worse for a macro: Kitsune F in the middle forces **two
-hotbar swaps inside the lock window**, and at ~90ms each that spends ~180ms of
-your 1.2s on menu inputs and pushes the finisher to the very edge of it.
+**Kitsune [X] is deliberately excluded.** It does not break Instinct — the
+Kitsune page only credits it with draining Instinct. As a mid-combo link it is
+a free window for the target to hit [E] and escape. An earlier version of this
+build had it at step two, which is exactly the hole this combo is supposed to
+close.
 
-Running all three Sanguine moves back-to-back needs **zero swaps inside the
-lock**. Kitsune [Z][F] then land on the tail end, where F's Instinct break
-covers the expiry.
+**Kitsune [Z] is also excluded, because the wiki contradicts itself on it:**
+`Instinct/Break` says "Z if casted directly or hit indirectly breaks Instinct";
+the Kitsune page's own Instinct chart says "both variants cannot break Instinct
+in any way." Unresolved — so it stays out of a combo whose whole premise is that
+every link breaks.
 
-### Instinct / lock audit
+### The 1.2s input-disable is a bonus, not the mechanism
 
-| Step | Effect |
-|---|---|
-| Kitsune [C] | **Breaks Instinct** (hit + flames). Dodgeable on the edge / during explosion |
-| Kitsune [X] | **~0.65s stun.** No Instinct break, but drains a lot of it |
-| Sanguine [C] | **Disables dashes, Flash Step and moves ~1.2s.** Breaks Instinct if aimed right |
-| Sanguine [Z] | Grabs by the neck, **heals you 20% max HP even if they dodge with Instinct.** Breaks Instinct on direct hit |
-| Sanguine [X] | Six claw slashes + scarlet burst. Bonus damage if drag *and* explosion both connect |
-| Kitsune [Z] | Delayed circling flames. Never breaks Instinct |
-| Kitsune [F] | Claw flurry finisher. Breaks Instinct on connect — covers the lock expiring |
+Sanguine [C] also disables the target's Dashes, Flash Step and moves for ~1.2s.
+That's real and useful — it stops them repositioning or retaliating — but it is
+**not** what stops ken-tricking, and an earlier revision of this README wrongly
+claimed it was. Instinct breaks are what stop ken-tricking.
 
-Everything after Sanguine [C] lands inside or immediately after a window in
-which the target's inputs are disabled.
+### Why Sanguine [C] isn't the opener
+
+Its projectiles and pull can both be dodged, so firing it cold at a mobile
+target risks whiffing. Kitsune [C] and [F] go first to break Instinct and commit
+them; [C] then lands into a target that's already caught.
+
+**Hit them airborne if you can** — the wiki notes the stun lasts longer midair.
 
 ---
 
@@ -112,7 +114,7 @@ Tails cost per use: M1 7.5%, Z 10%, X 12.5%, C 15%, F 10%, V 30%.
 | X | Scarlet Tear | 250 | 11s | 30 | Six claw slashes toward cursor, explode on solid surfaces. **More damage if drag + explosion both hit.** Aimed at ground = bounces distant enemies toward you |
 | C | **Devourer of Worlds** | 350 | 18s | 75 | **Disables enemy Dashes, Flash Step and moves ~1.2s.** Grabs and pulls in, five energy balls. Longer stun if hit midair. Projectiles/pull can be dodged |
 
-**Energy cost of the full combo: ~305.** Worth watching — this is a real
+**Energy cost of the full combo: ~305** (Kitsune C 80 + F 60, Sanguine C 75 + Z 20 + X 30). Worth watching — this is a real
 constraint alongside the Tails meter.
 
 ---
@@ -162,17 +164,16 @@ one-shot even buddha users."
 
 ## Honest caveats
 
-- **Timings are not from the wiki.** Cooldowns, energy and the 1.2s lock are
-  exact; the *inter-move delays* in the macro are estimates. No source publishes
-  animation or recovery frames. Tune on a dummy.
-- **The 1.2s window is the budget.** Everything after Sanguine [C] has to land
-  inside it (or immediately after, covered by Kitsune's Instinct breaks). If
-  your delays are too generous, the lock expires and they dash out.
-- **Sanguine [C] can be dodged** — that's why it goes after Kitsune [C]/[X]
-  rather than opening. If the stun setup whiffs, the lock whiffs.
-- **Nothing here is a grab-lock except Sanguine [C].** Wiki wording like
-  "grabs"/"seizes" elsewhere (Godhuman C, Kitsune F) is descriptive, not a
-  mechanical input-disable.
+- **Timings are estimates.** Cooldowns, energy, the 1.2s disable and the
+  Instinct-break table are wiki-exact; inter-move delays are not. No source
+  publishes animation or recovery frames. Tune on a dummy.
+- **Instinct break needs a real hit.** `Instinct/Break`: it "only works if an AoE
+  move's hitbox covers" the target, and "if the opponent isn't hit directly,
+  they will dodge the attack." A glancing hit doesn't break — so a sloppy link
+  reopens the ken-trick window.
+- **Sanguine [C] can be dodged**, which is why it isn't the opener.
+- **The wiki contradicts itself on Kitsune [Z]** (see above). Excluded rather
+  than guessed at.
 
 ---
 

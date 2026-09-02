@@ -5,27 +5,26 @@
 ; Blox Fruits — Kitsune + Sanguine Art one-shot combo
 ; Fruit + fighting style only. No sword, no gun, no transformation.
 ;
-; Combo (Blox Fruits Wiki, Kitsune/Combos):
-;   Kitsune [C][X] + Sanguine Art [C][Z][X] + Kitsune [Z][F]
+;   Kitsune  [C] HOLD  - charge, fires on release. Breaks Instinct
+;                        (initial pull + the flames after)
+;   Kitsune  [F]         - breaks Instinct on the first slash
+;   Sanguine [C]         - breaks Instinct on grab. Also disables the target's
+;                          dashes/Flash Step/moves ~1.2s (bonus, not the point)
+;   Sanguine [Z]         - breaks Instinct on grab. Heals 20% max HP even if dodged
+;   Sanguine [X]         - breaks Instinct. Finisher
 ;
-;   Kitsune  [C] HOLD  - charge, fires on release. BREAKS INSTINCT
-;   Kitsune  [X]       - zig-zag, ~0.65s stun, drains a lot of Instinct
-;   Sanguine [C]       - THE LOCK. Disables enemy Dashes, Flash Step and
-;                        moves for ~1.2s. Kentricking needs a dash, so for
-;                        that window they mechanically cannot escape.
-;   Sanguine [Z]       - neck grab + drain. Heals 20% max HP even if dodged
-;   Sanguine [X]       - six claw slashes + scarlet burst
-;   Kitsune  [Z]       - delayed circling flames
-;   Kitsune  [F]       - claw flurry finisher
+; WHY THESE FIVE: ken-tricking is the target pressing [E] to activate Instinct
+; mid-combo and phase out of damage. An Instinct-breaking hit instantly forces
+; them back out of that state. So EVERY link here breaks Instinct - there is no
+; gap to ken-trick in.
 ;
-; Sanguine [C] is NOT the opener: its projectiles and pull can be dodged, so
-; it is thrown into an already-stunned target from Kitsune [C]/[X].
+; Kitsune [X] is deliberately NOT used: it does not break Instinct (it only
+; drains it), so as a mid-combo link it is a free escape window.
+; Kitsune [Z] is excluded because the wiki contradicts itself on whether it
+; breaks Instinct (Instinct/Break says yes, the Kitsune page says no).
 ;
-; WHY THIS ORDERING: the three Sanguine moves run back-to-back so there are
-; ZERO hotbar swaps inside the 1.2s lock. The alternative wiki ordering
-; (Sanguine C -> Kitsune F -> Sanguine Z -> X) needs two swaps mid-lock,
-; which at ~90ms each spends ~180ms of the window on menu inputs and pushes
-; the finisher to the very edge of it.
+; Sanguine [C] is not the opener - its projectiles and pull can be dodged, so
+; Kitsune [C]/[F] commit the target first.
 ;
 ; Keystrokes and clicks only. No memory reading, no injection.
 ; ============================================================================
@@ -50,11 +49,9 @@ hotkeyAbort   := "Esc"
 
 chargeTimeKitC  := 350   ; Kitsune C fires on release
 delayAfterKitC  := 480   ; explosion resolves
-delayAfterKitX  := 300   ; ~0.65s stun starts here — land Sanguine C inside it
-delayAfterSangC := 260   ; TUNE TIGHT. The ~1.2s input-disable starts here.
+delayAfterKitF  := 320   ; claw flurry; break lands on the FIRST slash
+delayAfterSangC := 260   ; ~1.2s dash/move disable starts here
 delayAfterSangZ := 280   ; neck grab + drain
-delayAfterSangX := 300   ; claw slashes + scarlet burst
-delayAfterKitZ  := 260   ; Z's damage lands later; don't wait for it
 
 m1Count := 0             ; optional filler (0 = off)
 m1Delay := 120
@@ -87,30 +84,21 @@ AbortCombo(*) {
 RunCombo() {
     global
 
-    ; --- Setup: Kitsune C breaks Instinct, X stuns ~0.65s ---
+    ; --- Kitsune: break Instinct and commit them ---
     if (!Swap(slotFruit))
         return
     if (!Hold(keyC, chargeTimeKitC, delayAfterKitC))
         return
-    if (!Tap(keyX, delayAfterKitX))
+    if (!Tap(keyF, delayAfterKitF))
         return
 
-    ; --- THE LOCK: Sanguine C into the stunned target. ---
-    ; ~1.2s with dashes, Flash Step and moves disabled. The next two moves
-    ; run with no hotbar swap so they all land inside that window.
+    ; --- Sanguine: three consecutive Instinct breaks, no hotbar swap between
+    ; them, so nothing interrupts the chain. C also starts the ~1.2s disable. ---
     if (!Swap(slotFightStyle))
         return
     if (!Tap(keyC, delayAfterSangC))
         return
     if (!Tap(keyZ, delayAfterSangZ))     ; heals 20% max HP even if dodged
-        return
-    if (!Tap(keyX, delayAfterSangX))
-        return
-
-    ; --- Tail end: lock is expiring, Kitsune F's Instinct break covers it ---
-    if (!Swap(slotFruit))
-        return
-    if (!Tap(keyZ, delayAfterKitZ))
         return
 
     Loop m1Count {
@@ -121,7 +109,7 @@ RunCombo() {
             return
     }
 
-    Tap(keyF, 0)
+    Tap(keyX, 0)                          ; finisher
 }
 
 ; ---------------------------- HELPERS ---------------------------------------
