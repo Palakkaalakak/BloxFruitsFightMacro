@@ -146,19 +146,28 @@ reach" as "the source that is correct."
 Transformed CDs are shorter (Z 6.75s, X 9s, C 11.25s, V 2s, F 6.75s); tails
 costs are higher (Z 15%, X 20%, C 25%, F 15%).
 
-### Kitsune Instinct chart (untransformed) — verbatim
+### Kitsune Instinct chart (untransformed) — DO NOT TRUST, kept only as a
+record of what the wiki page says (it is stale, see Update 31.4 above)
 
-- **Passive / 3 Tails** — requires full bar; auto-activates if grabbed by [TAP] or [F]
-- **TAP** — cannot break Instinct in any way
-- **Z** — both variants cannot break Instinct in any way
-- **X** — doesn't break Instinct, but **drains a lot of it** when hit
-- **C** — initial hit and flames break Instinct. Dodgeable during the explosion / on the edge of flames
-- **F** — only breaks Instinct if grabbed. **Initial hit can be dodged**
-- **V** — dodgeable on the edge while transforming; small explosion can break Instinct
+- Passive / 3 Tails, TAP, X, V — chart claims below; not re-verified
+- **Z — chart says "cannot break Instinct in any way."** This one happens to be
+  right per 31.4 patch notes, but only by accident of timing (31.4 nerfed it TO
+  this state — before 31.4 the chart would have been wrong).
+- **C — chart says initial hit + flames break Instinct.** Matches user
+  confirmation. This is the one move in this table actually trustworthy.
+- **F — chart says "only breaks Instinct if grabbed."** User says no ("I really
+  don't think it does"). **Go with the user, not the chart.**
 
-Other verified: X **stuns ~0.65s**. M1 at 3 tails applies 4–5s burn DoT, up to
-~10k damage with a damage accessory. V grants 1s immunity to basic damage while
-transforming, and **disables fighting styles, swords and guns**.
+**Use the USER-CONFIRMED table further down instead of this one.** This section
+exists so a future session doesn't re-derive the chart from scratch and
+mistake it for a source, not because it's usable as-is.
+
+Other verified (moveset text, not the Instinct chart — these have held up):
+X **stuns ~0.65s** (pre-31.4 combo behavior; 31.4 made X channel on hit, see
+above — combo use of X is now blocked regardless). M1 at 3 tails applies 4–5s
+burn DoT, up to ~10k damage with a damage accessory. V grants 1s immunity to
+basic damage while transforming, and **disables fighting styles, swords and
+guns**.
 
 ### Godhuman
 
