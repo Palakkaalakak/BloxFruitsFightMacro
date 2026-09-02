@@ -8,8 +8,8 @@
 ; Combo (Blox Fruits Wiki, Kitsune/Combos — by Rip chaitanya, with the
 ; HELD variant of Godhuman C specified as opener):
 ;
-;   Godhuman [C] HELD  - dash, SEIZES target, invulnerable, UNDODGEABLE
-;   Kitsune  [F]       - dash-grab + claw flurry. Breaks Instinct if grabbed
+;   Godhuman [C] HELD  - dash, invulnerable, CANNOT BE DODGED (only tap can)
+;   Kitsune  [F]       - dash + claw flurry. Breaks Instinct only if it connects
 ;   Kitsune  [X]       - zig-zag, ~0.65s stun, drains a lot of Instinct
 ;   Kitsune  [C] HOLD  - charge, fires on release. Breaks Instinct
 ;   Kitsune  [Z]       - flames circle then strike (delayed damage)
@@ -41,8 +41,8 @@ hotkeyAbort   := "Esc"
 ; --- Timings (ms). Cooldowns/energy are wiki-exact; these delays are NOT. ---
 
 holdTimeGodC   := 600   ; TUNE FIRST. Must register as HELD, not tapped.
-delayAfterGodC := 850   ; seize + charged punch must resolve before F
-delayAfterKitF := 700   ; dash-grab + claw flurry
+delayAfterGodC := 850   ; charged punch must resolve before F
+delayAfterKitF := 700   ; dash + claw flurry
 delayAfterKitX := 320   ; ~0.65s stun starts here
 chargeTimeKitC := 350   ; Kitsune C fires on release
 delayAfterKitC := 480   ; explosion resolves
@@ -80,13 +80,13 @@ AbortCombo(*) {
 RunCombo() {
     global
 
-    ; --- Opener: Godhuman C HELD. Seizes, invulnerable, cannot be dodged. ---
+    ; --- Opener: Godhuman C HELD. Invulnerable, cannot be dodged. ---
     if (!Swap(slotFightStyle))
         return
     if (!Hold(keyC, holdTimeGodC, delayAfterGodC))
         return
 
-    ; --- Kitsune F: grab + claw flurry, breaks Instinct on the grab ---
+    ; --- Kitsune F: claw flurry, breaks Instinct on connect ---
     if (!Swap(slotFruit))
         return
     if (!Tap(keyF, delayAfterKitF))
@@ -134,7 +134,7 @@ Tap(key, delay) {
 }
 
 ; Hold a key for holdTime, release, then wait. Used for Godhuman C (held
-; variant = undodgeable) and Kitsune C (fires on release).
+; variant = cannot be dodged) and Kitsune C (fires on release).
 Hold(key, holdTime, delay) {
     global running
     if (!running)
