@@ -2,34 +2,54 @@
 #SingleInstance Force
 
 ; ============================================================================
-; Blox Fruits — Godhuman + Kitsune one-shot combo macro
+; Blox Fruits — Kitsune + Godhuman one-shot combo macro
 ;
-; This sends keystrokes/mouse clicks like a human would (no memory reading,
-; no injection). See README.md for the build, combo theory, and tuning
-; instructions. EDIT THE CONFIG BLOCK BELOW BEFORE USING.
+; Combo:  Kitsune [F] Wild Assault      - dash-GRAB opener, breaks Instinct
+;      -> Kitsune [Z] Accursed Enchant. - auto-aimed, cannot be strafed
+;      -> Godhuman [X] Heaven and Earth - air launcher, wears off Instinct
+;      -> Kitsune [X] Tails of B. Agony - stuns on hit
+;      -> Kitsune [C] Fox Fire Disrupt. - breaks Instinct
+;      -> Kitsune [V] Transformation    - needs 3 tails (built by the above)
+;      -> Kitsune [C] transformed       - strongest single hit, finisher
+;
+; Sends keystrokes/clicks like a human would. No memory reading, no injection.
+; See README.md for the build, sourcing, and tuning. EDIT CONFIG BEFORE USE.
 ; ============================================================================
 
 ; ---------------------------- CONFIG ---------------------------------------
 
-; Keybinds — MUST match your actual in-game keybind menu.
-keyGodhumanZ := "z"
-keyKitsuneC  := "c"
-keyKitsuneX  := "x"
-keyKitsuneV  := "v"
-mouseM1      := "LButton"
+; Move keys — MUST match your in-game keybind menu.
+keyWildAssault  := "f"   ; Kitsune F  - grab opener
+keyAccursed     := "z"   ; Kitsune Z  - auto-aimed
+keyHeavenEarth  := "x"   ; Godhuman X - launcher  (see gearSwapKey below)
+keyTailsAgony   := "x"   ; Kitsune X  - stun
+keyFoxFire      := "c"   ; Kitsune C  - Instinct-break
+keyTransform    := "v"   ; Kitsune V  - transformation
+mouseM1         := "LButton"
 
-; Hotkeys that control the macro itself.
-hotkeyTrigger := "F1"   ; press this (while hovering the target, in range) to fire the combo
-hotkeyAbort   := "Esc"  ; press this at any time to cancel a running sequence
+; Blox Fruits uses the same Z/X/C keys for your fruit and your fighting style
+; depending on which is equipped, so the Godhuman link needs a weapon swap.
+; Set these to your hotbar slot numbers.
+slotFruit       := "1"   ; hotbar slot holding Kitsune
+slotFightStyle  := "2"   ; hotbar slot holding Godhuman
+slotSwapDelay   := 90    ; ms to let a hotbar swap register before pressing a move
 
-; Delays (ms) between each step. These are placeholders — tune them in a
-; private server against a training dummy. See README "Tuning" section.
-delayAfterZ   := 350   ; Godhuman Z stun animation -> Kitsune C
-delayAfterC   := 300   ; Kitsune C (Instinct-break) -> Kitsune X
-delayAfterX   := 250   ; Kitsune X chain-hit -> follow-up M1s
-m1Count       := 3     ; number of M1 clicks in the follow-up string
-m1Delay       := 120   ; ms between each M1 click
-delayBeforeV  := 200   ; last M1 -> Kitsune V finisher/transform
+; Macro control hotkeys.
+hotkeyTrigger := "F1"    ; fire the combo (hover target, in F range)
+hotkeyAbort   := "Esc"   ; cancel a running sequence
+
+; Delays (ms). PLACEHOLDERS — tune on a training dummy. See README "Tuning".
+delayAfterF     := 900   ; MOST IMPORTANT: grab carries target up + slams.
+                         ; Z must not fire until the slam resolves.
+delayAfterZ     := 320   ; auto-aimed flames -> weapon swap + Godhuman X
+delayAfterGodX  := 380   ; air launch -> swap back + Kitsune X
+delayAfterKitX  := 300   ; zig-zag stun dash -> Kitsune C
+delayAfterC     := 420   ; Fox Fire eruption -> Transformation
+delayAfterV     := 700   ; transform animation must finish before the finisher
+
+; Optional M1 filler during the burn window (0 to disable).
+m1Count         := 0
+m1Delay         := 120
 
 ; ---------------------------- STATE -----------------------------------------
 
@@ -42,15 +62,13 @@ Hotkey(hotkeyAbort, AbortCombo)
 
 FireCombo(*) {
     global running
-    if (running) {
-        return  ; already mid-sequence, ignore re-trigger (prevents desync)
-    }
+    if (running)
+        return                      ; already mid-sequence — ignore (prevents desync)
     running := true
-    try {
+    try
         RunCombo()
-    } finally {
+    finally
         running := false
-    }
 }
 
 AbortCombo(*) {
@@ -61,21 +79,37 @@ AbortCombo(*) {
 ; ---------------------------- SEQUENCE ---------------------------------------
 
 RunCombo() {
-    global running
+    global
 
-    ; 1. Godhuman Z — stun, opens the lock.
-    if (!SendStep(keyGodhumanZ, delayAfterZ))
+    ; Make sure we start on the fruit.
+    if (!SendStep(slotFruit, slotSwapDelay))
         return
 
-    ; 2. Kitsune C — Instinct-break, big hitbox.
-    if (!SendStep(keyKitsuneC, delayAfterC))
+    ; 1. GRAB opener. Breaks Instinct, closes the gap, locks the target.
+    if (!SendStep(keyWildAssault, delayAfterF))
         return
 
-    ; 3. Kitsune X — chain-hit up to 3 targets, DoT burn wrap.
-    if (!SendStep(keyKitsuneX, delayAfterX))
+    ; 2. Auto-aimed follow-up — guaranteed link, cannot be strafed.
+    if (!SendStep(keyAccursed, delayAfterZ))
         return
 
-    ; 4. Godhuman M1 string while the target is stunned/burning.
+    ; 3. Godhuman air launcher (swap to fighting style first).
+    if (!SendStep(slotFightStyle, slotSwapDelay))
+        return
+    if (!SendStep(keyHeavenEarth, delayAfterGodX))
+        return
+
+    ; 4. Back to fruit — zig-zag stun dash.
+    if (!SendStep(slotFruit, slotSwapDelay))
+        return
+    if (!SendStep(keyTailsAgony, delayAfterKitX))
+        return
+
+    ; 5. Instinct-break sphere.
+    if (!SendStep(keyFoxFire, delayAfterC))
+        return
+
+    ; Optional M1 filler while the burn DoT ticks.
     Loop m1Count {
         if (!running)
             return
@@ -83,29 +117,26 @@ RunCombo() {
         Sleep(m1Delay)
     }
 
-    Sleep(delayBeforeV)
-    if (!running)
+    ; 6. Transform (tail meter should be full from the damage above).
+    if (!SendStep(keyTransform, delayAfterV))
         return
 
-    ; 5. Kitsune V — transform finisher / i-frame close.
-    SendStep(keyKitsuneV, 0)
+    ; 7. Transformed Fox Fire Disruption — strongest single hit.
+    SendStep(keyFoxFire, 0)
 }
 
-; Sends one key, waits `delay` ms, and returns false early if aborted mid-wait.
+; Sends one key, waits `delay` ms, returns false if aborted mid-wait.
 SendStep(key, delay) {
     global running
     if (!running)
         return false
     Send("{" key "}")
-    if (delay > 0) {
-        elapsed := 0
-        step := 10
-        while (elapsed < delay) {
-            if (!running)
-                return false
-            Sleep(step)
-            elapsed += step
-        }
+    elapsed := 0
+    while (elapsed < delay) {
+        if (!running)
+            return false
+        Sleep(10)
+        elapsed += 10
     }
     return running
 }

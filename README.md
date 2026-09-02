@@ -1,105 +1,146 @@
 # Blox Fruits — Kitsune One-Shot Combo Macro
 
-Research notes + build + an AutoHotkey v2 macro that fires a Godhuman + Kitsune
-combo when you hover a target and press a hotkey. This is an **external
-keystroke macro** (AutoHotkey sends OS-level key/mouse events) — it does not
-read game memory, inject code, or touch the Roblox client process, which is
-the line Blox Fruits' rules draw between "macro" (allowed) and "exploit"
-(banned).
+Build notes + an AutoHotkey v2 macro that fires a Kitsune + Godhuman combo when
+you hover a target in range and press a hotkey. This is an **external keystroke
+macro** (AutoHotkey sends OS-level key/mouse events) — it does not read game
+memory, inject code, or touch the Roblox client process, which is the line Blox
+Fruits draws between "macro" (allowed) and "exploit" (banned).
 
-## ⚠️ Read this first
+## Kitsune moveset (verified)
 
-Blox Fruits patches move/mastery numbers, accessory names, and even whole
-fighting styles every update. I pulled current (Sept 2026) info from the
-Fandom wiki and a few guide sites, but guide sites disagree with each other
-and some are clearly AI-generated SEO junk (I caught one inventing an
-"Electric Claw" moveset for Kitsune that doesn't exist). **Treat exact
-numbers below as approximate and verify move keys/cooldowns in your own
-keybind menu before relying on the macro in a real fight.** The delays in
-the script are placeholders — you MUST tune them against your own ping and
-mastery level in the training dummy room (see "Tuning" below).
+Cross-checked across [Gamersberg](https://www.gamersberg.com/blox-fruits/wiki/fruits/kitsune),
+[Pocket Tactics](https://www.pockettactics.com/blox-fruits/kitsune) and Fandom
+search snippets. All three agree on move names and mastery tiers.
 
-## Why fruit + fighting style only (no sword/gun)
+### Normal form
 
-At max level you get enough stat points to max **3 stats to 2800 each**
-(≈8400 total). A fighting-style-and-fruit build spends all three on:
+| Key | Move | Mastery | Properties |
+|---|---|---|---|
+| M1 | Normal Attack | — | 4-hit blue-flame slash string. At 3 tails, applies burn DoT + breaks Instinct. **Very short range.** |
+| Z | **Accursed Enchantment** | 1 | **Auto-aimed** flames that surround and damage the target; leaves an AoE if it misses |
+| X | **Tails of Burning Agony** | 50 | Zig-zag dash, **stuns on hit**, can strike multiple targets |
+| C | **Fox Fire Disruption** | 100 | Sphere of blue flame, erupts on impact, **breaks Instinct** |
+| F | **Wild Assault** | 200 | **Dash-grab** — zig-zag rush, grabs the enemy, carries them into the air, slams them down. **Breaks Instinct.** Instant slam if used airborne |
+| V | Transformation | 300 | Fox-spirit form. **Requires 3 tails** to activate |
 
-- **Melee** 2800 — fighting-style damage/M1s
-- **Fruit** 2800 — Kitsune damage, cooldowns, DoT scaling
-- **Defense** 2800 — survivability so you're not one-shot back while closing distance
+### Transformed form
 
-Sword and Gun are left at 0 — you never swing a sword or fire a gun in this
-build, so those stats would be wasted points.
-
-## Build
-
-| Slot | Pick | Why |
+| Key | Move | Properties |
 |---|---|---|
-| Fighting style | **Godhuman** | Highest M1 ceiling of any non-endgame style, and its **Z** has a built-in stun — the opener that starts the lock. (Sanguine Art / Dragon Talon / Death Step are later-game alternatives with similar stun-into-combo tools if you have them unlocked.) |
-| Fruit | **Kitsune** | Its kit is built to break Instinct (dodge) and chain hits: **C** (Fox Fire Disruption) breaks Instinct on a huge hitbox, **X** (Tails of Burning Agony) chain-hits up to 3 targets zig-zag and, once you're past 3 tails, wraps them in a 4–5s blue-flame burn DoT that also breaks Instinct. **V** transformation adds a giant AoE finisher with your own i-frames on the transform-in. |
-| Race boost | Human V3 minimum, **V4 if you have it** | Passive damage/Haki buffs make the combo hit harder and stack; the combo is designed to still one-shot squishier stat spreads without it, per your ask. |
-| Accessories | Prioritize **stun-duration** and **% damage** modifiers over pure cosmetics (whatever your current top-tier set is — this rotates with events, so check the current accessory tier list rather than trusting a name here). | Extends the stun window the whole combo depends on. |
+| M1 | Enhanced Slash | Larger AoE, more damage |
+| Z | Accursed Enchantment | Three fireballs, targets up to three enemies |
+| X | Tails of Burning Agony | Zig-zag dash that **grabs and slams**; breaks Instinct |
+| C | Fox Fire Disruption | Massive fireball + lingering burn — **Kitsune's single strongest damage move** |
+| F | Wild Assault | Tail-based rapid-hit pressure/mobility |
+| V | Revert | Back to normal form |
+
+## Godhuman moveset (verified)
+
+| Key | Move | Properties |
+|---|---|---|
+| Z | **Soaring Beast** | Dash forward, punches in all directions, final punch knocks back. Good range, **stuns**. Has i-frames |
+| X | **Heaven and Earth** | Tap: gust that **launches the enemy into the air**. Hold: charged AoE whirlwind. Used to **wear off Instinct** |
+| C | **Sixth Realm Gun** | Tap: dash-punch + knockback. **Hold: breaks Instinct** and hits much harder |
+
+⚠️ **Sources conflict here.** One says all three Godhuman moves break Instinct;
+another says Z and C-tap are "instinct-trickable" and only **C held** breaks it,
+recommending X to wear Instinct off first. I'd trust the second (more specific,
+and it matches how the community talks about instinct-baiting) — but test it.
+
+## Stat build — fruit + fighting style only
+
+Max level gives enough points to cap **3 stats at 2800 each**:
+
+- **Melee 2800** — Godhuman damage
+- **Fruit 2800** — Kitsune damage + DoT scaling
+- **Defense 2800** — survive the trade if the combo drops
+
+Sword and Gun stay at **0**. No sword or gun is used, so points there are wasted.
+
+**Race:** Human V4 if you have it (V3 minimum) for the passive damage/Haki
+boosts. The combo is built to kill without them; they're headroom.
+
+**Accessories:** prioritise **% damage** and **stun-duration** modifiers. Named
+accessory picks rotate with events, so check a current tier list rather than
+trusting a name written here.
 
 ## The combo
 
 ```
-Godhuman [Z]  →  Kitsune [C]  →  Kitsune [X]  →  Godhuman M1 x2–3  →  Kitsune [V]
-   stun           Instinct-break        chain-hit + Instinct-break        (transform,
-   (locks         AoE, big hit          hit, DoT burn wrap                 finisher /
-   target)                                                                 i-frame close)
+Kitsune [F]  →  Kitsune [Z]  →  Godhuman [X]  →  Kitsune [X]  →  Kitsune [C]  →  [V]  →  transformed [C]
+ Wild Assault   Accursed Ench.   Heaven & Earth   Tails of B.A.   Fox Fire Dis.  transform   biggest hit
+ GRAB opener    auto-aimed       air launcher     stun on hit     breaks Instinct (3 tails)
+ breaks Instinct can't be dodged  wears Instinct
 ```
 
-**Why it's (practically) inescapable:** in Blox Fruits, breaking a stun-lock
-("kentric") means dash-canceling in the single frame gap between one hit's
-stun ending and the next hit landing. Godhuman Z's stun chains directly into
-Kitsune C's Instinct-break with no cancelable gap, and C chains into X the
-same way — X's own Instinct-break plus the burn-wrap covers the tail end of
-the sequence. The realistic reaction window a human has to dash-cancel
-between those links is well under 100ms; a macro firing the inputs back to
-back doesn't leave that window open. It's *technically* possible to escape
-with frame-perfect, pre-read timing — it is not practically possible to
-react to it live. If the target somehow tanks the whole chain (very high
-Defense stat + shield/heal fruit active), the trailing burn DoT plus a
-second M1 string usually finishes them.
+### Why the opener is F, not Z or M1
+
+This is the part that makes or breaks "inescapable," and it's worth being blunt
+about the failure modes:
+
+- **M1 is not an opener.** Range is tiny and it's freely dodgeable. If your entry
+  is an M1, a moving target simply isn't there.
+- **A skillshot is not an opener.** Godhuman Z is a good move, but against a
+  strafing player who hasn't been hit yet, it's a coin flip — and if it whiffs,
+  nothing downstream matters.
+- **F (Wild Assault) is a grab.** It rushes in zig-zag (real closing range, not
+  M1 range), and on connect it *grabs* — the target is carried up and slammed,
+  not merely damaged. They aren't free to dash during that. It also **breaks
+  Instinct**, so ken doesn't phase them out of it.
+
+Once F connects, **Z is auto-aimed** — it cannot be strafed. That gives you two
+guaranteed links before you ever commit a move that can miss. Godhuman X then
+launches them airborne (and wears off Instinct), Kitsune X stuns, and C breaks
+Instinct again — each link lands while the previous one still has them locked.
+
+The combo damage builds your tail meter, so **V is available by the end** even
+if you started at 0 tails; transformed **C** is the strongest single hit in the
+kit and is your finisher.
+
+### Honest caveat on "inescapable"
+
+I could not verify frame data — no source I could reach publishes exact stun
+durations, recovery frames, or grab-lock windows for these moves, and I could
+not extract the move orders from the YouTube combo videos (the pages are
+JS-rendered; WebFetch only gets the footer). Fandom's own `Kitsune/Combos` and
+`Godhuman/Combos` pages both hard-blocked my fetches (HTTP 402).
+
+So: this combo is built on **verified move properties** (grab, auto-aim,
+Instinct-break, stun, launcher) rather than measured frame gaps. The sequencing
+logic is sound and each link is chosen so the target is locked when the next
+one starts — but whether every transition is *frame-tight* is something you'll
+have to confirm in-game. Treat it as a strong, well-reasoned starting point, not
+a proven zero-frame lock.
 
 ## Files
 
-- [`macro/KitsuneOneshotCombo.ahk`](macro/KitsuneOneshotCombo.ahk) — AutoHotkey v2 script.
+- [`macro/KitsuneOneshotCombo.ahk`](macro/KitsuneOneshotCombo.ahk) — AutoHotkey v2 script
 
 ## Setup
 
 1. Install [AutoHotkey v2](https://www.autohotkey.com/).
-2. Open `macro/KitsuneOneshotCombo.ahk` in a text editor and edit the
-   `CONFIG` block at the top:
-   - Set `keyGodhumanZ`, `keyKitsuneC`, `keyKitsuneX`, `keyKitsuneV` to match
-     **your actual in-game keybinds** (Blox Fruits lets you remap these —
-     don't assume the defaults below match yours).
-   - Set `hotkeyTrigger` to whatever key/mouse button you want to fire the
-     combo (default `F1`).
-   - Set `hotkeyAbort` (default `Esc`) to cancel mid-sequence.
-3. Double-click the `.ahk` file to run it (it sits in your system tray).
-4. In-game: hover your mouse over the target (most Kitsune/Godhuman moves
-   fire toward your camera/cursor direction rather than needing a hard
-   lock), get in range, press the trigger key.
+2. Open the `.ahk` and edit the `CONFIG` block:
+   - Set the move keys to **your actual in-game keybinds** (Blox Fruits lets you
+     remap; don't assume the defaults match yours).
+   - `hotkeyTrigger` (default `F1`) fires the combo. `hotkeyAbort` (default
+     `Esc`) cancels mid-sequence.
+3. Run the script (it sits in the tray).
+4. In-game: get the target in **F range** (not M1 range — F closes the gap for
+   you), mouse over them, press the trigger.
 
 ## Tuning
 
-The delays between moves (`delayAfterZ`, `delayAfterC`, `delayAfterX`,
-`delayBeforeV`) are guesses based on typical Blox Fruits animation lengths —
-**they will drift from patch to patch and depend on your ping.** Go to a
-private server or the training dummy, run the macro, and watch whether each
-move fires *just as the previous one's animation/stun ends*. If a move
-whiffs because it fired too early (previous animation still playing) or too
-late (target already recovered), adjust that delay in 25–50ms steps and
-re-test.
+The delays are placeholders and **will drift with patches and your ping**. Go to
+a private server / training dummy and watch whether each move fires just as the
+previous animation releases. Adjust in 25–50ms steps.
+
+The one that matters most is `delayAfterF` — the grab carries the target up and
+slams them, and that animation has to *finish* before Z will connect. If Z fires
+during the carry, you've wasted the guaranteed link. Tune that one first.
 
 ## Safety notes
 
-- The abort hotkey (`Esc` by default) stops the sequence immediately —
-  use it if you misjudge range or the target isn't actually there.
-- The script won't re-trigger mid-sequence (a lock flag blocks re-entry),
-  so mashing the trigger key can't stack overlapping macros and desync your
-  inputs.
-- This only sends keystrokes/clicks like a human would; it does not read
-  pixels, memory, or any game state, and does not auto-target — you still
-  aim and judge range yourself.
+- `Esc` aborts immediately — use it if you misjudge range.
+- A re-entry lock stops the trigger from stacking overlapping sequences.
+- Sends keystrokes/clicks only. No pixel reading, no memory reading, no
+  auto-targeting — you still aim and judge range yourself.
