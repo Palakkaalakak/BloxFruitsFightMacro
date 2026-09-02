@@ -5,26 +5,22 @@
 ; Blox Fruits — Kitsune + Sanguine Art one-shot combo
 ; Fruit + fighting style only. No sword, no gun, no transformation.
 ;
-;   Kitsune  [C] HOLD  - charge, fires on release. Breaks Instinct
-;                        (initial pull + the flames after)
-;   Kitsune  [F]         - breaks Instinct on the first slash
-;   Sanguine [C]         - breaks Instinct on grab. Also disables the target's
-;                          dashes/Flash Step/moves ~1.2s (bonus, not the point)
-;   Sanguine [Z]         - breaks Instinct on grab. Heals 20% max HP even if dodged
-;   Sanguine [X]         - breaks Instinct. Finisher
+;   Kitsune  [C] HOLD  - charge, fires on release. BREAKS INSTINCT.
+;                        The only confirmed Instinct break in this build.
+;   Sanguine [C]        - lands because they are Instinct-broken. Disables
+;                         their dashes, Flash Step and moves for ~1.2s.
+;   Sanguine [Z]        - heals 20% max HP even if they dodge it
+;   Sanguine [X]        - burst finisher
+;   Kitsune  [F]        - tail damage after the window
 ;
-; WHY THESE FIVE: ken-tricking is the target pressing [E] to activate Instinct
-; mid-combo and phase out of damage. An Instinct-breaking hit instantly forces
-; them back out of that state. So EVERY link here breaks Instinct - there is no
-; gap to ken-trick in.
+; HOW THIS HOLDS: ken-tricking is the target pressing [E] to activate Instinct
+; and phase out of damage (nothing to do with dashing). Kitsune [C] breaks
+; Instinct, which lets Sanguine [C] land; Sanguine [C] then disables their
+; inputs for ~1.2s and the rest is dumped into that window.
 ;
-; Kitsune [X] is deliberately NOT used: it does not break Instinct (it only
-; drains it), so as a mid-combo link it is a free escape window.
-; Kitsune [Z] is excluded because the wiki contradicts itself on whether it
-; breaks Instinct (Instinct/Break says yes, the Kitsune page says no).
-;
-; Sanguine [C] is not the opener - its projectiles and pull can be dodged, so
-; Kitsune [C]/[F] commit the target first.
+; WHAT IS NOT CLAIMED: this is NOT a no-gap chain of Instinct breaks. Kitsune
+; [Z], [X] and [F] do not break Instinct, and neither does Sanguine [C].
+; An earlier version of this file claimed otherwise and was wrong.
 ;
 ; Keystrokes and clicks only. No memory reading, no injection.
 ; ============================================================================
@@ -49,9 +45,9 @@ hotkeyAbort   := "Esc"
 
 chargeTimeKitC  := 350   ; Kitsune C fires on release
 delayAfterKitC  := 480   ; explosion resolves
-delayAfterKitF  := 320   ; claw flurry; break lands on the FIRST slash
 delayAfterSangC := 260   ; ~1.2s dash/move disable starts here
-delayAfterSangZ := 280   ; neck grab + drain
+delayAfterSangZ := 280   ; drain
+delayAfterSangX := 300   ; scarlet burst
 
 m1Count := 0             ; optional filler (0 = off)
 m1Delay := 120
@@ -84,21 +80,21 @@ AbortCombo(*) {
 RunCombo() {
     global
 
-    ; --- Kitsune: break Instinct and commit them ---
+    ; --- Kitsune C: the one Instinct break. Spend it up front. ---
     if (!Swap(slotFruit))
         return
     if (!Hold(keyC, chargeTimeKitC, delayAfterKitC))
         return
-    if (!Tap(keyF, delayAfterKitF))
-        return
 
-    ; --- Sanguine: three consecutive Instinct breaks, no hotbar swap between
-    ; them, so nothing interrupts the chain. C also starts the ~1.2s disable. ---
+    ; --- Sanguine C into the Instinct-broken target: starts the ~1.2s
+    ; input-disable. Z and X follow with no hotbar swap so they land inside it.
     if (!Swap(slotFightStyle))
         return
     if (!Tap(keyC, delayAfterSangC))
         return
     if (!Tap(keyZ, delayAfterSangZ))     ; heals 20% max HP even if dodged
+        return
+    if (!Tap(keyX, delayAfterSangX))
         return
 
     Loop m1Count {
@@ -109,7 +105,10 @@ RunCombo() {
             return
     }
 
-    Tap(keyX, 0)                          ; finisher
+    ; --- Tail damage, after the window ---
+    if (!Swap(slotFruit))
+        return
+    Tap(keyF, 0)
 }
 
 ; ---------------------------- HELPERS ---------------------------------------
