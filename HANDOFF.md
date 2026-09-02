@@ -61,12 +61,31 @@ URL-encode slashes as `%2F`. Pages pulled so far: `Kitsune`, `Kitsune/Combos`,
 
 User instruction. `Instinct/Break` in particular is wrong about Kitsune.
 
-### 4. Plugins are NOT loaded in-session
+### 4. Plugins are declared in the repo now — but only apply to a FRESH session
 
-Bright Data / TinyFish are installed on the account but this session's plugin
-set was fixed at startup. `ListPlugins` returns empty; no scraping tools appear
-in the registry. **A new session is required to use them.** They would unlock
-YouTube (JS-rendered, unreadable via curl/WebFetch).
+`.claude/settings.json` (already committed on this branch) declares:
+
+```json
+{
+  "enabledPlugins": {
+    "brightdata-plugin@knowledge-work-plugins": true,
+    "tinyfish@knowledge-work-plugins": true,
+    "browser-use@knowledge-work-plugins": true
+  }
+}
+```
+
+Plugins install **at session start only**. Any session that was already running
+when this file landed will NOT pick it up — `ListPlugins` keeps returning empty
+for that session no matter how much later you re-check, even after pulling the
+branch. **An empty `ListPlugins` result does not by itself mean the config is
+broken.** Before troubleshooting further, check whether the current session
+started before or after commit `0ce893c` ("Create settings.json") on this
+branch — if before, the fix is simply: start a brand-new session on this
+branch. That gets Bright Data (Web Unlocker/CAPTCHA bypass, structured
+extraction), TinyFish (fetch-to-markdown, browser agent), and Browser Use (a
+real browser) — which unlocks JS-rendered pages like YouTube that curl/WebFetch
+can't read.
 
 ## UPDATE 31.4 PATCH NOTES — verbatim, current
 
