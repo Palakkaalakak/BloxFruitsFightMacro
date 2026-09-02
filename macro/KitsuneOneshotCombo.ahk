@@ -2,22 +2,30 @@
 #SingleInstance Force
 
 ; ============================================================================
-; Blox Fruits — Kitsune + Godhuman one-shot combo
+; Blox Fruits — Kitsune + Sanguine Art one-shot combo
 ; Fruit + fighting style only. No sword, no gun, no transformation.
 ;
-; Combo (Blox Fruits Wiki, Kitsune/Combos — by Rip chaitanya, with the
-; HELD variant of Godhuman C specified as opener):
+; Combo (Blox Fruits Wiki, Kitsune/Combos):
+;   Kitsune [C][X] + Sanguine Art [C][Z][X] + Kitsune [Z][F]
 ;
-;   Godhuman [C] HELD  - dash, invulnerable, CANNOT BE DODGED (only tap can)
-;   Kitsune  [F]       - dash + claw flurry. Breaks Instinct only if it connects
+;   Kitsune  [C] HOLD  - charge, fires on release. BREAKS INSTINCT
 ;   Kitsune  [X]       - zig-zag, ~0.65s stun, drains a lot of Instinct
-;   Kitsune  [C] HOLD  - charge, fires on release. Breaks Instinct
-;   Kitsune  [Z]       - flames circle then strike (delayed damage)
-;   Godhuman [Z]       - flurry, invulnerable, breaks Instinct at point blank
-;   Godhuman [X] tap   - gust, launches upward. Breaks Instinct
+;   Sanguine [C]       - THE LOCK. Disables enemy Dashes, Flash Step and
+;                        moves for ~1.2s. Kentricking needs a dash, so for
+;                        that window they mechanically cannot escape.
+;   Sanguine [Z]       - neck grab + drain. Heals 20% max HP even if dodged
+;   Sanguine [X]       - six claw slashes + scarlet burst
+;   Kitsune  [Z]       - delayed circling flames
+;   Kitsune  [F]       - claw flurry finisher
 ;
-; Only tap-C can be dodged; HELD C cannot. holdTimeGodC MUST be long enough to
-; register as held or the whole premise of the combo is lost.
+; Sanguine [C] is NOT the opener: its projectiles and pull can be dodged, so
+; it is thrown into an already-stunned target from Kitsune [C]/[X].
+;
+; WHY THIS ORDERING: the three Sanguine moves run back-to-back so there are
+; ZERO hotbar swaps inside the 1.2s lock. The alternative wiki ordering
+; (Sanguine C -> Kitsune F -> Sanguine Z -> X) needs two swaps mid-lock,
+; which at ~90ms each spends ~180ms of the window on menu inputs and pushes
+; the finisher to the very edge of it.
 ;
 ; Keystrokes and clicks only. No memory reading, no injection.
 ; ============================================================================
@@ -32,24 +40,23 @@ mouseM1 := "LButton"
 
 ; Z/X/C are shared between fruit and fighting style — the combo needs swaps.
 slotFruit      := "1"    ; Kitsune
-slotFightStyle := "2"    ; Godhuman
+slotFightStyle := "2"    ; Sanguine Art
 slotSwapDelay  := 90     ; ms for a hotbar swap to register
 
 hotkeyTrigger := "F1"
 hotkeyAbort   := "Esc"
 
-; --- Timings (ms). Cooldowns/energy are wiki-exact; these delays are NOT. ---
+; --- Timings (ms). Cooldowns/energy/lock are wiki-exact; delays are NOT. ---
 
-holdTimeGodC   := 600   ; TUNE FIRST. Must register as HELD, not tapped.
-delayAfterGodC := 850   ; charged punch must resolve before F
-delayAfterKitF := 700   ; dash + claw flurry
-delayAfterKitX := 320   ; ~0.65s stun starts here
-chargeTimeKitC := 350   ; Kitsune C fires on release
-delayAfterKitC := 480   ; explosion resolves
-delayAfterKitZ := 300   ; Z's damage lands later; don't wait for it
-delayAfterGodZ := 450   ; punch flurry + knockback
+chargeTimeKitC  := 350   ; Kitsune C fires on release
+delayAfterKitC  := 480   ; explosion resolves
+delayAfterKitX  := 300   ; ~0.65s stun starts here — land Sanguine C inside it
+delayAfterSangC := 260   ; TUNE TIGHT. The ~1.2s input-disable starts here.
+delayAfterSangZ := 280   ; neck grab + drain
+delayAfterSangX := 300   ; claw slashes + scarlet burst
+delayAfterKitZ  := 260   ; Z's damage lands later; don't wait for it
 
-m1Count := 0            ; optional filler during the 3-tail burn (0 = off)
+m1Count := 0             ; optional filler (0 = off)
 m1Delay := 120
 
 ; ---------------------------- STATE -----------------------------------------
@@ -80,37 +87,32 @@ AbortCombo(*) {
 RunCombo() {
     global
 
-    ; --- Opener: Godhuman C HELD. Invulnerable, cannot be dodged. ---
-    if (!Swap(slotFightStyle))
-        return
-    if (!Hold(keyC, holdTimeGodC, delayAfterGodC))
-        return
-
-    ; --- Kitsune F: claw flurry, breaks Instinct on connect ---
+    ; --- Setup: Kitsune C breaks Instinct, X stuns ~0.65s ---
     if (!Swap(slotFruit))
         return
-    if (!Tap(keyF, delayAfterKitF))
+    if (!Hold(keyC, chargeTimeKitC, delayAfterKitC))
         return
-
-    ; --- Kitsune X: stun, drains Instinct heavily ---
     if (!Tap(keyX, delayAfterKitX))
         return
 
-    ; --- Kitsune C: charge and release. Breaks Instinct. ---
-    if (!Hold(keyC, chargeTimeKitC, delayAfterKitC))
+    ; --- THE LOCK: Sanguine C into the stunned target. ---
+    ; ~1.2s with dashes, Flash Step and moves disabled. The next two moves
+    ; run with no hotbar swap so they all land inside that window.
+    if (!Swap(slotFightStyle))
+        return
+    if (!Tap(keyC, delayAfterSangC))
+        return
+    if (!Tap(keyZ, delayAfterSangZ))     ; heals 20% max HP even if dodged
+        return
+    if (!Tap(keyX, delayAfterSangX))
         return
 
-    ; --- Kitsune Z: delayed damage, lands during the rest of the combo ---
+    ; --- Tail end: lock is expiring, Kitsune F's Instinct break covers it ---
+    if (!Swap(slotFruit))
+        return
     if (!Tap(keyZ, delayAfterKitZ))
         return
 
-    ; --- Godhuman Z: point blank here, so it breaks Instinct ---
-    if (!Swap(slotFightStyle))
-        return
-    if (!Tap(keyZ, delayAfterGodZ))
-        return
-
-    ; --- Optional M1 filler ---
     Loop m1Count {
         if (!running)
             return
@@ -119,8 +121,7 @@ RunCombo() {
             return
     }
 
-    ; --- Godhuman X tap: launcher finisher, breaks Instinct ---
-    Tap(keyX, 0)
+    Tap(keyF, 0)
 }
 
 ; ---------------------------- HELPERS ---------------------------------------
@@ -133,8 +134,8 @@ Tap(key, delay) {
     return Wait(delay)
 }
 
-; Hold a key for holdTime, release, then wait. Used for Godhuman C (held
-; variant = cannot be dodged) and Kitsune C (fires on release).
+; Hold a key for holdTime, release, then wait. Used for Kitsune C (fires on
+; release).
 Hold(key, holdTime, delay) {
     global running
     if (!running)

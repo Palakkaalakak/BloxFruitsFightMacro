@@ -1,7 +1,7 @@
 # Blox Fruits — Kitsune One-Shot Combo Macro
 
-Kitsune + Godhuman, **fruit and fighting style only** (no sword, no gun), with an
-AutoHotkey v2 macro that runs the combo on a hotkey.
+Kitsune + **Sanguine Art**, fruit and fighting style only (no sword, no gun),
+with an AutoHotkey v2 macro that runs the combo on a hotkey.
 
 External keystroke macro — AutoHotkey sends OS-level key/mouse events. No memory
 reading, no injection, nothing touching the Roblox process. That's the line
@@ -12,67 +12,79 @@ between "macro" (allowed) and "exploit" (banned).
 
 - [`Kitsune`](https://blox-fruits.fandom.com/wiki/Kitsune)
 - [`Kitsune/Combos`](https://blox-fruits.fandom.com/wiki/Kitsune/Combos)
-- [`Godhuman`](https://blox-fruits.fandom.com/wiki/Godhuman)
-- [`Godhuman/Combos`](https://blox-fruits.fandom.com/wiki/Godhuman/Combos)
+- [`Sanguine Art`](https://blox-fruits.fandom.com/wiki/Sanguine_Art)
+- [`Sanguine Art/Combos`](https://blox-fruits.fandom.com/wiki/Sanguine_Art/Combos)
+- [`Godhuman`](https://blox-fruits.fandom.com/wiki/Godhuman) (previous build, kept for reference)
 
 ---
 
 ## The combo
 
 ```
-Godhuman [C] HELD  ->  Kitsune [F]  ->  [X]  ->  [C]  ->  [Z]  ->  Godhuman [Z]  ->  [X]
-   can't be dodged      connects,      drains    breaks             breaks         breaks
-   invulnerable         breaks         Instinct  Instinct           Instinct       Instinct
-                        Instinct                                    (point blank)  (both variants)
+Kitsune [C] -> [X]  ->  Sanguine [C] -> [Z] -> [X]  ->  Kitsune [Z] -> [F]
+ breaks      ~0.65s      DASHES/FLASH   heals   burst     delayed     finisher
+ Instinct    stun        STEP/MOVES     20% HP            flames
+                         OFF ~1.2s
 ```
 
-This is the wiki's own community combo `Godhuman [C] + Kitsune [F][X][C][Z] +
-Godhuman [Z][X]` ("veryyyy easy combo for beginners", by Rip chaitanya),
-with the **held** variant of Godhuman C specified as the opener — see below for
-why that specific detail matters more than anything else in the sequence.
+Wiki community combo (`Kitsune/Combos`): `Kitsune [C][X] + Sanguine Art [C][Z][X]
++ Kitsune [Z][F]` — *"Works for fruit mains only."*
 
-**No transformation.** The wiki's transformed combo list is almost entirely
-marked *"Works well on NPCs, not for PvP"*. Transforming also costs 30% of the
-Tails meter and **disables fighting styles, swords and guns** outright. The PvP
-one-shots are all untransformed.
+**Timing inside the lock** (macro defaults): Sanguine C at 0ms, Z at 260ms,
+X at 540ms — all three land with ~660ms of margin before the lock expires.
 
-### Why the opener is Godhuman [C] held
+### Why this actually can't be kentricked
 
-This is the part that actually delivers "inescapable," and it's a property of
-the held variant specifically:
+**Kentricking requires a dash.** Sanguine Art [C] "Devourer of Worlds":
 
-From the Instinct chart: **"Only tap version can be dodged."** The held version
-cannot. The moveset also gives it "much higher speed and range than if it were
-tapped," and the user is **invulnerable** during it.
+> "The user grabs the enemy and pulls them in, and then summons five energy
+> balls to spawn around the enemy and then attack them. **This skill can disable
+> the enemy's Dashes, Flash Step, and moves for ~1.2 seconds.** If the enemy is
+> stunned in midair, the stun duration is increased."
 
-That's the entry: a long-range, very fast dash that can't be dodged and can't be
-punished. Every other candidate (Kitsune F, Kitsune X, Godhuman Z) is a dash
-whose *initial hit can be dodged*.
+That is a hard input-disable, not descriptive flavour. For ~1.2 seconds the
+target cannot dash, cannot Flash Step, and cannot use moves — so they cannot
+kentrick out, by mechanic rather than by reaction time. **This is the single
+most important move in the build.**
 
-**Note on wiki wording:** the wiki says C-held "seizes" the target and describes
-Kitsune F as grabbing. **This is descriptive language for connecting with an
-enemy, not a mechanical grab-lock** — it does not mean the target's inputs are
-disabled. The case for this opener rests only on the Instinct chart's dodge
-column, not on any hold/lock mechanic.
+### Why Sanguine [C] is not the opener
 
-Godhuman [C] held is also the opener in several of the wiki's other one-shot
-combos, including the Gravity Blade build and the Rocket/Skull Guitar build.
+The Instinct chart says the projectiles and the pull can both be dodged, so
+firing it cold at a mobile target risks whiffing your only real lock.
 
-### Instinct audit of each link
+Instead, **Kitsune [C] and [X] go first** to break Instinct and land the ~0.65s
+stun. Sanguine [C] is then thrown into an already-stunned target, where it is
+very hard to miss — and *that* is what buys the 1.2s no-dash window that the
+rest of the combo dumps into.
 
-| Step | Breaks Instinct? | Notes |
-|---|---|---|
-| Godhuman [C] held | Yes — **only tap can be dodged** | User invulnerable during it |
-| Kitsune [F] | Only if it connects | **Initial hit can be dodged** |
-| Kitsune [X] | No | *"drains a lot of it when hit"* |
-| Kitsune [C] | Yes | Initial hit + flames. Dodgeable on the edge / during explosion |
-| Kitsune [Z] | **No — neither variant, ever** | Pure damage |
-| Godhuman [Z] | **Only at point blank** | You are point blank here |
-| Godhuman [X] | Yes, both variants | Tap can be dodged if the blast misses the body |
+**Hit them airborne if you can** — the wiki notes the stun lasts longer when the
+target is stunned in midair.
 
-F's initial hit is dodgeable on its own; it's used here only after C-held has
-already committed them. X's lack of an Instinct break is covered by it draining
-Instinct heavily instead.
+### Why this ordering over the other wiki variant
+
+There's a near-identical community entry ordered `Sanguine [C] + Kitsune [F] +
+Sanguine [Z][X]`. It's worse for a macro: Kitsune F in the middle forces **two
+hotbar swaps inside the lock window**, and at ~90ms each that spends ~180ms of
+your 1.2s on menu inputs and pushes the finisher to the very edge of it.
+
+Running all three Sanguine moves back-to-back needs **zero swaps inside the
+lock**. Kitsune [Z][F] then land on the tail end, where F's Instinct break
+covers the expiry.
+
+### Instinct / lock audit
+
+| Step | Effect |
+|---|---|
+| Kitsune [C] | **Breaks Instinct** (hit + flames). Dodgeable on the edge / during explosion |
+| Kitsune [X] | **~0.65s stun.** No Instinct break, but drains a lot of it |
+| Sanguine [C] | **Disables dashes, Flash Step and moves ~1.2s.** Breaks Instinct if aimed right |
+| Sanguine [Z] | Grabs by the neck, **heals you 20% max HP even if they dodge with Instinct.** Breaks Instinct on direct hit |
+| Sanguine [X] | Six claw slashes + scarlet burst. Bonus damage if drag *and* explosion both connect |
+| Kitsune [Z] | Delayed circling flames. Never breaks Instinct |
+| Kitsune [F] | Claw flurry finisher. Breaks Instinct on connect — covers the lock expiring |
+
+Everything after Sanguine [C] lands inside or immediately after a window in
+which the target's inputs are disabled.
 
 ---
 
@@ -91,15 +103,16 @@ Instinct heavily instead.
 
 Tails cost per use: M1 7.5%, Z 10%, X 12.5%, C 15%, F 10%, V 30%.
 
-### Godhuman
+### Sanguine Art
 
 | Key | Move | Mastery | CD | Energy | Properties |
 |---|---|---|---|---|---|
-| Z | Soaring Beast | 125 | 8s | 25 | Dash toward cursor, flurry of punches, knockback. **Invulnerable during.** Breaks Instinct **only at point blank**. Follows targets who Flash Step away if already hit |
-| X | Heaven and Earth | 250 | 11s | 35 | Tap: gust, **launches target upward**. Hold 4s: clap shockwave, scales with hold, hits above and below. **Both break Instinct** |
-| C | Sixth Realm Gun | 350 | 17s | 75 | Tap: fast dash-punch + knockback. **Hold: much higher speed/range, invulnerable, cannot be dodged** |
+| TAP | Normal Attack | — | — | — | 4-hit string, very fast click speed, moderate range (4th hit longer) |
+| Z | Bloodbane Drain | 125 | 8s | 20 | Dash to cursor, grabs by neck, bat creatures drain. **Heals 20% of your max HP even if they dodge with Instinct.** Breaks Instinct on direct hit; dodgeable on the sides |
+| X | Scarlet Tear | 250 | 11s | 30 | Six claw slashes toward cursor, explode on solid surfaces. **More damage if drag + explosion both hit.** Aimed at ground = bounces distant enemies toward you |
+| C | **Devourer of Worlds** | 350 | 18s | 75 | **Disables enemy Dashes, Flash Step and moves ~1.2s.** Grabs and pulls in, five energy balls. Longer stun if hit midair. Projectiles/pull can be dodged |
 
-**Energy cost of the full combo: ~335.** Worth watching — this is a real
+**Energy cost of the full combo: ~305.** Worth watching — this is a real
 constraint alongside the Tails meter.
 
 ---
@@ -108,14 +121,15 @@ constraint alongside the Tails meter.
 
 **Stats — 3 caps at 2800 each:**
 
-- **Melee 2800** — Godhuman
+- **Melee 2800** — Sanguine Art
 - **Fruit 2800** — Kitsune
 - **Defense 2800** — survive a dropped combo
 
 **Sword 0 / Gun 0.** Neither is used.
 
-**Mastery required:** Kitsune 200 (for F), Godhuman 350 (for C). Godhuman C is
-the opener, so 350 Godhuman mastery is non-negotiable for this combo.
+**Mastery required:** Kitsune 200 (for F), **Sanguine Art 350 (for C)**. The
+1.2s input-disable *is* the combo — without Sanguine C at 350 mastery, this is
+just a damage string that can be kentricked like any other.
 
 **Race:** Human V4 (V3 min). The wiki notes **Cyborg V3** is repeatedly
 recommended in combo entries "to make combo unkentrickable" — if you have it,
@@ -148,17 +162,17 @@ one-shot even buddha users."
 
 ## Honest caveats
 
-- **Timings are not from the wiki.** Cooldowns and energy are exact; the
-  *inter-move delays* in the macro are estimates. No source publishes animation
-  or recovery frames. Tune on a dummy.
-- **"Inescapable" means once C-held connects.** C-held itself can't be dodged
-  and the chain after it is Instinct-covered, but you still have to land the
-  opener — it's a fast long-range dash toward your cursor, not a homing move.
-- **Nothing here locks the target's inputs.** No move in this build is a
-  mechanical grab. The combo holds because of Instinct breaks and stun, not
-  because the target is held in place.
-- Several wiki combos hedge with "most players can't kentrick" rather than
-  "can't be kentricked." Treat that as the realistic ceiling.
+- **Timings are not from the wiki.** Cooldowns, energy and the 1.2s lock are
+  exact; the *inter-move delays* in the macro are estimates. No source publishes
+  animation or recovery frames. Tune on a dummy.
+- **The 1.2s window is the budget.** Everything after Sanguine [C] has to land
+  inside it (or immediately after, covered by Kitsune's Instinct breaks). If
+  your delays are too generous, the lock expires and they dash out.
+- **Sanguine [C] can be dodged** — that's why it goes after Kitsune [C]/[X]
+  rather than opening. If the stun setup whiffs, the lock whiffs.
+- **Nothing here is a grab-lock except Sanguine [C].** Wiki wording like
+  "grabs"/"seizes" elsewhere (Godhuman C, Kitsune F) is descriptive, not a
+  mechanical input-disable.
 
 ---
 
@@ -170,18 +184,18 @@ one-shot even buddha users."
 
 1. Install [AutoHotkey v2](https://www.autohotkey.com/).
 2. Edit `CONFIG` — move keys to match your binds, hotbar slots for Kitsune and
-   Godhuman.
+   Sanguine Art.
 3. Run it (sits in tray).
-4. In-game: target in Godhuman C range, hover them, press `F1`. `Esc` aborts.
+4. In-game: hover the target in Kitsune C range, press `F1`. `Esc` aborts.
+   Hit them **airborne** if you can — the wiki notes the lock lasts longer.
 
 ## Tuning priority
 
-1. **`holdTimeGodC`** — must be long enough to register as *held*, not tapped.
-   Tapped C is dodgeable; held is not. Get this wrong and the whole premise of
-   the combo is gone. Tune first.
-2. **`delayAfterGodC`** — the charged punch must resolve before F.
-3. **`chargeTimeKitC`** — Kitsune C fires on release.
-4. **Slot swap delays** — if a Godhuman move comes out as a Kitsune move, raise
+1. **`delayAfterSangC`** — the lock starts the moment C connects and runs ~1.2s.
+   Everything after it is racing that clock. Tighten until moves stop whiffing.
+2. **`chargeTimeKitC`** — Kitsune C fires on release.
+3. **`delayAfterKitX`** — the ~0.65s stun is the window Sanguine C must land in.
+4. **Slot swaps** — if a Sanguine move comes out as a Kitsune move, raise
    `slotSwapDelay`.
 
 ## Safety
