@@ -1,11 +1,15 @@
 # Blox Fruits — Kitsune One-Shot Combo Macro
 
 Kitsune + **Sanguine Art**, fruit and fighting style only (no sword, no gun),
-with an AutoHotkey v2 macro that runs the combo on a hotkey.
+with a **native PowerShell macro** — no AutoHotkey, no third-party runtime, no
+installer of any kind. Ships as a plain `.ps1` file that runs on PowerShell,
+which is already built into Windows.
 
-External keystroke macro — AutoHotkey sends OS-level key/mouse events. No memory
-reading, no injection, nothing touching the Roblox process. That's the line
-between "macro" (allowed) and "exploit" (banned).
+External keystroke macro — uses the Win32 `SendInput` API (the same OS-level
+input path a physical keyboard/mouse uses) to send key events, and
+`GetAsyncKeyState` to watch for the trigger/abort hotkeys. No memory reading,
+no injection, nothing touching the Roblox process. That's the line between
+"macro" (allowed) and "exploit" (banned).
 
 **All data below is from the Blox Fruits Wiki**, pulled via its MediaWiki API
 (`api.php` returns 200 even though the HTML pages 403):
@@ -21,42 +25,55 @@ between "macro" (allowed) and "exploit" (banned).
 ## The combo
 
 ```
-Kitsune [C]  ->  Sanguine [C]  ->  Sanguine [Z]  ->  Sanguine [X]  ->  Kitsune [F]
- BREAKS          lands because     heals 20% HP     burst            tail damage
- INSTINCT        they're broken;   even if dodged
-                 disables dash/
-                 Flash Step/moves
-                 ~1.2s
+Kitsune [C]  ->  Sanguine [C]  ->  Sanguine [Z]  ->  Kitsune [X]  ->  Sanguine [X]
+ BREAKS          lands because     heals 20% HP     stuns ~0.65s,    burst
+ INSTINCT        they're broken;   even if dodged    then channels    finisher
+                 disables dash/                       on hit (locks
+                 Flash Step/moves                      your own input
+                 ~1.2s                                  briefly)
 ```
 
-Two anchors, and only two things are actually claimed:
+Three things are confirmed:
 
-1. **Kitsune [C] breaks Instinct.** It is the *only* confirmed Instinct break in
-   this build. It goes first, so their Instinct is down for what follows.
-2. **Sanguine [C] disables dashes, Flash Step and moves for ~1.2s.** It can be
-   dodged on its own — but thrown at an Instinct-broken target it lands, and
-   then nothing they press does anything for 1.2s.
+1. **Kitsune [C] breaks Instinct.** The only break in this combo. Goes first,
+   so their Instinct is down for what follows.
+2. **Sanguine [C] disables dashes, Flash Step and moves for ~1.2s** on hit.
+   Landing it against an Instinct-broken target is what opens the window
+   everything else is dumped into.
+3. **Kitsune [X] stuns ~0.65s**, and since Update 31.4 **channels on hit** —
+   after it connects, *you* can't send another key until its own animation
+   finishes. That's not a downside here: it's a second lock (on top of
+   Sanguine C's) that keeps the window open long enough for Sanguine [X] to
+   land as the finisher.
 
-Everything after Sanguine [C] is dumped into that window.
+### Sanguine [C] and [Z] do NOT break Instinct — user-confirmed, overrides the wiki
 
-### What is NOT claimed
+The wiki's Instinct chart claims Sanguine [C] breaks "if aimed correctly" and
+Sanguine [Z] breaks "on direct hit." **User confirmed directly: neither does.**
+Per this file's own standing rule (wiki Instinct claims get less trust here,
+after three prior wiki errors — Kitsune Z, Kitsune F, Sanguine C were all
+wrong before), the user's word wins. Kitsune [C] is the **only** Instinct
+break in this combo.
 
-An earlier version of this file said "every link breaks Instinct, so there is no
-gap to ken-trick in." **That was false.** Corrected:
+That's fine — the user supplied this combo, sequencing included. It doesn't
+need to be Instinct-break-redundant to work; it holds on Kitsune C's break
+plus Sanguine C's 1.2s disable plus Kitsune X's stun/channel.
 
-| Move | Breaks Instinct? |
-|---|---|
-| Kitsune [C] | **Yes** — the one reliable break in this build |
-| Kitsune [Z] | **No** — changed in a recent update |
-| Kitsune [X] | **No** — drains Instinct only |
-| Kitsune [F] | **No** (previously claimed yes, from a stale page) |
-| Sanguine [C] | **No** (previously claimed yes) |
-| Sanguine [Z] / [X] | Unconfirmed — assume no |
+| Move | Breaks Instinct? | Source |
+|---|---|---|
+| Kitsune [C] | **Yes** — the only break in this combo | user |
+| Kitsune [Z] | No — Instinct-trickable since 31.4 | wiki (patch notes) |
+| Kitsune [X] | No — drains only, but stuns ~0.65s then locks your own input on hit | wiki + user |
+| Kitsune [F] | No | user |
+| Sanguine [C] | **No.** Disables inputs ~1.2s regardless — that's its job here | user (overrides wiki) |
+| Sanguine [Z] | **No** | user (overrides wiki) |
+| Sanguine [X] | No known break claim | — |
 
-So this combo does **not** hold via a continuous chain of Instinct breaks. It
-holds via **one** break that opens the door, and a **1.2s input-disable** that
-keeps it open. That is a weaker and more honest claim than the one this file
-used to make.
+So this combo does **not** rest on a chain of Instinct breaks. It rests on
+**one confirmed break + two confirmed input-locks** — Kitsune C's break,
+Sanguine C's 1.2s disable, and Kitsune X's stun-then-channel. That is the
+honest claim, and it's the user's combo design, sequenced to work on exactly
+that basis.
 
 ### Ken-tricking, correctly
 
@@ -79,7 +96,7 @@ where you'd otherwise be exposed.
 |---|---|---|---|---|---|
 | TAP | Normal Attack | — | 0.5s | — | 5 slashes. **At 3 tails**: ticking burn 4–5s, +base damage. Up to ~10k with a damage accessory |
 | Z | Accursed Enchantment | 1 | 9s | 20 | Hit: flames circle, then strike multiple times (**delayed damage**). Miss: weak AoE. **Does not break Instinct** (changed in a recent update) |
-| X | Tails of Burning Agony | 50 | 12s | 40 | Zig-zag, **stuns ~0.65s**. No Instinct break, drains only. **31.4: now channels on hit — you cannot cast another ability until the animation finishes.** Unusable mid-combo |
+| X | Tails of Burning Agony | 50 | 12s | 40 | Zig-zag, **stuns ~0.65s**. No Instinct break, drains only. **31.4: now channels on hit — you cannot cast another ability until the animation finishes.** Usable mid-combo, but the move *after* it needs a delay long enough to clear that channel or it gets silently dropped |
 | C | Fox Fire Disruption | 100 | 15s | 80 | **Charge on hold, fires on release. BREAKS INSTINCT** — the only confirmed break in this build |
 | F | Wild Assault | 200 | 9s | 60 | Dash → claw flurry on connect. **Does not break Instinct.** Initial hit dodgeable |
 | V | Transformation | 300 | 3s | 20 | Immune to basic damage 1s while transforming. **Disables fighting style / sword / gun** |
@@ -153,11 +170,30 @@ channels on hit so you cannot cast another ability until it finishes**, and
 **[C] end-lag +0.3s**. Sanguine Art [C] lost 15% range and 10% hitbox. None of
 that is reflected on the ability pages.
 
+**Verified 2026-09-02**: a separate official source, the developer's own
+"Balance Log" post (gamerrobot.com/blogs/news/the-balance-log, dated August 6
+2026, "Balance Patch 001") was checked against Update 31.4 and matches it
+word-for-word for both Kitsune and Sanguine Art — same Z/X/C nerfs, same
+wording. It also confirms **Instinct dodge regeneration dropped from 40s to
+30s** (dodges recharge 25% faster now — doesn't change a single combo, matters
+if you're trading combos repeatedly in one fight), and that a **Sanguine
+"Tab Boost" movement exploit** (travel much farther than intended) was patched
+— this build never relied on it, so no change here.
+
 The wiki's **Instinct charts and the `Instinct/Break` page are unreliable** —
 they have been wrong three separate times in building this file (Kitsune Z,
 Kitsune F, Sanguine C), in some cases because the game changed and the page
 didn't. **Every Instinct claim in this document has been stripped back to what
-was confirmed directly by the user.**
+was confirmed directly by the user** — including overriding the wiki's
+Sanguine [C]/[Z] break claims, which the user confirmed are wrong.
+
+**Also found, not yet used**: Sharkman Karate's wiki Instinct chart claims
+**[C] "breaks Instinct no matter what"** and **[X] held "breaks Instinct no
+matter what"** — both stronger, less conditional claims than anything Sanguine
+Art offers, and 31.4/Balance Patch 001 buffed Sharkman [C] further (uncancellable
+hold, more damage reduction, now grants temp HP). Not user-confirmed and not
+integrated into the current combo — flagging as the strongest lead if a future
+revision wants a build with more than one confirmed break.
 
 The **moveset descriptions** on each move's own page have held up, so cooldowns,
 energy, damage behaviour and the 1.2s disable are taken from those.
@@ -179,29 +215,129 @@ other related pages.
 
 ## Files
 
-- [`macro/KitsuneOneshotCombo.ahk`](macro/KitsuneOneshotCombo.ahk)
+- [`macro/KitsuneOneshotCombo.ps1`](macro/KitsuneOneshotCombo.ps1) — the macro.
+  Plain PowerShell, native Win32 `SendInput`/`GetAsyncKeyState`. Nothing to
+  install.
+- `macro/KitsuneOneshotCombo.ahk` — superseded, kept only as a reference for
+  the original AutoHotkey design this was ported from. Don't use it; the
+  `.ps1` is the maintained version and requires no third-party software.
 
-## Setup
+---
 
-1. Install [AutoHotkey v2](https://www.autohotkey.com/).
-2. Edit `CONFIG` — move keys to match your binds, hotbar slots for Kitsune and
-   Sanguine Art.
-3. Run it (sits in tray).
-4. In-game: hover the target in Kitsune C range, press `F1`. `Esc` aborts.
-   Hit them **airborne** if you can — the wiki notes the lock lasts longer.
+## PVP quick-start (read this even if you skipped everything else above)
+
+This is written for using the macro **in a real, fast-paced PVP fight**, not
+for understanding the underlying game mechanics. Four steps — there's no
+install step, PowerShell already ships with Windows.
+
+### 1. Set up your hotbar once, before you fight
+
+The macro presses hotbar slot keys to swap between your fruit and your
+fighting style, because Kitsune and Sanguine Art both use Z/X/C. Before any
+fight:
+
+- Put **Sanguine Art** in hotbar slot **1**
+- Put **Kitsune** in hotbar slot **2**
+
+If you already keep them somewhere else, that's fine — just change
+`$slotFruit` and `$slotFightStyle` at the top of the `.ps1` file to match your
+slot numbers, once, and forget about it.
+
+### 2. Run the macro
+
+Right-click `macro/KitsuneOneshotCombo.ps1` → **Run with PowerShell**. A
+console window opens and prints a short "running" message — that window IS
+the macro; leave it open in the background while you fight, minimized or
+behind the game, doesn't matter. Closing it (or Ctrl+C inside it) stops the
+macro entirely.
+
+(If Windows blocks it with an execution-policy message instead of running:
+open PowerShell yourself and run
+`powershell -ExecutionPolicy Bypass -File macro\KitsuneOneshotCombo.ps1` —
+this only affects this one run, it doesn't change any system setting.)
+
+### 3. In the fight: one button
+
+1. Get your **cursor over the enemy**, in range (this is a hover-based combo —
+   no auto-aim, no auto-targeting, you do the aiming, same as any normal
+   ability).
+2. Press **F1**.
+3. Don't touch anything else until it finishes (well under 3 seconds). The
+   macro sends the whole 5-move sequence for you.
+4. If it goes wrong mid-way — you got hit, they escaped, whatever — press
+   **Esc** immediately. This cancels the macro instantly and safely releases
+   any held key, so you're never stuck with a key jammed down.
+
+That's the entire in-fight workflow: **aim, F1, wait, (Esc if needed).**
+
+### 4. Calibrate BEFORE you rely on this in a real fight
+
+The delay numbers in the macro are honest starting estimates, not
+frame-perfect data — nobody publishes exact animation lengths for these
+moves, only the stun/disable durations, which are already baked in. Test on a
+low-stakes target first (an NPC, a friend, a low-level dummy):
+
+1. Press F1 and watch closely (or record a slow-motion clip on your phone).
+2. Find the first move in the sequence that **whiffs, comes out too early, or
+   gets eaten** because the character was still mid-animation from the move
+   before it.
+3. Open the `.ps1` file, find that delay variable (they're named
+   `$delayAfter<Move>Ms`), and adjust it up or down by ~50.
+4. Save, close and re-run the macro window, test again.
+5. Repeat 2–4 until the full combo lands clean twice in a row.
+
+**If you only calibrate one thing, calibrate `$delayAfterKitXMs`.** It's
+called out in the macro file as the highest-priority value: Kitsune X now
+locks your own input after it connects, and if the next move (Sanguine X)
+fires before that lock clears, the game silently drops it — the combo ends
+one hit short with no error, no message, nothing to tell you why.
+
+---
+
+## Setup (reference)
+
+1. Nothing to install — PowerShell ships with Windows.
+2. Edit `CONFIG` at the top of the `.ps1` file — move keys to match your
+   binds, hotbar slots for Kitsune and Sanguine Art.
+3. Run it (see "PVP quick-start" above).
+4. In-game: hover the target in Kitsune C range, press `F1`. `Escape` aborts.
+   Hit them **airborne** if you can — the wiki notes disable/stun durations
+   run longer on airborne targets.
 
 ## Tuning priority
 
-1. **`delayAfterSangC`** — the lock starts the moment C connects and runs ~1.2s.
-   Everything after it is racing that clock. Tighten until moves stop whiffing.
-2. **`chargeTimeKitC`** — Kitsune C fires on release.
-3. **`delayAfterKitX`** — the ~0.65s stun is the window Sanguine C must land in.
-4. **Slot swaps** — if a Sanguine move comes out as a Kitsune move, raise
-   `slotSwapDelay`.
+Delays are split into two kinds: **hard locks** (the game itself won't take
+input until this much time passes — don't cut these blind) and **self-recovery
+estimates** (your own cast animation ending — undocumented, cut as tight as
+your dummy test allows). Only the estimates are padding worth trimming;
+`$delayAfterSangCMs` and `$delayAfterSangZMs` are already cut to a 150ms+30ms
+buffer floor.
+
+1. **`$delayAfterKitXMs`** (hard lock) — Kitsune X channels on hit since 31.4;
+   too short and Sanguine X gets silently dropped, too long and you waste
+   Sanguine C's 1.2s window. See "PVP quick-start" above for the calibration
+   drill. Don't cut this one by guessing — step it down in small increments.
+2. **`$delayAfterSangCMs` / `$delayAfterSangZMs`** (self-recovery estimates)
+   — if either whiffs on your dummy, raise the ONE before the move that's
+   actually whiffing, not both.
+3. **`$chargeTimeKitCMs`** (hard lock) — minimum hold so it registers as a
+   hold, not a tap.
+4. **Slot swaps** — if a Sanguine move comes out as a Kitsune move (or vice
+   versa), raise `$slotSwapDelayMs`.
+5. **`$swapKitsuneAndSanguineX`** — flip to `$true` to run Sanguine X before
+   Kitsune X instead, putting the hard-locked move last so nothing can drop
+   after it. No published data says which order lands more reliably; try both.
 
 ## Safety
 
-- `Esc` aborts immediately; held keys are always released.
-- Re-entry lock prevents overlapping runs.
-- Keystrokes and clicks only. No pixel reading, no memory reading, no
-  auto-targeting — you aim and judge range.
+- `Escape` aborts immediately; held keys are always released (both mid-combo
+  and in a `finally` block as a second safety net).
+- Re-entry lock prevents overlapping runs — pressing F1 mid-combo does nothing.
+- Keystrokes and clicks only, via the same Win32 `SendInput` path physical
+  input uses. No pixel reading, no memory reading, no auto-targeting, no
+  mouse movement — you aim and judge range, exactly like playing normally.
+  The macro only presses keys you'd otherwise press yourself, faster and in
+  the right order.
+- No third-party software, no installer, no external dependency of any kind
+  — it's a plain text `.ps1` file you can read top to bottom, running on
+  PowerShell, which ships with every copy of Windows.

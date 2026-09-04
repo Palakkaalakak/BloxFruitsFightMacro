@@ -6,30 +6,54 @@
 ; Fruit + fighting style only. No sword, no gun, no transformation.
 ;
 ;   Kitsune  [C] HOLD  - charge, fires on release. BREAKS INSTINCT.
-;                        The only confirmed Instinct break in this build.
-;   Sanguine [C]        - lands because they are Instinct-broken. Disables
+;                        The ONLY Instinct break in this combo. User-confirmed.
+;   Sanguine [C]        - lands because they're Instinct-broken. Disables
 ;                         their dashes, Flash Step and moves for ~1.2s.
-;   Sanguine [Z]        - heals 20% max HP even if they dodge it
-;   Sanguine [X]        - burst finisher
-;   Kitsune  [F]        - tail damage after the window
+;                         Does NOT break Instinct (user-confirmed; overrides
+;                         a wrong wiki claim — see README).
+;   Sanguine [Z]        - heals 20% max HP even if they dodge it with Instinct.
+;                         Does NOT break Instinct (user-confirmed; overrides
+;                         a wrong wiki claim — see README).
+;   Kitsune  [X]        - zig-zag hit, stuns ~0.65s, then CHANNELS ON HIT:
+;                         you cannot send the next key until the channel ends.
+;                         Does NOT break Instinct (drains only).
+;   Sanguine [X]        - burst finisher.
 ;
-; HOW THIS HOLDS: ken-tricking is the target pressing [E] to activate Instinct
-; and phase out of damage (nothing to do with dashing). Kitsune [C] breaks
-; Instinct, which lets Sanguine [C] land; Sanguine [C] then disables their
-; inputs for ~1.2s and the rest is dumped into that window.
+; ORDER (per user request, 2026-09-02):
+;   Kitsune[C] -> Sanguine[C] -> Sanguine[Z] -> Kitsune[X] -> Sanguine[X]
+; The last two can be swapped via `swapKitsuneAndSanguineX` in CONFIG (see
+; below) to run ...Sanguine[Z] -> Sanguine[X] -> Kitsune[X] instead.
 ;
-; WHAT IS NOT CLAIMED: this is NOT a no-gap chain of Instinct breaks. Kitsune
-; [Z], [X] and [F] do not break Instinct, and neither does Sanguine [C].
-; An earlier version of this file claimed otherwise and was wrong.
+; WHY THIS HOLDS: Kitsune [C] breaks Instinct up front, before they have a
+; reason to panic-[E]. Sanguine [C] then disables their inputs for ~1.2s.
+; Sanguine [Z] and Kitsune [X] land inside that window; Kitsune [X]'s own
+; ~0.65s stun (plus its post-hit channel lock) carries the gap through to
+; Sanguine [X]. There is no point in this sequence where the target has both
+; a live Instinct charge AND a free input, if the delays below are tuned right.
 ;
-; UPDATE 31.4 (latest) constraints baked in here:
+; WHAT IS NOT CLAIMED: the wiki claims Sanguine [C]/[Z] also break Instinct.
+; User confirmed directly they do NOT. Kitsune [C] is the only break here —
+; the combo holds on that break + Sanguine [C]'s 1.2s lock + Kitsune [X]'s
+; stun/channel, not on a chain of breaks.
+;
+; UPDATE 31.4 / Balance Patch 001 (Aug 6 2026 — verified official, same data)
+; constraints baked in here:
 ;  - Kitsune [X] "now channels on hit; the user cannot cast another ability
-;    before the animation completes" -> X is NOT used in this combo. If you add
-;    it, it will block the next macro input regardless of your delay value.
+;    before the animation completes." -> delayAfterKitX must cover the full
+;    channel, not just the 0.65s stun, or Sanguine [X] gets eaten.
 ;  - Kitsune [C] end-lag increased by 0.3s -> delayAfterKitC raised accordingly.
-;  - Kitsune [Z] no longer breaks Instinct (now Instinct-trickable).
+;  - Kitsune [Z] no longer breaks Instinct (not used in this combo anyway).
+;  - Sanguine [C] range -15%, hitbox -10% -> stand closer than before.
+;  - Instinct dodge regen is now 30s (was 40s) — irrelevant to a single combo,
+;    relevant if you're trading combos repeatedly in one fight.
 ;
-; Keystrokes and clicks only. No memory reading, no injection.
+; NONE OF THE TIMING VALUES BELOW ARE FRAME-EXACT. No public source publishes
+; animation-length data in milliseconds — only stun/disable durations, which
+; are baked in as noted. Every delay is a starting estimate. See README's
+; "PVP quick-start" section for the calibration drill.
+;
+; Keystrokes and clicks only. No memory reading, no injection, no
+; auto-targeting. You hover the target and press one key.
 ; ============================================================================
 
 ; ---------------------------- CONFIG ---------------------------------------
@@ -37,24 +61,61 @@
 keyZ := "z"
 keyX := "x"
 keyC := "c"
-keyF := "f"
 mouseM1 := "LButton"
 
 ; Z/X/C are shared between fruit and fighting style — the combo needs swaps.
-slotFruit      := "1"    ; Kitsune
-slotFightStyle := "2"    ; Sanguine Art
-slotSwapDelay  := 90     ; ms for a hotbar swap to register
+slotFruit      := "2"    ; Kitsune
+slotFightStyle := "1"    ; Sanguine Art
+slotSwapDelay  := 90     ; ms for a hotbar swap to register — required, keep tight
 
 hotkeyTrigger := "F1"
 hotkeyAbort   := "Esc"
 
-; --- Timings (ms). Cooldowns/energy/lock are wiki-exact; delays are NOT. ---
+; --- Timings (ms). Cooldowns/energy/stun durations below are wiki-exact;
+; the delay values are ESTIMATES — calibrate on a dummy before using this in
+; a real fight. See README "PVP quick-start" for how. ---
 
-chargeTimeKitC  := 350   ; Kitsune C fires on release
-delayAfterKitC  := 780   ; explosion + 31.4 end-lag nerf (+0.3s). Was 480 pre-nerf.
-delayAfterSangC := 260   ; ~1.2s dash/move disable starts here
-delayAfterSangZ := 280   ; drain
-delayAfterSangX := 300   ; scarlet burst
+; Every value below is either a HARD LOCK (the game itself won't accept the
+; next input until this much time passes — cannot be shortened without moves
+; getting eaten) or a SELF-RECOVERY ESTIMATE (your own cast animation ending
+; before you can act again — real, but not documented anywhere, so cut as
+; tight as you can get away with on your dummy). None are padding for its
+; own sake.
+
+; Researched 2026-09-02: no source anywhere (wiki, patch notes, guides,
+; community macro threads) publishes exact animation/channel length in ms —
+; only stun/disable durations, which are baked in separately below. Every
+; value here is an estimate. Each includes a small +30ms safety buffer on top
+; of the bare-minimum estimate, cheap insurance against a whiffed/dropped
+; move costing you the whole combo; still tight, not padded.
+
+chargeTimeKitC   := 350   ; HARD: minimum hold so the game reads it as a hold, not a tap
+delayAfterKitC   := 810   ; HARD: your own end-lag after release (31.4 added +0.3s) + 30ms buffer
+delayAfterSangC  := 180   ; SELF-RECOVERY estimate (150ms floor) + 30ms buffer. Tighten first if anything whiffs
+delayAfterSangZ  := 180   ; SELF-RECOVERY estimate (150ms floor) + 30ms buffer ("almost immediate" per wiki)
+delayAfterKitX   := 930   ; HARD: X channels on hit since 31.4 — you are LOCKED in your own animation + 30ms buffer. Do not cut this blind.
+delayAfterSangX  := 180   ; SELF-RECOVERY estimate (150ms floor) + 30ms buffer. Real gap when order is swapped (below); harmless trailing wait otherwise.
+
+; swapKitsuneAndSanguineX: false (default) = ...Sanguine[Z] -> Kitsune[X] -> Sanguine[X]
+;                          true             = ...Sanguine[Z] -> Sanguine[X] -> Kitsune[X]
+; Swapping puts Kitsune X — the move with the hard channel-lock — LAST instead
+; of second-to-last. That removes the risk of it eating the finisher (nothing
+; follows it to drop), at the cost of Sanguine X no longer landing right after
+; Sanguine Z's window. Try both orders on a dummy; there's no wiki data saying
+; which lands more reliably.
+swapKitsuneAndSanguineX := false
+
+; delayAfterKitX is the one number in this file you cannot just "make tighter."
+; Kitsune X stuns ~0.65s then "channels on hit" (31.4) — you are locked in
+; your OWN animation, same category as Sanguine C's target-lock, just on you
+; instead of them. Cut it too short and Sanguine X is sent while you're still
+; mid-channel and gets silently dropped by the game (not queued, not delayed
+; — gone). Calibrate this one DOWN carefully in small steps, not by guessing.
+;
+; delayAfterSangC and delayAfterSangZ are the two that were previously padded
+; beyond what's required (350ms and 280ms) — cut to 150ms each, a rough floor
+; for "your own cast animation clears." If Sanguine Z or Kitsune X whiff on
+; your dummy test, raise the ONE before it that's whiffing, not both blindly.
 
 m1Count := 0             ; optional filler (0 = off)
 m1Delay := 120
@@ -87,22 +148,43 @@ AbortCombo(*) {
 RunCombo() {
     global
 
-    ; --- Kitsune C: the one Instinct break. Spend it up front. ---
+    ; --- 1. Kitsune C: the confirmed Instinct break. Spend it up front. ---
     if (!Swap(slotFruit))
         return
     if (!Hold(keyC, chargeTimeKitC, delayAfterKitC))
         return
 
-    ; --- Sanguine C into the Instinct-broken target: starts the ~1.2s
-    ; input-disable. Z and X follow with no hotbar swap so they land inside it.
+    ; --- 2. Sanguine C into the Instinct-broken target: starts the ~1.2s
+    ; input-disable. ---
     if (!Swap(slotFightStyle))
         return
     if (!Tap(keyC, delayAfterSangC))
         return
-    if (!Tap(keyZ, delayAfterSangZ))     ; heals 20% max HP even if dodged
+
+    ; --- 3. Sanguine Z: heals 20% max HP even if dodged, lands inside the
+    ; disable window. ---
+    if (!Tap(keyZ, delayAfterSangZ))
         return
-    if (!Tap(keyX, delayAfterSangX))
-        return
+
+    ; --- 4 & 5. Kitsune X and Sanguine X, order controlled by
+    ; swapKitsuneAndSanguineX (see CONFIG). Default: Kitsune X then Sanguine X.
+    if (!swapKitsuneAndSanguineX) {
+        if (!Swap(slotFruit))
+            return
+        if (!Tap(keyX, delayAfterKitX))
+            return
+        if (!Swap(slotFightStyle))
+            return
+        if (!Tap(keyX, delayAfterSangX))
+            return
+    } else {
+        if (!Tap(keyX, delayAfterSangX))     ; already in fight-style slot from step 3
+            return
+        if (!Swap(slotFruit))
+            return
+        if (!Tap(keyX, delayAfterKitX))
+            return
+    }
 
     Loop m1Count {
         if (!running)
@@ -111,11 +193,6 @@ RunCombo() {
         if (!Wait(m1Delay))
             return
     }
-
-    ; --- Tail damage, after the window ---
-    if (!Swap(slotFruit))
-        return
-    Tap(keyF, 0)
 }
 
 ; ---------------------------- HELPERS ---------------------------------------

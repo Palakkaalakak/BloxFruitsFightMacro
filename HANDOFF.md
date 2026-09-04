@@ -220,13 +220,22 @@ guns**.
 - **C** — tap: fast dash-punch + knockback. Hold: much higher speed and range,
   invulnerable. Instinct chart: **"Only tap version can be dodged."**
 
-## Current combo
+## Current combo (updated 2026-09-02, per user request)
 
 ```
-Kitsune [C] -> Kitsune [F] -> Sanguine [C] -> Sanguine [Z] -> Sanguine [X]
+Kitsune [C] -> Sanguine [C] -> Sanguine [Z] -> Kitsune [X] -> Sanguine [X]
 ```
 
-**Every link breaks Instinct.** That is the design constraint — see below.
+Superseded the old `Kitsune[C]->Kitsune[F]->Sanguine[C]->Sanguine[Z]->Sanguine[X]`
+combo. This version puts Kitsune [X] back in (previously excluded as
+"unusable mid-combo" because 31.4 made it channel on hit — that was an
+overstatement; it's usable, it just needs the delay after it to cover the
+full channel or the next move gets silently dropped).
+
+**Only Kitsune [C] breaks Instinct — user-confirmed, overrides wiki claims
+that Sanguine C/Z also break it.** Holds via that one break plus two confirmed
+input-locks: Sanguine C's 1.2s disable and Kitsune X's stun-then-channel. See
+README's "The combo" section for the full breakdown.
 
 ## THE CORE MECHANIC (verified — do not re-derive)
 
@@ -251,7 +260,8 @@ Kitsune [C] -> Kitsune [F] -> Sanguine [C] -> Sanguine [Z] -> Sanguine [X]
 | Kitsune [X] | **NO** — drains only | Kitsune page |
 | Kitsune [F] | **NO** (user: "I really don't think it does") | user |
 | Sanguine [C] | **NO** | user |
-| Sanguine [Z] / [X] | Unconfirmed — assume NO | — |
+| Sanguine [Z] | **NO** — user confirmed 2026-09-02, overrides wiki's "breaks on direct hit" claim | user |
+| Sanguine [X] | Unconfirmed — assume NO | — |
 
 **Do not "correct" these from a wiki page. The wiki pages are what got them
 wrong in the first place.** If a patch note contradicts one, raise it with the
@@ -274,13 +284,44 @@ Accessories: Dino Hood / Pilot Helmet. **Note Pale Scarf and Kitsune Mask raise
 an opponent's dodge count to 11** — relevant to what you're fighting, not what you wear.
 Mastery: user said to ignore mastery requirements for now.
 
+## Cross-verification done 2026-09-02
+
+User asked to "use the browser and the plugins and multiverify." Did:
+
+1. Wiki API pulls (as before) for Sanguine Art and Kitsune full moveset text.
+2. Web search surfaced a claim of a newer "Balance Patch 001" (Aug 6 2026),
+   which would have superseded 31.4 as "latest" if real. Traced it to the
+   actual developer source: `gamerrobot.com/blogs/news/the-balance-log`
+   (Gamer Robot Inc's own Shopify blog — the real Blox Fruits dev). **User
+   confirmed this is legit.** Patch content lives in an inline JS object
+   (`#bf-patch-notes` mount), extracted via `javascript_tool` since the page
+   renders it client-side and static fetches only grab a stub.
+3. Result: Balance Patch 001's Kitsune and Sanguine Art entries match Update
+   31.4 **word-for-word**. No new info for this build beyond what 31.4 already
+   gave. Confirmed one new detail useful for future fights: Instinct dodge
+   regen 40s -> 30s, and a Sanguine movement exploit ("Tab Boost") was patched
+   (this build never used it).
+4. Found a stronger Instinct-break candidate not yet integrated: **Sharkman
+   Karate [C]** ("breaks Instinct no matter what") and **[X] held** (same
+   claim) — see README "Sourcing note" section. Not user-confirmed, not
+   swapped in, just flagged for later.
+
+Net effect: confidence in 31.4 as current-and-only-relevant patch data went
+up (independently verified via the actual dev, not just the wiki mirror), no
+existing claims changed.
+
 ## Macro notes
 
 AutoHotkey v2. Key mechanics:
 - Z/X/C are shared between fruit and fighting style, so the macro **swaps hotbar
-  slots** mid-combo (`slotFruit` / `slotFightStyle`).
-- `Hold()` helper for keys needing hold-then-release: **Godhuman C (held variant
-  is the undodgeable one)** and **Kitsune C (fires on release)**.
-- `holdTimeGodC` is the highest-priority tuning value — if it registers as a tap
-  instead of a hold, the opener becomes dodgeable and the combo's premise is gone.
+  slots** three times mid-combo (`slotFruit` / `slotFightStyle`) to run
+  Kitsune[C] -> Sanguine[C] -> Sanguine[Z] -> Kitsune[X] -> Sanguine[X].
+- `Hold()` helper for keys needing hold-then-release: **Kitsune C** (fires on
+  release) is the only hold in the current combo.
+- `delayAfterKitX` is the highest-priority tuning value — Kitsune X channels
+  on hit (31.4), so the following Sanguine X gets silently dropped by the
+  game if this delay doesn't cover the full channel. No published frame data
+  exists for the channel length; it's an estimate, calibrate on a dummy.
+- No mouse movement, no auto-targeting — user hovers the target manually,
+  same as any normal ability use. Explicit user requirement (2026-09-02).
 - Re-entry lock prevents overlapping runs; `Esc` aborts and always releases held keys.
