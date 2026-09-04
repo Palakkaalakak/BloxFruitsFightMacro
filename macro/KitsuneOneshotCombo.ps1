@@ -131,6 +131,13 @@ $ycHoldWindowMs = 0       # 0 = one hold attempt only. 1400 -> 0 (2026-09-04, pe
 # gets its own wider window. Only the FIRST Kit C after Sang C; Godhuman's F1
 # opener is unaffected. Trim toward 260 if Kit C fires reliably with room.
 $ycKitCAfterSangCMs = 450
+# Same problem after GODHUMAN C (F1): held C is dash -> seize -> charged punch
+# -> knockback, a long animation, and Kit C was being skipped at the 260ms
+# global (user, 2026-09-04). Own knob because Godhuman C's held animation is
+# not the same length as Sanguine C's. Starts higher than the Sanguine one
+# since the held punch is the longer move; trim toward 450 if it fires with
+# room to spare, raise (700) if it still gets skipped.
+$ycKitCAfterGodCMs = 550
 
 # --- Timings (ms). Researched 2026-09-02: no source anywhere (wiki, patch
 # notes, guides, community macro threads) publishes exact animation/channel
@@ -729,7 +736,7 @@ function Run-Steps {
 #      Ping / reaction-speed dependent. Godhuman must be the equipped style.
 $Combo_Godhuman = @(
                             @('hold', $keyC),          # Godhuman C (HELD - see $ycHoldGodCMs)
-    @('swap', $slotFruit),  @('spam', $keyC),          # Kitsune C (tap)
+    @('swap', $slotFruit),  @('spam', $keyC, $ycKitCAfterGodCMs, $ycSpamIntervalMs),   # Kitsune C (tap) - wider window, held Godhuman C animates long
     @('swap', $slotSword),  @('spam', $keyX),          # Yama X
     @('swap', $slotFruit),  @('spam', $keyZ), @('spam', $keyX),   # Kitsune Z, X
     @('swap', $slotFightStyle), @('spam', $keyX),      # Godhuman X
