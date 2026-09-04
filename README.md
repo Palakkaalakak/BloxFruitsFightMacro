@@ -243,20 +243,37 @@ Hotbar: **1 = fighting style** (whichever is equipped), **2 = Kitsune**,
 
 ### How the F1–F3 combos time themselves
 
-None of their inter-move timings are known yet, so **every ability is
-spammed** for a window (`$ycSpamDurationMs` = 600 ms, one press every
-`$ycSpamIntervalMs` = 80 ms) instead of tapped once. A press during the
-previous move's animation does nothing; the first press that lands casts; the
-rest are eaten by cooldown. So a window only needs to be *long enough*, not
-exact. Slot keys are still pressed exactly once (a slot key toggles equip).
+Target: **2–3 s end to end** (user requirement, 2026-09-04). Every run prints
+`--- done in Nms ---` so you can see the real number.
 
-- To speed up: shrink `$ycSpamDurationMs` until a move starts getting skipped,
-  then back off. Any single step can override with `@('spam', $keyX, 1000, 80)`.
-- **Godhuman C is held**, not tapped (`$ycHoldGodCMs` = 600 ms) — the held
-  version is the invulnerable/undodgeable one. It retries the hold inside
-  `$ycHoldWindowMs`. If it comes out as a tap, raise `$ycHoldGodCMs`.
-- Kitsune X channels on hit, so the step after it may need a longer window if
-  it keeps getting skipped.
+None of the inter-move timings are known, so **every ability is spammed** for
+a short window instead of tapped once: `$ycSpamDurationMs` = **260 ms**, one
+press every `$ycSpamIntervalMs` = **40 ms** (~7 attempts). A press during the
+previous move's animation does nothing; the first press that lands casts; the
+rest are eaten by cooldown. Slot keys are pressed exactly once (a slot key
+toggles equip) with **no buffer** (`$ycSwapBufferMs` = 0), so a swap costs
+only the 60 ms keypress.
+
+Estimated totals with these defaults: **F1 ≈ 2.5 s, F2 ≈ 2.4 s, F3 ≈ 2.4 s.**
+
+**The trade-off:** 260 ms is shorter than some moves' own animations (the old
+combo's logs show Sanguine C needing ~600 ms before Z would fire, and Kitsune
+X channelling ~1070 ms). A move whose predecessor animates longer than the
+window gets **skipped**. The combo can't be faster than the sum of its
+animations — that's the game, not the macro. When a specific move keeps
+getting skipped, widen *that step only* in the step list and leave the global
+tight:
+
+```powershell
+@('spam', $keyZ, 600, 40)    # this one step gets a 600 ms window
+```
+
+- **Godhuman C is held** (`$ycHoldGodCMs` = 350 ms, one attempt, no retry).
+  The held version is the undodgeable one; if it comes out as the tap version,
+  raise to 400/450 — it's the biggest fixed cost in F1, so don't pad it beyond
+  what registers.
+- If a style/Yama move comes out as a Kitsune move (or vice versa), raise
+  `$ycSwapBufferMs` to ~40 first.
 - The combos are step lists (`$Combo_Godhuman` etc.) — reorder by editing one
   line.
 

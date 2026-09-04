@@ -95,15 +95,35 @@ $hotkeyEClaw    = ''         # E claw combo is saved ($Combo_EClaw) but NOT boun
 # to be LONG ENOUGH, not exact. Tune by shrinking $ycSpamDurationMs until a
 # move starts getting skipped, then back off. Any single step can override
 # these by giving its own duration/interval in the step list.
-$ycSpamDurationMs = 600   # per-ability spam window (same as Kitsune F's proven 600ms)
-$ycSpamIntervalMs = 80    # press cadence inside the window (~7-8 attempts)
-$ycSwapBufferMs   = -1    # buffer either side of each slot press; -1 = use $preSwapRegisterMs (140). Lower toward $lateSwapRegisterMs once swaps prove reliable.
+#
+# CUT HARD 2026-09-04 per user ("combos must be incredibly quick, 2-3s").
+# Was 600ms window / 80ms interval / 140ms swap buffers / 1400ms hold window
+# = ~7.6s for the 7-move F1. Now:
+#   F1: 350 hold + 7 x 260 windows + 6 x 60 slot presses = ~2.5s
+#   F2: 8 x 260 + 6 x 60 = ~2.4s      F3: 8 x 260 + 5 x 60 = ~2.4s
+# THE TRADE-OFF: a 260ms window means every move has ~260ms after the
+# previous press-window ends to become castable. Any move whose PREVIOUS move
+# animates longer than that gets skipped outright (the old combo's logs show
+# Sanguine C needing ~600ms before Z would fire, and Kitsune X channelling
+# ~1070ms). Physics, not the macro: total combo time cannot go below the sum
+# of the moves' own animation lengths. If a specific move keeps getting
+# skipped, give THAT step its own window in the step list, e.g.
+#   @('spam', $keyZ, 600, 40)
+# and leave the global tight. Every run logs "done in Nms" so you can see the
+# real total.
+$ycSpamDurationMs = 260   # per-ability spam window. 600 -> 260 (2026-09-04, per user)
+$ycSpamIntervalMs = 40    # press cadence inside the window. 80 -> 40: ~7 attempts per window, same count 600/80 gave
+$ycSwapBufferMs   = 0     # buffer either side of each slot press. 140 -> 0 (2026-09-04): matches $lateSwapRegisterMs, which the user already runs at 0 ("instant") in the old combo's tail swaps. A slot press now costs only its $slotKeyHoldMs (60ms). FIRST value to raise (try 40) if a style/Yama move comes out as a Kitsune move or vice versa.
 # Godhuman C must register as HELD - the held version is the invulnerable,
-# undodgeable one; the tap version is dodgeable. The macro holds C for
-# $ycHoldGodCMs, releases, and repeats that within $ycHoldWindowMs in case
-# the first hold started during Godhuman's previous-move animation.
-$ycHoldGodCMs   = 600
-$ycHoldWindowMs = 1400    # ~2 hold attempts
+# undodgeable one; the tap version is dodgeable. It is the FIRST move of F1,
+# so nothing is animating when it fires and ONE hold attempt is enough -
+# $ycHoldWindowMs = 0 means exactly one hold, no retry (1400 -> 0, 2026-09-04).
+# $ycHoldGodCMs is the minimum hold that the game reads as "held" rather than
+# tapped - unknown; 350 is a guess. If Godhuman C comes out as the tap
+# version, raise this first (400, 450...). It is the single biggest fixed
+# cost in F1 so do not pad it beyond what registers.
+$ycHoldGodCMs   = 350     # 600 -> 350 (2026-09-04, per user)
+$ycHoldWindowMs = 0       # 0 = one hold attempt only. 1400 -> 0 (2026-09-04, per user)
 
 # --- Timings (ms). Researched 2026-09-02: no source anywhere (wiki, patch
 # notes, guides, community macro threads) publishes exact animation/channel
@@ -399,10 +419,11 @@ function Tap-Key {
 function Spam-Key {
     param([string]$Key, [int]$DurationMs, [int]$IntervalMs)
     $elapsed = 0
-    while ($elapsed -lt $DurationMs) {
+    while ($true) {
         if (-not (Press-Key $Key)) { return $false }
-        if (-not (Wait-Interruptible $IntervalMs)) { return $false }
         $elapsed += $IntervalMs
+        if ($elapsed -ge $DurationMs) { break }   # 2026-09-04: no idle interval after the LAST press - saves one $IntervalMs per spam step, the next step starts right away
+        if (-not (Wait-Interruptible $IntervalMs)) { return $false }
     }
     return $true
 }
@@ -543,6 +564,8 @@ function Invoke-Combo {
         [Native]::KeyUp($VK[$keyX])
         [Native]::KeyUp($VK[$keyZ])
         [Native]::KeyUp($VK[$keyF])
+        $totalMs = [int](New-TimeSpan -Start $script:comboStartTime -End (Get-Date)).TotalMilliseconds
+        Write-Log ("--- done in {0}ms ---" -f $totalMs) 'Yellow'   # real end-to-end time, for hitting the 2-3s target (2026-09-04)
         $script:running = $false
         Flush-Log   # write the whole run's log in one go - never mid-combo, see Write-Log
     }
@@ -639,9 +662,11 @@ function Run-Combo2 {
 # would unequip it). Same convention as the old combos, which assume Kitsune.
 #
 # Kitsune X channels on hit (31.4): presses for the NEXT step are eaten until
-# the channel ends. The default 600ms window has ~7 attempts so it usually
-# rides through, but if the move after Kit X keeps getting skipped, give that
-# step a longer window, e.g. @('spam', $keyX, 1000, 80).
+# the channel ends (~1070ms observed in the old combo). With the 260ms global
+# window the move after Kit X is the MOST likely to be skipped when Kit X
+# connects. If it is, give that step a longer window, e.g.
+#   @('spam', $keyX, 1000, 40)
+# - or move Kit X to the end of the combo where nothing follows it.
 
 # Hold a key for $HoldMs then release. Interruptible - the key is ALWAYS
 # released, including on abort.
@@ -661,9 +686,11 @@ function HoldSpam-Key {
     $elapsed = 0
     do {
         if (-not (Hold-Key $Key $HoldMs)) { return $false }
+        $elapsed += $HoldMs
+        if ($elapsed -ge $WindowMs) { break }   # no idle gap after the final hold - the next step starts immediately
         if (-not (Wait-Interruptible $ycSpamIntervalMs)) { return $false }
-        $elapsed += $HoldMs + $ycSpamIntervalMs
-    } while ($elapsed -lt $WindowMs)
+        $elapsed += $ycSpamIntervalMs
+    } while ($true)
     return $true
 }
 

@@ -325,11 +325,16 @@ Hotkeys (2026-09-04): F1 Godhuman combo, F2 Sanguine combo, F3 Sanguine alt
 timing recorder; F7 swap test. `$Combo_EClaw` saved but unbound per user
 ("ignore eclaw but save it"). Esc/Tab abort.
 
-- New combos spam every ability (`$ycSpamDurationMs`/`$ycSpamIntervalMs`)
-  because no timings are known; slot keys pressed once (toggle risk). They
-  assume the STYLE is equipped at trigger time; old combos assume Kitsune.
-- Godhuman C is HELD (`$ycHoldGodCMs`, retried within `$ycHoldWindowMs`) —
-  held variant is the undodgeable one. Highest-priority F1 tuning value.
+- New combos spam every ability (`$ycSpamDurationMs` 260 / `$ycSpamIntervalMs`
+  40, `$ycSwapBufferMs` 0) because no timings are known; slot keys pressed
+  once (toggle risk). They assume the STYLE is equipped at trigger time; old
+  combos assume Kitsune. **User requirement 2026-09-04: full combo in 2-3s or
+  less.** Estimated F1 ~2.5s, F2/F3 ~2.4s. Windows are now SHORTER than some
+  known animations (Sang C ~600ms, Kit X channel ~1070ms) - expect skips and
+  widen individual steps, never the global. Each run logs "done in Nms".
+- Godhuman C is HELD (`$ycHoldGodCMs` 350, `$ycHoldWindowMs` 0 = single
+  attempt) — held variant is the undodgeable one. Highest-priority F1 tuning
+  value; the minimum hold that registers as "held" is unknown.
 - Old combos: Kitsune C is a quick TAP (user-corrected 2026-09-02; the wiki
   "charges on hold" claim was wrong). Kitsune X channels on hit (31.4) so
   the move after it can be silently dropped.
