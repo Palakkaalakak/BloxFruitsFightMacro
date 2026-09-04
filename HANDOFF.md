@@ -312,16 +312,31 @@ existing claims changed.
 
 ## Macro notes
 
-AutoHotkey v2. Key mechanics:
-- Z/X/C are shared between fruit and fighting style, so the macro **swaps hotbar
-  slots** three times mid-combo (`slotFruit` / `slotFightStyle`) to run
-  Kitsune[C] -> Sanguine[C] -> Sanguine[Z] -> Kitsune[X] -> Sanguine[X].
-- `Hold()` helper for keys needing hold-then-release: **Kitsune C** (fires on
-  release) is the only hold in the current combo.
-- `delayAfterKitX` is the highest-priority tuning value — Kitsune X channels
-  on hit (31.4), so the following Sanguine X gets silently dropped by the
-  game if this delay doesn't cover the full channel. No published frame data
-  exists for the channel length; it's an estimate, calibrate on a dummy.
-- No mouse movement, no auto-targeting — user hovers the target manually,
-  same as any normal ability use. Explicit user requirement (2026-09-02).
-- Re-entry lock prevents overlapping runs; `Esc` aborts and always releases held keys.
+**The maintained macro is `macro/KitsuneOneshotCombo.ps1`** (native
+PowerShell + Win32 SendInput with scan codes). The `.ahk` is a superseded
+reference only. `macro/combo-log.txt` collects every run's keypress log.
+
+Hotbar: 1 style, 2 Kitsune, 3 Yama (`$slotFightStyle` / `$slotFruit` /
+`$slotSword`).
+
+Hotkeys (2026-09-04): F1 Godhuman combo, F2 Sanguine combo, F3 Sanguine alt
+(all Yama combos, step lists `$Combo_*` run by `Run-Steps`); F4 old full combo
+(combo v2, `Run-Combo2`); F5 old opening-only (combo v1, `Run-Combo`); F6
+timing recorder; F7 swap test. `$Combo_EClaw` saved but unbound per user
+("ignore eclaw but save it"). Esc/Tab abort.
+
+- New combos spam every ability (`$ycSpamDurationMs`/`$ycSpamIntervalMs`)
+  because no timings are known; slot keys pressed once (toggle risk). They
+  assume the STYLE is equipped at trigger time; old combos assume Kitsune.
+- Godhuman C is HELD (`$ycHoldGodCMs`, retried within `$ycHoldWindowMs`) —
+  held variant is the undodgeable one. Highest-priority F1 tuning value.
+- Old combos: Kitsune C is a quick TAP (user-corrected 2026-09-02; the wiki
+  "charges on hold" claim was wrong). Kitsune X channels on hit (31.4) so
+  the move after it can be silently dropped.
+- Trigger loop is a table (`$comboTriggers`) of hotkey -> scriptblock with
+  down-edge detection and a re-entry lock.
+- No mouse movement, no auto-targeting — user hovers the target manually.
+  Explicit user requirement (2026-09-02).
+- The `.ps1` was never syntax-checked in the Linux sandbox (no pwsh
+  available). If it errors on launch, the 2026-09-04 additions are the first
+  suspect: `Run-Steps`, `HoldSpam-Key`, `$comboTriggers`.

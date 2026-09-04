@@ -221,6 +221,44 @@ other related pages.
 - `macro/KitsuneOneshotCombo.ahk` — superseded, kept only as a reference for
   the original AutoHotkey design this was ported from. Don't use it; the
   `.ps1` is the maintained version and requires no third-party software.
+- `macro/combo-log.txt` — every macro run's keypress log, appended
+  automatically (see `$debugLog`).
+
+## Hotkeys (2026-09-04)
+
+Hotbar: **1 = fighting style** (whichever is equipped), **2 = Kitsune**,
+**3 = Yama**.
+
+| Key | Combo | Start with | Note |
+|---|---|---|---|
+| **F1** | Godhuman C(held) → Kit C → Yama X → Kit Z, X → Godhuman X → Kit F → Godhuman Z | Godhuman equipped | Ping / reaction-speed dependent |
+| **F2** | Sang C → Kit C → Yama X → Kit Z, X → Sang Z → Kit F → Sang X | Sanguine equipped | Slower than the others |
+| **F3** | Sang C → Kit C → Kit X → Yama X → Sang Z → Kit F → Kit Z → Sang X | Sanguine equipped | Sanguine alt |
+| **F4** | Kit C → Sang C → Sang Z → Kit F → Sang X → Kit X | Kitsune equipped | The old F1 (combo v2, full) |
+| **F5** | Kit C → Sang C → Sang Z, stop | Kitsune equipped | The old F2 (combo v1, opening only) |
+| **F6** | timing recorder toggle | — | Was F3 |
+| **F7** | swap test (opening only) | — | Was F4 |
+| *(unbound)* | E claw C → Kit C → Yama X → Kit Z, X → E claw X → Kit F → E claw Z (or E claw Z, X → Kit F) | E claw equipped | Aim dependent. Saved as `$Combo_EClaw`; set `$hotkeyEClaw` to bind |
+| **Esc** / **Tab** | abort | | |
+
+### How the F1–F3 combos time themselves
+
+None of their inter-move timings are known yet, so **every ability is
+spammed** for a window (`$ycSpamDurationMs` = 600 ms, one press every
+`$ycSpamIntervalMs` = 80 ms) instead of tapped once. A press during the
+previous move's animation does nothing; the first press that lands casts; the
+rest are eaten by cooldown. So a window only needs to be *long enough*, not
+exact. Slot keys are still pressed exactly once (a slot key toggles equip).
+
+- To speed up: shrink `$ycSpamDurationMs` until a move starts getting skipped,
+  then back off. Any single step can override with `@('spam', $keyX, 1000, 80)`.
+- **Godhuman C is held**, not tapped (`$ycHoldGodCMs` = 600 ms) — the held
+  version is the invulnerable/undodgeable one. It retries the hold inside
+  `$ycHoldWindowMs`. If it comes out as a tap, raise `$ycHoldGodCMs`.
+- Kitsune X channels on hit, so the step after it may need a longer window if
+  it keeps getting skipped.
+- The combos are step lists (`$Combo_Godhuman` etc.) — reorder by editing one
+  line.
 
 ---
 
@@ -236,11 +274,12 @@ The macro presses hotbar slot keys to swap between your fruit and your
 fighting style, because Kitsune and Sanguine Art both use Z/X/C. Before any
 fight:
 
-- Put **Sanguine Art** in hotbar slot **1**
+- Put your **fighting style** (Sanguine Art / Godhuman) in hotbar slot **1**
 - Put **Kitsune** in hotbar slot **2**
+- Put **Yama** in hotbar slot **3**
 
 If you already keep them somewhere else, that's fine — just change
-`$slotFruit` and `$slotFightStyle` at the top of the `.ps1` file to match your
+`$slotFruit`, `$slotFightStyle` and `$slotSword` at the top of the `.ps1` file to match your
 slot numbers, once, and forget about it.
 
 ### 2. Run the macro
@@ -261,14 +300,16 @@ this only affects this one run, it doesn't change any system setting.)
 1. Get your **cursor over the enemy**, in range (this is a hover-based combo —
    no auto-aim, no auto-targeting, you do the aiming, same as any normal
    ability).
-2. Press **F1**.
-3. Don't touch anything else until it finishes (well under 3 seconds). The
-   macro sends the whole 5-move sequence for you.
+2. Press the hotkey for the combo you want (see the hotkey table above).
+   Make sure the right item is equipped first — F1–F3 start with the fighting
+   style equipped, F4/F5 start with Kitsune equipped.
+3. Don't touch anything else until it finishes. The macro sends the whole
+   sequence for you.
 4. If it goes wrong mid-way — you got hit, they escaped, whatever — press
    **Esc** immediately. This cancels the macro instantly and safely releases
    any held key, so you're never stuck with a key jammed down.
 
-That's the entire in-fight workflow: **aim, F1, wait, (Esc if needed).**
+That's the entire in-fight workflow: **aim, hotkey, wait, (Esc if needed).**
 
 ### 4. Calibrate BEFORE you rely on this in a real fight
 
@@ -277,7 +318,7 @@ frame-perfect data — nobody publishes exact animation lengths for these
 moves, only the stun/disable durations, which are already baked in. Test on a
 low-stakes target first (an NPC, a friend, a low-level dummy):
 
-1. Press F1 and watch closely (or record a slow-motion clip on your phone).
+1. Press the combo hotkey and watch closely (or record a slow-motion clip on your phone).
 2. Find the first move in the sequence that **whiffs, comes out too early, or
    gets eaten** because the character was still mid-animation from the move
    before it.
@@ -300,7 +341,7 @@ one hit short with no error, no message, nothing to tell you why.
 2. Edit `CONFIG` at the top of the `.ps1` file — move keys to match your
    binds, hotbar slots for Kitsune and Sanguine Art.
 3. Run it (see "PVP quick-start" above).
-4. In-game: hover the target in Kitsune C range, press `F1`. `Escape` aborts.
+4. In-game: hover the target in range, press the combo hotkey. `Escape` aborts.
    Hit them **airborne** if you can — the wiki notes disable/stun durations
    run longer on airborne targets.
 
@@ -332,7 +373,7 @@ buffer floor.
 
 - `Escape` aborts immediately; held keys are always released (both mid-combo
   and in a `finally` block as a second safety net).
-- Re-entry lock prevents overlapping runs — pressing F1 mid-combo does nothing.
+- Re-entry lock prevents overlapping runs — pressing a combo key mid-combo does nothing.
 - Keystrokes and clicks only, via the same Win32 `SendInput` path physical
   input uses. No pixel reading, no memory reading, no auto-targeting, no
   mouse movement — you aim and judge range, exactly like playing normally.
@@ -341,3 +382,27 @@ buffer floor.
 - No third-party software, no installer, no external dependency of any kind
   — it's a plain text `.ps1` file you can read top to bottom, running on
   PowerShell, which ships with every copy of Windows.
+
+## Git workflow (VS Code)
+
+Open a terminal in the project folder (Terminal → New Terminal, or `` Ctrl+` ``).
+
+**Get the latest changes from GitHub into your folder:**
+
+```bash
+git pull
+```
+
+**Push your own edits to GitHub:**
+
+```bash
+git add .
+git commit -m "what you changed"
+git push
+```
+
+If `git pull` refuses because you have uncommitted local edits, run the
+`add` + `commit` lines first, then `git pull`, then `git push`. If `git push`
+is rejected with "fetch first", someone else pushed since you last pulled:
+`git pull` (resolve any conflict), then `git push` again. Always `git pull`
+*before* you start editing so the two sides never drift far.

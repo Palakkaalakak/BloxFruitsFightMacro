@@ -24,6 +24,26 @@
 # then placed last per user request instead of its original second-to-last
 # spot). $swapKitsuneAndSanguineX is unused now that the order is fixed.
 #
+# HOTKEYS (2026-09-04 layout — Yama combos added, old combos shifted down):
+#   F1  Godhuman combo   Godhuman C(held) + Kit C + Yama X + Kit Z X + Godhuman X + Kit F + Godhuman Z
+#                        (ping / reaction-speed dependent)
+#   F2  Sanguine combo   Sang C + Kit C + Yama X + Kit Z X + Sang Z + Kit F + Sang X
+#                        (slower than the others)
+#   F3  Sanguine alt     Sang C + Kit C + Kit X + Yama X + Sang Z + Kit F + Kit Z + Sang X
+#   F4  old F1           combo v2, full  (Kit C -> Sang C Z -> Kit F -> Sang X -> Kit X)
+#   F5  old F2           combo v1, opening only
+#   F6  old F3           timing recorder toggle
+#   F7  old F4           isolated swap test
+#   --  E claw combo     saved as $Combo_EClaw, NOT bound (ignored for now)
+#   Esc / Tab            abort
+#
+# The three new combos are pure step lists run by Run-Steps (see "YAMA
+# COMBOS" below). Every ability in them is SPAMMED for a window (same idea as
+# the existing $spam* settings) because exact inter-move timings are unknown;
+# slot keys are still pressed exactly once. They assume the FIGHTING STYLE is
+# the active hotbar slot when you press the trigger (the first move is a style
+# move), the same way the old combos assume Kitsune is active.
+#
 # Keystrokes and clicks only, via SendInput - the same OS-level input path a
 # physical keyboard/mouse uses. No memory reading, no process injection,
 # nothing touching the Roblox process itself. No mouse movement, no
@@ -45,7 +65,8 @@ $keyF = 'F'
 
 # Z/X/C are shared between fruit and fighting style - the combo needs swaps.
 $slotFruit      = '2'    # Kitsune
-$slotFightStyle = '1'    # Sanguine Art
+$slotFightStyle = '1'    # fighting style - Sanguine Art / Godhuman / E claw, whichever is equipped
+$slotSword      = '3'    # Yama (2026-09-04)
 $slotSwapDelayMs = 25    # ms for a hotbar swap to register - tightened further 2026-09-02. A slot swap has no animation lock in-game (unlike a move), it's purely OS/key-registration time, so it can run tighter than the move-recovery delays below.
 
 # SWAPPED 2026-09-03 per user: the FULL combo is now on F1 and the
@@ -53,12 +74,36 @@ $slotSwapDelayMs = 25    # ms for a hotbar swap to register - tightened further 
 # only) and $hotkeyTrigger2 still fires Run-Combo2 (full) - only the keys
 # they're bound to changed, so the function names stay matched to their
 # behaviour.
-$hotkeyTrigger  = 'F2'   # -> Run-Combo:  combo v1, opening only (Kitsune[C] -> Sanguine[C] -> Sanguine[Z])
-$hotkeyTrigger2 = 'F1'   # -> Run-Combo2: combo v2, full (... -> Kitsune[F] -> Sanguine[X] -> Kitsune[X])
+# SHIFTED 2026-09-04: F1-F3 are now the Yama combos (below). Everything that
+# used to be on F1-F4 moved down by three: F1->F4, F2->F5, F3->F6, F4->F7.
+$hotkeyGodhuman    = 'F1'   # -> Run-Godhuman:    Godhuman C(held) + Kit C + Yama X + Kit Z X + Godhuman X + Kit F + Godhuman Z
+$hotkeySanguine    = 'F2'   # -> Run-Sanguine:    Sang C + Kit C + Yama X + Kit Z X + Sang Z + Kit F + Sang X
+$hotkeySanguineAlt = 'F3'   # -> Run-SanguineAlt: Sang C + Kit C + Kit X + Yama X + Sang Z + Kit F + Kit Z + Sang X
+$hotkeyTrigger2 = 'F4'   # -> Run-Combo2: combo v2, full (... -> Kitsune[F] -> Sanguine[X] -> Kitsune[X]). Was F1.
+$hotkeyTrigger  = 'F5'   # -> Run-Combo:  combo v1, opening only (Kitsune[C] -> Sanguine[C] -> Sanguine[Z]). Was F2.
 $hotkeyAbort   = 'Escape'
 $hotkeyAbort2  = 'Tab'   # second abort key, added 2026-09-02 per user - instant-cancel if a move missed, without needing to reach for Escape
-$hotkeyRecordToggle = 'F3'   # MOVED from F2 2026-09-02 (F2 is now combo v2) - toggles timing-recorder mode, see "RECORDING MODE" below
-$hotkeySwapTest = 'F4'       # isolated swap test (2026-09-03): Kitsune C, then the swap to Sanguine, and nothing else - for checking JUST that transition
+$hotkeyRecordToggle = 'F6'   # was F3 (and F2 before that) - toggles timing-recorder mode, see "RECORDING MODE" below
+$hotkeySwapTest = 'F7'       # was F4 - isolated swap test (2026-09-03): Kitsune C, then the swap to Sanguine, and nothing else
+$hotkeyEClaw    = ''         # E claw combo is saved ($Combo_EClaw) but NOT bound. Set to e.g. 'F8' (and add it to $VK) to enable.
+
+# --- Yama combos (F1/F2/F3) spam settings, 2026-09-04 ---------------------
+# Every ability in the new combos is spammed for a window instead of tapped
+# once, because none of their inter-move timings are known yet. A press that
+# arrives during the previous move's animation does nothing; the first press
+# that lands casts; later presses are eaten by cooldown. So a window only has
+# to be LONG ENOUGH, not exact. Tune by shrinking $ycSpamDurationMs until a
+# move starts getting skipped, then back off. Any single step can override
+# these by giving its own duration/interval in the step list.
+$ycSpamDurationMs = 600   # per-ability spam window (same as Kitsune F's proven 600ms)
+$ycSpamIntervalMs = 80    # press cadence inside the window (~7-8 attempts)
+$ycSwapBufferMs   = -1    # buffer either side of each slot press; -1 = use $preSwapRegisterMs (140). Lower toward $lateSwapRegisterMs once swaps prove reliable.
+# Godhuman C must register as HELD - the held version is the invulnerable,
+# undodgeable one; the tap version is dodgeable. The macro holds C for
+# $ycHoldGodCMs, releases, and repeats that within $ycHoldWindowMs in case
+# the first hold started during Godhuman's previous-move animation.
+$ycHoldGodCMs   = 600
+$ycHoldWindowMs = 1400    # ~2 hold attempts
 
 # --- Timings (ms). Researched 2026-09-02: no source anywhere (wiki, patch
 # notes, guides, community macro threads) publishes exact animation/channel
@@ -245,11 +290,15 @@ public static class Native {
 # Virtual-key codes for the keys we need.
 $VK = @{
     'Z' = 0x5A; 'X' = 0x58; 'C' = 0x43; 'F' = 0x46
-    '1' = 0x31; '2' = 0x32
+    '1' = 0x31; '2' = 0x32; '3' = 0x33
     'F1' = 0x70
     'F2' = 0x71
     'F3' = 0x72
     'F4' = 0x73
+    'F5' = 0x74
+    'F6' = 0x75
+    'F7' = 0x76
+    'F8' = 0x77
     'Escape' = 0x1B
     'Tab' = 0x09
 }
@@ -566,7 +615,7 @@ function Do-Combo2Steps {
     return $true
 }
 
-# Combo v3 (F5) was folded into v2 on 2026-09-03 once its zero-lead-in
+# Combo v3 (old F5) was folded into v2 on 2026-09-03 once its zero-lead-in
 # behaviour was confirmed better - those lead-ins are now simply 0 in CONFIG,
 # so v2 IS what v3 was and the separate hotkey/flag are gone.
 function Run-Combo2 {
@@ -575,13 +624,139 @@ function Run-Combo2 {
     }
 }
 
+# ---------------------------- YAMA COMBOS (2026-09-04) ----------------------
+# Three new combos using Yama on slot 3, written as plain step lists so the
+# order can be changed by editing one line. Step forms:
+#   @('swap', slot)                        press a hotbar key once (Press-SlotKey, $ycSwapBufferMs each side)
+#   @('spam', key)                         spam key for $ycSpamDurationMs every $ycSpamIntervalMs
+#   @('spam', key, durationMs, intervalMs) same, with per-step override
+#   @('hold', key)                         hold key $ycHoldGodCMs, release, retry within $ycHoldWindowMs
+#   @('hold', key, holdMs, windowMs)       same, with per-step override
+#
+# ASSUMPTION: the fighting style is ALREADY equipped when you press the
+# trigger - all three open with a style move, so there is no leading swap
+# (a slot key TOGGLES equip, so pressing 1 while 1 is already equipped
+# would unequip it). Same convention as the old combos, which assume Kitsune.
+#
+# Kitsune X channels on hit (31.4): presses for the NEXT step are eaten until
+# the channel ends. The default 600ms window has ~7 attempts so it usually
+# rides through, but if the move after Kit X keeps getting skipped, give that
+# step a longer window, e.g. @('spam', $keyX, 1000, 80).
+
+# Hold a key for $HoldMs then release. Interruptible - the key is ALWAYS
+# released, including on abort.
+function Hold-Key {
+    param([string]$Key, [int]$HoldMs)
+    if (-not $script:running) { return $false }
+    Log-Key "$Key (hold ${HoldMs}ms)"
+    [Native]::KeyDown($VK[$Key])
+    $ok = Wait-Interruptible $HoldMs
+    [Native]::KeyUp($VK[$Key])
+    return $ok
+}
+
+# Repeat {hold, release} until $WindowMs has elapsed (at least once).
+function HoldSpam-Key {
+    param([string]$Key, [int]$HoldMs, [int]$WindowMs)
+    $elapsed = 0
+    do {
+        if (-not (Hold-Key $Key $HoldMs)) { return $false }
+        if (-not (Wait-Interruptible $ycSpamIntervalMs)) { return $false }
+        $elapsed += $HoldMs + $ycSpamIntervalMs
+    } while ($elapsed -lt $WindowMs)
+    return $true
+}
+
+function Run-Steps {
+    param([object[]]$Steps)
+    foreach ($step in $Steps) {
+        if (-not $script:running) { return $false }
+        switch ($step[0]) {
+            'swap' {
+                if (-not (Press-SlotKey $step[1] $ycSwapBufferMs)) { return $false }
+            }
+            'spam' {
+                $dur = if ($step.Count -ge 3) { $step[2] } else { $ycSpamDurationMs }
+                $int = if ($step.Count -ge 4) { $step[3] } else { $ycSpamIntervalMs }
+                if (-not (Spam-Key $step[1] $dur $int)) { return $false }
+            }
+            'hold' {
+                $hold = if ($step.Count -ge 3) { $step[2] } else { $ycHoldGodCMs }
+                $win  = if ($step.Count -ge 4) { $step[3] } else { $ycHoldWindowMs }
+                if (-not (HoldSpam-Key $step[1] $hold $win)) { return $false }
+            }
+            default { Write-Log "  unknown step type '$($step[0])' - aborting" 'Red'; return $false }
+        }
+    }
+    return $true
+}
+
+# F1 - Godhuman C + Kitsune C + Yama X + Kitsune Z X + Godhuman X + Kit F + Godhuman Z
+#      Ping / reaction-speed dependent. Godhuman must be the equipped style.
+$Combo_Godhuman = @(
+                            @('hold', $keyC),          # Godhuman C (HELD - see $ycHoldGodCMs)
+    @('swap', $slotFruit),  @('spam', $keyC),          # Kitsune C (tap)
+    @('swap', $slotSword),  @('spam', $keyX),          # Yama X
+    @('swap', $slotFruit),  @('spam', $keyZ), @('spam', $keyX),   # Kitsune Z, X
+    @('swap', $slotFightStyle), @('spam', $keyX),      # Godhuman X
+    @('swap', $slotFruit),  @('spam', $keyF),          # Kitsune F
+    @('swap', $slotFightStyle), @('spam', $keyZ)       # Godhuman Z
+)
+
+# F2 - Sanguine C + Kitsune C + Yama X + Kitsune Z X + Sanguine Z + Kit F + Sanguine X
+#      Slower than the others. Sanguine must be the equipped style.
+$Combo_Sanguine = @(
+                            @('spam', $keyC),          # Sanguine C
+    @('swap', $slotFruit),  @('spam', $keyC),          # Kitsune C
+    @('swap', $slotSword),  @('spam', $keyX),          # Yama X
+    @('swap', $slotFruit),  @('spam', $keyZ), @('spam', $keyX),   # Kitsune Z, X
+    @('swap', $slotFightStyle), @('spam', $keyZ),      # Sanguine Z
+    @('swap', $slotFruit),  @('spam', $keyF),          # Kitsune F
+    @('swap', $slotFightStyle), @('spam', $keyX)       # Sanguine X
+)
+
+# F3 - Sanguine C + Kitsune C + Kitsune X + Yama X + Sanguine Z + Kit F + Kit Z + Sanguine X
+$Combo_SanguineAlt = @(
+                            @('spam', $keyC),          # Sanguine C
+    @('swap', $slotFruit),  @('spam', $keyC), @('spam', $keyX),   # Kitsune C, X
+    @('swap', $slotSword),  @('spam', $keyX),          # Yama X
+    @('swap', $slotFightStyle), @('spam', $keyZ),      # Sanguine Z
+    @('swap', $slotFruit),  @('spam', $keyF), @('spam', $keyZ),   # Kitsune F, Z
+    @('swap', $slotFightStyle), @('spam', $keyX)       # Sanguine X
+)
+
+# (unbound) - E claw C + Kitsune C + Yama X + Kitsune Z X + E claw X + Kit F + E claw Z
+#      Aim dependent. Alt ending that also works: E claw Z X + Kit F.
+#      Saved for later per user; set $hotkeyEClaw to bind it.
+$Combo_EClaw = @(
+                            @('spam', $keyC),          # E claw C
+    @('swap', $slotFruit),  @('spam', $keyC),          # Kitsune C
+    @('swap', $slotSword),  @('spam', $keyX),          # Yama X
+    @('swap', $slotFruit),  @('spam', $keyZ), @('spam', $keyX),   # Kitsune Z, X
+    @('swap', $slotFightStyle), @('spam', $keyX),      # E claw X
+    @('swap', $slotFruit),  @('spam', $keyF),          # Kitsune F
+    @('swap', $slotFightStyle), @('spam', $keyZ)       # E claw Z
+)
+# Alt ending (replace the last three lines above):
+#   @('swap', $slotFightStyle), @('spam', $keyZ), @('spam', $keyX),   # E claw Z, X
+#   @('swap', $slotFruit),  @('spam', $keyF)                          # Kitsune F
+
+function Run-Godhuman    { Invoke-Combo "Godhuman combo (F1)"     { Run-Steps $Combo_Godhuman    | Out-Null } }
+function Run-Sanguine    { Invoke-Combo "Sanguine combo (F2)"     { Run-Steps $Combo_Sanguine    | Out-Null } }
+function Run-SanguineAlt { Invoke-Combo "Sanguine alt combo (F3)" { Run-Steps $Combo_SanguineAlt | Out-Null } }
+function Run-EClaw       { Invoke-Combo "E claw combo"            { Run-Steps $Combo_EClaw       | Out-Null } }
+
 # ---------------------------- MAIN LOOP -------------------------------------
 
 [Native]::TimeBeginPeriod(1) | Out-Null   # fix ~55-60% Start-Sleep inflation for the life of this process - see comment above the P/Invoke declaration
 
-Write-Host "Kitsune + Sanguine Art combo macro - running." -ForegroundColor Cyan
-Write-Host "  $hotkeyTrigger2 = fire FULL combo (Kitsune[C] -> Sanguine[C] -> Sanguine[Z] -> Kitsune[F] -> Sanguine[X] -> Kitsune[X])"
-Write-Host "  $hotkeyTrigger  = fire OPENING only (Kitsune[C] -> Sanguine[C] -> Sanguine[Z], then stop)"
+Write-Host "Kitsune combo macro - running.  Hotbar: $slotFightStyle = style, $slotFruit = Kitsune, $slotSword = Yama" -ForegroundColor Cyan
+Write-Host "  $hotkeyGodhuman = Godhuman combo   (Godhuman C held -> Kit C -> Yama X -> Kit Z X -> Godhuman X -> Kit F -> Godhuman Z)  [start with Godhuman equipped]"
+Write-Host "  $hotkeySanguine = Sanguine combo   (Sang C -> Kit C -> Yama X -> Kit Z X -> Sang Z -> Kit F -> Sang X)  [start with Sanguine equipped]"
+Write-Host "  $hotkeySanguineAlt = Sanguine alt    (Sang C -> Kit C -> Kit X -> Yama X -> Sang Z -> Kit F -> Kit Z -> Sang X)  [start with Sanguine equipped]"
+Write-Host "  $hotkeyTrigger2 = old FULL combo   (Kit C -> Sang C -> Sang Z -> Kit F -> Sang X -> Kit X)  [start with Kitsune equipped]"
+Write-Host "  $hotkeyTrigger  = old OPENING only (Kit C -> Sang C -> Sang Z, then stop)"
+if ($hotkeyEClaw) { Write-Host "  $hotkeyEClaw = E claw combo" }
 Write-Host "  $hotkeyAbort / $hotkeyAbort2 = abort mid-combo instantly"
 Write-Host "  Close this window (or Ctrl+C) to stop the macro entirely."
 Write-Host ""
@@ -592,41 +767,43 @@ Write-Host ""
 [Console]::Out.Flush()
 
 # ---------------------------- RECORDING MODE --------------------------------
-# Press F3 to start: records timestamps of your OWN manual Z/X/C/F/1/2
+# Press $hotkeyRecordToggle (F6) to start: records timestamps of your OWN manual Z/X/C/F/1/2
 # keypresses (real keyboard, not the macro) while you play the combo by hand,
 # so the delays used above can be based on your actual pace instead of
-# estimates. Press F3 again to stop. MOVED from F2 2026-09-02 (F2 is now
-# combo v2's trigger).
-$recordKeys = @('Z', 'X', 'C', 'F', '1', '2')
+# estimates. Press the toggle again to stop. Now on $hotkeyRecordToggle (F6);
+# was F3, and F2 before that.
+$recordKeys = @('Z', 'X', 'C', 'F', '1', '2', '3')
 $script:recording = $false
 $recordKeyWasDown = @{}
 foreach ($k in $recordKeys) { $recordKeyWasDown[$k] = $false }
 $recordStartTime = $null
 $recordLastPressTime = $null
 
+# Combo triggers: hotkey name -> function. Each fires once on the key's
+# down-edge, and only when no combo is already running (re-entry lock).
+# Generalised 2026-09-04 from four copy-pasted edge-detect blocks.
+$comboTriggers = [ordered]@{
+    $hotkeyGodhuman    = { Run-Godhuman }
+    $hotkeySanguine    = { Run-Sanguine }
+    $hotkeySanguineAlt = { Run-SanguineAlt }
+    $hotkeyTrigger2    = { Run-Combo2 }
+    $hotkeyTrigger     = { Run-Combo }
+    $hotkeySwapTest    = { Run-SwapTest }
+}
+if ($hotkeyEClaw) { $comboTriggers[$hotkeyEClaw] = { Run-EClaw } }
+$triggerWasDown = @{}
+foreach ($k in $comboTriggers.Keys) { $triggerWasDown[$k] = $false }
+
 try {
-    $triggerWasDown = $false
-    $trigger2WasDown = $false
-    $swapTestWasDown = $false
     $recordToggleWasDown = $false
     while ($true) {
-        $triggerIsDown = ([Native]::GetAsyncKeyState($VK[$hotkeyTrigger]) -band 0x8000) -ne 0
-        if ($triggerIsDown -and -not $triggerWasDown -and -not $script:running) {
-            Run-Combo
+        foreach ($k in $comboTriggers.Keys) {
+            $isDown = ([Native]::GetAsyncKeyState($VK[$k]) -band 0x8000) -ne 0
+            if ($isDown -and -not $triggerWasDown[$k] -and -not $script:running) {
+                & $comboTriggers[$k]
+            }
+            $triggerWasDown[$k] = $isDown
         }
-        $triggerWasDown = $triggerIsDown
-
-        $trigger2IsDown = ([Native]::GetAsyncKeyState($VK[$hotkeyTrigger2]) -band 0x8000) -ne 0
-        if ($trigger2IsDown -and -not $trigger2WasDown -and -not $script:running) {
-            Run-Combo2
-        }
-        $trigger2WasDown = $trigger2IsDown
-
-        $swapTestIsDown = ([Native]::GetAsyncKeyState($VK[$hotkeySwapTest]) -band 0x8000) -ne 0
-        if ($swapTestIsDown -and -not $swapTestWasDown -and -not $script:running) {
-            Run-SwapTest
-        }
-        $swapTestWasDown = $swapTestIsDown
 
         $recordToggleIsDown = ([Native]::GetAsyncKeyState($VK[$hotkeyRecordToggle]) -band 0x8000) -ne 0
         if ($recordToggleIsDown -and -not $recordToggleWasDown) {
@@ -636,7 +813,7 @@ try {
                 $recordLastPressTime = $recordStartTime
                 foreach ($k in $recordKeys) { $recordKeyWasDown[$k] = $false }
                 Write-Host ""
-                Write-Host "--- RECORDING: play the combo by hand now (Z/X/C/1/2). Press F2 again to stop. ---" -ForegroundColor Green
+                Write-Host "--- RECORDING: play the combo by hand now (Z/X/C/F/1/2/3). Press $hotkeyRecordToggle again to stop. ---" -ForegroundColor Green
             } else {
                 Write-Host "--- RECORDING STOPPED ---" -ForegroundColor Green
                 Write-Host ""
