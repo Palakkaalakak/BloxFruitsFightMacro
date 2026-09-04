@@ -254,7 +254,11 @@ rest are eaten by cooldown. Slot keys are pressed exactly once (a slot key
 toggles equip) with **no buffer** (`$ycSwapBufferMs` = 0), so a swap costs
 only the 60 ms keypress.
 
-Estimated totals with these defaults: **F1 ≈ 2.5 s, F2 ≈ 2.4 s, F3 ≈ 2.4 s.**
+Estimated totals with these defaults: **F1 ≈ 2.5 s, F2 ≈ 2.6 s, F3 ≈ 2.6 s.**
+
+One step is already widened: **Kit C after Sang C** (F2/F3) uses
+`$ycKitCAfterSangCMs` = 450 ms, because Sanguine C animates long and Kit C
+was being skipped at 260 (confirmed in testing 2026-09-04).
 
 **The trade-off:** 260 ms is shorter than some moves' own animations (the old
 combo's logs show Sanguine C needing ~600 ms before Z would fire, and Kitsune

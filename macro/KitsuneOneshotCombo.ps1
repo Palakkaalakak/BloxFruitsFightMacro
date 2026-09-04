@@ -124,6 +124,13 @@ $ycSwapBufferMs   = 0     # buffer either side of each slot press. 140 -> 0 (202
 # cost in F1 so do not pad it beyond what registers.
 $ycHoldGodCMs   = 350     # 600 -> 350 (2026-09-04, per user)
 $ycHoldWindowMs = 0       # 0 = one hold attempt only. 1400 -> 0 (2026-09-04, per user)
+# Kitsune C when it follows SANGUINE C (F2, F3, E claw). Sanguine C is a
+# long multi-phase move (projectile -> pull -> orbs) and the old combo's logs
+# show ~600ms before the next ability would fire after it. With the global
+# 260ms window Kit C was getting skipped (user, 2026-09-04) - so this one step
+# gets its own wider window. Only the FIRST Kit C after Sang C; Godhuman's F1
+# opener is unaffected. Trim toward 260 if Kit C fires reliably with room.
+$ycKitCAfterSangCMs = 450
 
 # --- Timings (ms). Researched 2026-09-02: no source anywhere (wiki, patch
 # notes, guides, community macro threads) publishes exact animation/channel
@@ -734,7 +741,7 @@ $Combo_Godhuman = @(
 #      Slower than the others. Sanguine must be the equipped style.
 $Combo_Sanguine = @(
                             @('spam', $keyC),          # Sanguine C
-    @('swap', $slotFruit),  @('spam', $keyC),          # Kitsune C
+    @('swap', $slotFruit),  @('spam', $keyC, $ycKitCAfterSangCMs, $ycSpamIntervalMs),   # Kitsune C - wider window, Sang C animates long
     @('swap', $slotSword),  @('spam', $keyX),          # Yama X
     @('swap', $slotFruit),  @('spam', $keyZ), @('spam', $keyX),   # Kitsune Z, X
     @('swap', $slotFightStyle), @('spam', $keyZ),      # Sanguine Z
@@ -745,7 +752,7 @@ $Combo_Sanguine = @(
 # F3 - Sanguine C + Kitsune C + Kitsune X + Yama X + Sanguine Z + Kit F + Kit Z + Sanguine X
 $Combo_SanguineAlt = @(
                             @('spam', $keyC),          # Sanguine C
-    @('swap', $slotFruit),  @('spam', $keyC), @('spam', $keyX),   # Kitsune C, X
+    @('swap', $slotFruit),  @('spam', $keyC, $ycKitCAfterSangCMs, $ycSpamIntervalMs), @('spam', $keyX),   # Kitsune C (wider window, Sang C animates long), X
     @('swap', $slotSword),  @('spam', $keyX),          # Yama X
     @('swap', $slotFightStyle), @('spam', $keyZ),      # Sanguine Z
     @('swap', $slotFruit),  @('spam', $keyF), @('spam', $keyZ),   # Kitsune F, Z
@@ -757,7 +764,7 @@ $Combo_SanguineAlt = @(
 #      Saved for later per user; set $hotkeyEClaw to bind it.
 $Combo_EClaw = @(
                             @('spam', $keyC),          # E claw C
-    @('swap', $slotFruit),  @('spam', $keyC),          # Kitsune C
+    @('swap', $slotFruit),  @('spam', $keyC, $ycKitCAfterSangCMs, $ycSpamIntervalMs),   # Kitsune C - same wider window as F2/F3, untested for E claw
     @('swap', $slotSword),  @('spam', $keyX),          # Yama X
     @('swap', $slotFruit),  @('spam', $keyZ), @('spam', $keyX),   # Kitsune Z, X
     @('swap', $slotFightStyle), @('spam', $keyX),      # E claw X
