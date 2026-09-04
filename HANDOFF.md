@@ -335,6 +335,9 @@ timing recorder; F7 swap test. `$Combo_EClaw` saved but unbound per user
 - Godhuman C is HELD (`$ycHoldGodCMs` 350, `$ycHoldWindowMs` 0 = single
   attempt) — held variant is the undodgeable one. Highest-priority F1 tuning
   value; the minimum hold that registers as "held" is unknown.
+- Old combos (F4/F5) superspeed-tuned 2026-09-04 per user: `$preSwapRegisterMs`
+  140->0, all spam windows cut to 300-450 with intervals 40-50. Est. ~2.4s
+  (was 5.1s logged). Old values preserved in each line's comment.
 - Old combos: Kitsune C is a quick TAP (user-corrected 2026-09-02; the wiki
   "charges on hold" claim was wrong). Kitsune X channels on hit (31.4) so
   the move after it can be silently dropped.

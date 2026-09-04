@@ -234,7 +234,7 @@ Hotbar: **1 = fighting style** (whichever is equipped), **2 = Kitsune**,
 | **F1** | Godhuman C(held) → Kit C → Yama X → Kit Z, X → Godhuman X → Kit F → Godhuman Z | Godhuman equipped | Ping / reaction-speed dependent |
 | **F2** | Sang C → Kit C → Yama X → Kit Z, X → Sang Z → Kit F → Sang X | Sanguine equipped | Slower than the others |
 | **F3** | Sang C → Kit C → Kit X → Yama X → Sang Z → Kit F → Kit Z → Sang X | Sanguine equipped | Sanguine alt |
-| **F4** | Kit C → Sang C → Sang Z → Kit F → Sang X → Kit X | Kitsune equipped | The old F1 (combo v2, full) |
+| **F4** | Kit C → Sang C → Sang Z → Kit F → Sang X → Kit X | Kitsune equipped | The old F1 (combo v2, full). Superspeed-tuned 2026-09-04, est. ~2.4 s (was 5.1 s) |
 | **F5** | Kit C → Sang C → Sang Z, stop | Kitsune equipped | The old F2 (combo v1, opening only) |
 | **F6** | timing recorder toggle | — | Was F3 |
 | **F7** | swap test (opening only) | — | Was F4 |
@@ -280,6 +280,33 @@ tight:
   `$ycSwapBufferMs` to ~40 first.
 - The combos are step lists (`$Combo_Godhuman` etc.) — reorder by editing one
   line.
+
+---
+
+## F4/F5 superspeed (2026-09-04)
+
+The old combos got the same treatment as F1–F3. Old vs new, from the last
+logged 5.1 s run:
+
+| Value | Old | New |
+|---|---|---|
+| `$preSwapRegisterMs` (buffer each side of the two main swaps) | 140 | **0** |
+| `$delayAfterKitCMs` | 350 | 300 |
+| Sang C window / interval | 600 / 100 | **400 / 50** |
+| Sang Z window / interval | 600 / 100 (+40 lead-in) | **450 / 50** (0 lead-in) |
+| Kit F window / interval | 600 / 80 | **300 / 40** |
+| Sang X window / interval | 520 / 70 | **300 / 40** |
+| Kit X window / interval | 240 / 80 | 240 / 40 |
+
+Estimated F4 ≈ 2.4 s. Sang C and Sang Z are deliberately kept wider than the
+260 ms global because your own logs show Sang C needing ~4 presses and Sang Z
+needing 5–7 before firing. Every window now has *more* attempts than before
+(intervals halved), just packed into less time.
+
+If something breaks, in order of likelihood: Sang Z skipped → raise
+`$spamSangZDurationMs` to 550; Sang C skipped → `$spamSangCDurationMs` to
+500; the opening swap fails (Sang C comes out as a Kitsune move) →
+`$preSwapRegisterMs` to 40, then 80 — not back to 140.
 
 ---
 
