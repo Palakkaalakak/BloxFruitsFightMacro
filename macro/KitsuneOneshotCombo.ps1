@@ -153,14 +153,14 @@ $ycHoldWindowMs = 0       # 0 = one hold attempt only. 1400 -> 0 (2026-09-04, pe
 # 260ms window Kit C was getting skipped (user, 2026-09-04) - so this one step
 # gets its own wider window. Only the FIRST Kit C after Sang C; Godhuman's F1
 # opener is unaffected. Trim toward 260 if Kit C fires reliably with room.
-$ycKitCAfterSangCMs = 360     # 450 -> 360 (2026-09-05, per user: Kit C fires sooner than assumed, swap to Yama moderately sooner)
+$ycKitCAfterSangCMs = 330     # 450 -> 360 -> 330 (2026-09-05, -30ms per user: switch to Yama earlier after Kit C; per user: Kit C fires sooner than assumed, swap to Yama moderately sooner)
 # Same problem after GODHUMAN C (F1): held C is dash -> seize -> charged punch
 # -> knockback, a long animation, and Kit C was being skipped at the 260ms
 # global (user, 2026-09-04). Own knob because Godhuman C's held animation is
 # not the same length as Sanguine C's. Starts higher than the Sanguine one
 # since the held punch is the longer move; trim toward 450 if it fires with
 # room to spare, raise (700) if it still gets skipped.
-$ycKitCAfterGodCMs = 560     # 550 -> 700 -> 560 (2026-09-05). 700 was set when Kit C was skipping at 550 - but that was with the OLD window meaning. Under the swap-as-soon-as-fired model this window only has to outlast Godhuman C's animation until Kit C FIRES, then we swap; per user Kit C fires sooner than assumed. Raise back toward 700 only if Kit C itself gets skipped.
+$ycKitCAfterGodCMs = 530     # 550 -> 700 -> 560 -> 530 (2026-09-05, last step -30ms per user: switch to Yama earlier after Kit C). 700 was set when Kit C was skipping at 550 - but that was with the OLD window meaning. Under the swap-as-soon-as-fired model this window only has to outlast Godhuman C's animation until Kit C FIRES, then we swap; per user Kit C fires sooner than assumed. Raise back toward 700 only if Kit C itself gets skipped.
 # F8 toggle (2026-09-05). Godhuman C's TAP version is a fast dash-punch that
 # commits instantly - no aim to hold while you're still coming off WASD. It
 # IS dodgeable where the held one isn't, and its tracking (like every
@@ -178,12 +178,17 @@ $ycOpenerWindowMs   = 80
 # the held dash->seize->punch, so this can probably be trimmed below the held
 # value, but no data yet - starts equal to $ycKitCAfterGodCMs. Trim toward
 # 550 once tap mode has been seen firing Kit C with room to spare.
-$ycKitCAfterGodCTapMs = 560   # 700 -> 560 (2026-09-05, same reason as the held knob above; tap animation is if anything shorter)
+$ycKitCAfterGodCTapMs = 530   # 700 -> 560 -> 530 (2026-09-05, same reason as the held knob above; tap animation is if anything shorter)
 # Kit F window in the F1/F2/F3 (and E claw) step lists. 260 -> 300
 # (2026-09-05, per user: "slightly increase to make it more robust"). One
 # extra press attempt at the 40ms cadence. F4/F5's Kit F uses its own
 # $spamKitFDurationMs (already 300) and is unchanged.
-$ycKitFWindowMs = 300
+$ycKitFWindowMs = 280      # 300 -> 280 (2026-09-05, per user: all delays after Kit Z "a little little bit" shorter)
+# Every step AFTER Kit Z in F1 / F2 / E claw (Kit X, style X, style Z/X) and
+# after Kit Z in F3 (Sang X). 260 global -> 240 (2026-09-05, per user: "a
+# little little bit"). Own knob so the global stays 260 for the few steps
+# that are not downstream of Kit Z (F3's Kit X after Kit C, Sang Z).
+$ycAfterKitZWindowMs = 240
 # Yama X window in every step-list combo. History 2026-09-05: 260 -> 120
 # (user: "decrease by a lot") -> Yama X got skipped -> another session took
 # it 200 -> 300 -> 1000 from the user's F6 hand recordings (swap-to-3 ->
@@ -196,14 +201,14 @@ $ycKitFWindowMs = 300
 # trial minus ~200ms hand lag. Raise to 900, then 1000, if Yama X gets
 # skipped; that is the only reason to go up. The swap itself costs 60ms -
 # the "slow swap" you see is THIS window draining, and the one before it.
-$ycYamaXWindowMs = 800
+$ycYamaXWindowMs = 640     # 800 -> 640 (2026-09-05, per user: "Yama fires faster than you think, switch earlier" - same ~20% cut Kit C got)
 # Kitsune Z where it directly follows Yama X (F1 tail, F2, E claw). Same
 # story: hand data swap-to-2 -> last Z was 952 / 1313ms because Yama X's
 # animation is still playing when we swap back. The 260 global was too
 # short; the 950 the other session set was the raw hand number. Fastest
 # trial minus hand lag. Raise to 850, then 950, if Kit Z gets skipped. F3's
 # Kit Z follows Kit F, not Yama X, and keeps the global.
-$ycKitZAfterYamaXMs = 750
+$ycKitZAfterYamaXMs = 600  # 750 -> 600 (2026-09-05, per user: "the same applies to Kit Z" - fires sooner than assumed, swap onward earlier)
 
 # --- Timings (ms). Researched 2026-09-02: no source anywhere (wiki, patch
 # notes, guides, community macro threads) publishes exact animation/channel
@@ -814,10 +819,10 @@ $Combo_Godhuman_OpenTap = @(
 )
 $Combo_Godhuman_Tail = @(
     @('swap', $slotSword),  @('spam', $keyX, $ycYamaXWindowMs, $ycSpamIntervalMs),   # Yama X - own window, see $ycYamaXWindowMs
-    @('swap', $slotFruit),  @('spam', $keyZ, $ycKitZAfterYamaXMs, $ycSpamIntervalMs), @('spam', $keyX),   # Kitsune Z (own window after Yama X), X
-    @('swap', $slotFightStyle), @('spam', $keyX),      # Godhuman X
-    @('swap', $slotFruit),  @('spam', $keyF, $ycKitFWindowMs, $ycSpamIntervalMs),   # Kitsune F - 300ms window (was global 260), 2026-09-05
-    @('swap', $slotFightStyle), @('spam', $keyZ)       # Godhuman Z
+    @('swap', $slotFruit),  @('spam', $keyZ, $ycKitZAfterYamaXMs, $ycSpamIntervalMs), @('spam', $keyX, $ycAfterKitZWindowMs, $ycSpamIntervalMs),   # Kitsune Z (own window after Yama X), X (after-Kit-Z window)
+    @('swap', $slotFightStyle), @('spam', $keyX, $ycAfterKitZWindowMs, $ycSpamIntervalMs),      # Godhuman X
+    @('swap', $slotFruit),  @('spam', $keyF, $ycKitFWindowMs, $ycSpamIntervalMs),   # Kitsune F - own window
+    @('swap', $slotFightStyle), @('spam', $keyZ, $ycAfterKitZWindowMs, $ycSpamIntervalMs)       # Godhuman Z
 )
 # Kept for reference / anything that still points at it: the held layout as
 # one flat list, identical to OpenHeld + Tail.
@@ -829,10 +834,10 @@ $Combo_Sanguine = @(
                             @('spam', $keyC, $ycOpenerWindowMs, $ycSpamIntervalMs),   # Sanguine C - first move, fires on press 1, swap right away
     @('swap', $slotFruit),  @('spam', $keyC, $ycKitCAfterSangCMs, $ycSpamIntervalMs),   # Kitsune C - window covers Sang C's animation
     @('swap', $slotSword),  @('spam', $keyX, $ycYamaXWindowMs, $ycSpamIntervalMs),   # Yama X - own window, see $ycYamaXWindowMs
-    @('swap', $slotFruit),  @('spam', $keyZ, $ycKitZAfterYamaXMs, $ycSpamIntervalMs), @('spam', $keyX),   # Kitsune Z (own window after Yama X), X
-    @('swap', $slotFightStyle), @('spam', $keyZ),      # Sanguine Z
-    @('swap', $slotFruit),  @('spam', $keyF, $ycKitFWindowMs, $ycSpamIntervalMs),   # Kitsune F - 300ms window, 2026-09-05
-    @('swap', $slotFightStyle), @('spam', $keyX)       # Sanguine X
+    @('swap', $slotFruit),  @('spam', $keyZ, $ycKitZAfterYamaXMs, $ycSpamIntervalMs), @('spam', $keyX, $ycAfterKitZWindowMs, $ycSpamIntervalMs),   # Kitsune Z (own window after Yama X), X (after-Kit-Z window)
+    @('swap', $slotFightStyle), @('spam', $keyZ, $ycAfterKitZWindowMs, $ycSpamIntervalMs),      # Sanguine Z
+    @('swap', $slotFruit),  @('spam', $keyF, $ycKitFWindowMs, $ycSpamIntervalMs),   # Kitsune F - own window
+    @('swap', $slotFightStyle), @('spam', $keyX, $ycAfterKitZWindowMs, $ycSpamIntervalMs)       # Sanguine X
 )
 
 # F3 - Sanguine C + Kitsune C + Kitsune X + Yama X + Sanguine Z + Kit F + Kit Z + Sanguine X
@@ -841,8 +846,8 @@ $Combo_SanguineAlt = @(
     @('swap', $slotFruit),  @('spam', $keyC, $ycKitCAfterSangCMs, $ycSpamIntervalMs), @('spam', $keyX),   # Kitsune C (window covers Sang C's animation), X
     @('swap', $slotSword),  @('spam', $keyX, $ycYamaXWindowMs, $ycSpamIntervalMs),   # Yama X - own window, see $ycYamaXWindowMs
     @('swap', $slotFightStyle), @('spam', $keyZ),      # Sanguine Z
-    @('swap', $slotFruit),  @('spam', $keyF, $ycKitFWindowMs, $ycSpamIntervalMs), @('spam', $keyZ),   # Kitsune F (300ms window, 2026-09-05), Z
-    @('swap', $slotFightStyle), @('spam', $keyX)       # Sanguine X
+    @('swap', $slotFruit),  @('spam', $keyF, $ycKitFWindowMs, $ycSpamIntervalMs), @('spam', $keyZ),   # Kitsune F (own window), Z
+    @('swap', $slotFightStyle), @('spam', $keyX, $ycAfterKitZWindowMs, $ycSpamIntervalMs)       # Sanguine X (after-Kit-Z window)
 )
 
 # (unbound) - E claw C + Kitsune C + Yama X + Kitsune Z X + E claw X + Kit F + E claw Z
@@ -852,10 +857,10 @@ $Combo_EClaw = @(
                             @('spam', $keyC, $ycOpenerWindowMs, $ycSpamIntervalMs),   # E claw C - first move, fires on press 1, swap right away
     @('swap', $slotFruit),  @('spam', $keyC, $ycKitCAfterSangCMs, $ycSpamIntervalMs),   # Kitsune C - same wider window as F2/F3, untested for E claw
     @('swap', $slotSword),  @('spam', $keyX, $ycYamaXWindowMs, $ycSpamIntervalMs),   # Yama X - own window, see $ycYamaXWindowMs
-    @('swap', $slotFruit),  @('spam', $keyZ, $ycKitZAfterYamaXMs, $ycSpamIntervalMs), @('spam', $keyX),   # Kitsune Z (own window after Yama X), X
-    @('swap', $slotFightStyle), @('spam', $keyX),      # E claw X
-    @('swap', $slotFruit),  @('spam', $keyF, $ycKitFWindowMs, $ycSpamIntervalMs),   # Kitsune F - 300ms window, 2026-09-05
-    @('swap', $slotFightStyle), @('spam', $keyZ)       # E claw Z
+    @('swap', $slotFruit),  @('spam', $keyZ, $ycKitZAfterYamaXMs, $ycSpamIntervalMs), @('spam', $keyX, $ycAfterKitZWindowMs, $ycSpamIntervalMs),   # Kitsune Z (own window after Yama X), X (after-Kit-Z window)
+    @('swap', $slotFightStyle), @('spam', $keyX, $ycAfterKitZWindowMs, $ycSpamIntervalMs),      # E claw X
+    @('swap', $slotFruit),  @('spam', $keyF, $ycKitFWindowMs, $ycSpamIntervalMs),   # Kitsune F - own window
+    @('swap', $slotFightStyle), @('spam', $keyZ, $ycAfterKitZWindowMs, $ycSpamIntervalMs)       # E claw Z
 )
 # Alt ending (replace the last three lines above):
 #   @('swap', $slotFightStyle), @('spam', $keyZ), @('spam', $keyX),   # E claw Z, X

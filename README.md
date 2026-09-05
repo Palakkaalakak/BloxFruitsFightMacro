@@ -289,12 +289,14 @@ stretching to reach F1 at the same moment. F8 flips F1 between:
 
 - **HELD** (default): `$ycHoldGodCMs` = 350 ms hold. Undodgeable, invulnerable
   during, but you have to keep the aim on them through the hold. Kit C after
-  it: `$ycKitCAfterGodCMs` = **560 ms** (550 → 700 → 560, 2026-09-05; user:
-  Kit C fires sooner than assumed, swap to Yama moderately sooner).
-- **TAPPED**: C is spammed for `$ycGodCTapWindowMs` = 260 ms with 10 ms
-  presses. Commits instantly — no aim to hold — but it **is** dodgeable and its
-  tracking is weak (a few studs off = whiff). Kit C after it gets its own
-  window, `$ycKitCAfterGodCTapMs` (560, same as held).
+  it: `$ycKitCAfterGodCMs` = **530 ms** (550 → 700 → 560 → 530, 2026-09-05;
+  user: Kit C fires sooner than assumed, swap to Yama moderately sooner, then
+  another 30 ms earlier).
+- **TAPPED**: C is spammed for `$ycGodCTapWindowMs` = 80 ms (3 presses — it is
+  the first move, nothing is animating, it fires on press 1). Commits
+  instantly — no aim to hold — but it **is** dodgeable and its tracking is
+  weak (a few studs off = whiff). Kit C after it gets its own window,
+  `$ycKitCAfterGodCTapMs` (530, same as held).
 
 Press F8 again to go back. The mode persists until you close the macro; set
 `$godCTapModeDefault = $true` to start in tapped mode.
@@ -307,21 +309,30 @@ The key name must exist in the `$VK` table (~line 340); `F1`–`F9`, `Escape`,
 the Windows virtual-key code first, e.g. `'F10' = 0x79`, `'F11' = 0x7A`,
 `'F12' = 0x7B`.
 
-**Yama X window** (`$ycYamaXWindowMs`) = **800 ms**, and **Kit Z after Yama X**
-(`$ycKitZAfterYamaXMs`) = **750 ms** (2026-09-05). History: Yama X was cut
+**Yama X window** (`$ycYamaXWindowMs`) = **640 ms**, and **Kit Z after Yama X**
+(`$ycKitZAfterYamaXMs`) = **600 ms** (2026-09-05). History: Yama X was cut
 260 → 120 per user, then got skipped; F6 hand recordings (swap → last press)
 measured Yama X at 1011 / 1365 / 1079 ms and Kit Z at 952 / 1313 ms. Another
 session set the raw fastest hand numbers (1000 / 950), which the user found
 far too slow. The recordings include hand reaction time (you keep pressing
-until you *notice* it fired), so both are now set to fastest-trial minus
-~200 ms. **The swap itself is 60 ms** — what feels like a slow swap is the
-previous move's window draining. If Yama X or Kit Z start getting skipped,
-raise in 100 ms steps (900 → 1000, 850 → 950); don't go up for any other
+until you *notice* it fired), so they went to fastest-trial minus ~200 ms
+(800 / 750), then the user said Yama fires faster than assumed and the same
+for Kit Z, so both took the same ~20% cut Kit C got (800 → 640, 750 → 600).
+**The swap itself is 60 ms** — what feels like a slow swap is the previous
+move's window draining. If Yama X or Kit Z start getting skipped, raise in
+~80 ms steps (640 → 720 → 800, 600 → 680 → 750); don't go up for any other
 reason.
 
-**Kit F window** in F1/F2/F3 (and E claw) went **260 → 300 ms**
-(`$ycKitFWindowMs`, 2026-09-05) — one extra press attempt, per user, to make
-it more robust. F4/F5's Kit F was already at 300 and is unchanged.
+**Everything after Kit Z** (`$ycAfterKitZWindowMs`) = **240 ms** (2026-09-05,
+new knob; was the global 260). Covers Kit X after Kit Z, the style X/Z that
+follows it, and the closing style move in F1/F2/E claw, plus F3's closing
+Sang X. Per user: "reduce all delays after Kit Z a little little bit". 6
+presses per step at the 40 ms interval.
+
+**Kit F window** in F1/F2/F3 (and E claw) is **280 ms** (`$ycKitFWindowMs`;
+260 → 300 → 280, 2026-09-05) — the 300 was one extra press attempt for
+robustness, the 280 is the same "a little bit shorter after Kit Z" pass as
+above. F4/F5's Kit F is a different knob, still 300.
 
 ### How the F1–F3 combos time themselves
 
@@ -341,8 +352,8 @@ Estimated totals with these defaults: **F1 ≈ 2.8 s, F2 ≈ 2.6 s, F3 ≈ 2.6 s
 Two steps are already widened because the style's C move animates long and
 Kit C was being skipped at 260 (both confirmed in testing 2026-09-04):
 
-- **Kit C after Sang C** (F2/F3): `$ycKitCAfterSangCMs` = 360 ms (450 → 360, 2026-09-05)
-- **Kit C after held Godhuman C** (F1): `$ycKitCAfterGodCMs` = 560 ms (550 → 700 → 560, 2026-09-05)
+- **Kit C after Sang C** (F2/F3): `$ycKitCAfterSangCMs` = 330 ms (450 → 360 → 330, 2026-09-05)
+- **Kit C after held Godhuman C** (F1): `$ycKitCAfterGodCMs` = 530 ms (550 → 700 → 560 → 530, 2026-09-05)
 
 **The trade-off:** 260 ms is shorter than some moves' own animations (the old
 combo's logs show Sanguine C needing ~600 ms before Z would fire, and Kitsune

@@ -362,17 +362,30 @@ shared `$Combo_Godhuman_Tail`. Reason: the held C has to be aimed for the
 whole hold while the user is coming off WASD to reach F1 — the hardest part
 of F1. Tapped C commits instantly but is dodgeable with weak tracking. Knobs:
 `$godCTapModeDefault`, `$ycGodCTapWindowMs` (80), `$ycKitCAfterGodCTapMs`
-(560, same as held).
+(530, same as held).
 
-**Kit C windows cut ~20% (2026-09-05, user: "Kit C fires sooner than you
-think, switch to Yama moderately sooner"):** `$ycKitCAfterGodCMs` 700 -> 560,
-`$ycKitCAfterGodCTapMs` 700 -> 560, `$ycKitCAfterSangCMs` 450 -> 360. The
-700 had been set when Kit C skipped at 550, but that was before the
-swap-as-soon-as-fired model; the window only needs to last until Kit C
-FIRES, not until its animation ends. Raise only if Kit C itself skips.
+**Kit C windows cut ~20%, then another 30ms (2026-09-05, user: "Kit C fires
+sooner than you think, switch to Yama moderately sooner", later "switch to
+Yama earlier after Kit C by like 30ms"):** `$ycKitCAfterGodCMs` 700 -> 560
+-> 530, `$ycKitCAfterGodCTapMs` 700 -> 560 -> 530, `$ycKitCAfterSangCMs` 450
+-> 360 -> 330. The 700 had been set when Kit C skipped at 550, but that was
+before the swap-as-soon-as-fired model; the window only needs to last until
+Kit C FIRES, not until its animation ends. Raise only if Kit C itself skips.
 
-**Yama X window `$ycYamaXWindowMs` = 800, Kit Z after Yama X
-`$ycKitZAfterYamaXMs` = 750** (2026-09-05). Sequence: I cut Yama X 260 -> 120
+**Second speed pass (2026-09-05, user: "reduce all delays after Kit Z a
+little little bit, same applies to Kit Z, Yama fires faster than you think
+so switch earlier"):** Yama X 800 -> 640, Kit Z after Yama X 750 -> 600 (both
+the same ~20% cut Kit C got), Kit F 300 -> 280, and a NEW knob
+`$ycAfterKitZWindowMs` = 240 (was the global 260) wired into every step
+after Kit Z in F1/F2/E claw (Kit X, style X, closing style Z/X) and F3's
+closing Sang X. F3's Kit Z after Kit F stays on the global 260. Dry-run
+totals after this pass: F1 held ~3930ms sim, tapped ~3640, F2 ~3390, F3
+~3030 (before: 4530 / 4240 / 3990 / 3330). Don't cut these further on your
+own — the user calls each cut; if a move skips, raise ITS window one step.
+
+**Yama X window `$ycYamaXWindowMs` = 640, Kit Z after Yama X
+`$ycKitZAfterYamaXMs` = 600** (2026-09-05; history below ends at 800/750,
+the second pass above took them to 640/600). Sequence: I cut Yama X 260 -> 120
 per user; it got skipped; a different assistant session then went 200 ->
 300 -> 1000 (Yama X) and added `$ycKitZWindowMs` = 950, both set to the raw
 fastest F6 hand recording (swap -> last press: Yama X 1011/1365/1079, Kit Z
@@ -387,9 +400,9 @@ when it became castable — subtract reaction time, don't copy the raw
 number.** And: no mouse movement, ever — that was an explicit 2026-09-02
 requirement and the flick broke it.
 
-**Kit F window in the step-list combos: 260 -> 300** (`$ycKitFWindowMs`,
-2026-09-05, per user "slightly increase"). F4/F5's `$spamKitFDurationMs` was
-already 300.
+**Kit F window in the step-list combos: 260 -> 300 -> 280** (`$ycKitFWindowMs`,
+2026-09-05, per user "slightly increase", then the second speed pass took
+20ms back). F4/F5's `$spamKitFDurationMs` is a separate knob, still 300.
 
 - New combos spam every ability (`$ycSpamDurationMs` 260 / `$ycSpamIntervalMs`
   40, `$ycSwapBufferMs` 0) because no timings are known; slot keys pressed
