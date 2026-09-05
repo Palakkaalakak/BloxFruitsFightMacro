@@ -162,13 +162,14 @@ $ycKitCAfterGodCTapMs = 700
 # extra press attempt at the 40ms cadence. F4/F5's Kit F uses its own
 # $spamKitFDurationMs (already 300) and is unchanged.
 $ycKitFWindowMs = 300
-# Yama X window in every step-list combo. 260 -> 120 (2026-09-05, per user:
-# "decrease by a lot"). ~3 presses at the 40ms cadence instead of ~7. Yama X
-# follows a slot swap onto a weapon that has nothing animating, so the first
-# press should fire; the remaining two are just insurance against a single
-# eaten press. If Yama X starts getting skipped, raise to 160 then 200 - not
-# back to 260. Below ~80 it becomes a single press with no retry.
-$ycYamaXWindowMs = 120
+# Yama X window in every step-list combo. 260 -> 120 -> 200 (2026-09-05, per
+# user: 120 was firing too late - 3 presses at 40ms apart wasn't enough
+# density, so most were landing well after the ready-moment instead of right
+# on it). Own tighter interval too ($ycYamaXIntervalMs, 40 -> 25) instead of
+# widening the window alone, so the first successful press comes SOONER, not
+# just "more chances eventually". ~8 presses now vs ~3 before.
+$ycYamaXWindowMs = 200
+$ycYamaXIntervalMs = 25
 
 # --- Timings (ms). Researched 2026-09-02: no source anywhere (wiki, patch
 # notes, guides, community macro threads) publishes exact animation/channel
@@ -778,7 +779,7 @@ $Combo_Godhuman_OpenTap = @(
     @('swap', $slotFruit),  @('spam', $keyC, $ycKitCAfterGodCTapMs, $ycSpamIntervalMs)   # Kitsune C (tap) - own knob, tap animation is shorter than held
 )
 $Combo_Godhuman_Tail = @(
-    @('swap', $slotSword),  @('spam', $keyX, $ycYamaXWindowMs, $ycSpamIntervalMs),   # Yama X - 120ms window (was global 260), 2026-09-05
+    @('swap', $slotSword),  @('spam', $keyX, $ycYamaXWindowMs, $ycYamaXIntervalMs),   # Yama X - own window/interval, tightened 2026-09-05 (was firing too late)
     @('swap', $slotFruit),  @('spam', $keyZ), @('spam', $keyX),   # Kitsune Z, X
     @('swap', $slotFightStyle), @('spam', $keyX),      # Godhuman X
     @('swap', $slotFruit),  @('spam', $keyF, $ycKitFWindowMs, $ycSpamIntervalMs),   # Kitsune F - 300ms window (was global 260), 2026-09-05
@@ -793,7 +794,7 @@ $Combo_Godhuman = $Combo_Godhuman_OpenHeld + $Combo_Godhuman_Tail
 $Combo_Sanguine = @(
                             @('spam', $keyC),          # Sanguine C
     @('swap', $slotFruit),  @('spam', $keyC, $ycKitCAfterSangCMs, $ycSpamIntervalMs),   # Kitsune C - wider window, Sang C animates long
-    @('swap', $slotSword),  @('spam', $keyX, $ycYamaXWindowMs, $ycSpamIntervalMs),   # Yama X - 120ms window (was global 260), 2026-09-05
+    @('swap', $slotSword),  @('spam', $keyX, $ycYamaXWindowMs, $ycYamaXIntervalMs),   # Yama X - own window/interval, tightened 2026-09-05 (was firing too late)
     @('swap', $slotFruit),  @('spam', $keyZ), @('spam', $keyX),   # Kitsune Z, X
     @('swap', $slotFightStyle), @('spam', $keyZ),      # Sanguine Z
     @('swap', $slotFruit),  @('spam', $keyF, $ycKitFWindowMs, $ycSpamIntervalMs),   # Kitsune F - 300ms window, 2026-09-05
@@ -804,7 +805,7 @@ $Combo_Sanguine = @(
 $Combo_SanguineAlt = @(
                             @('spam', $keyC),          # Sanguine C
     @('swap', $slotFruit),  @('spam', $keyC, $ycKitCAfterSangCMs, $ycSpamIntervalMs), @('spam', $keyX),   # Kitsune C (wider window, Sang C animates long), X
-    @('swap', $slotSword),  @('spam', $keyX, $ycYamaXWindowMs, $ycSpamIntervalMs),   # Yama X - 120ms window (was global 260), 2026-09-05
+    @('swap', $slotSword),  @('spam', $keyX, $ycYamaXWindowMs, $ycYamaXIntervalMs),   # Yama X - own window/interval, tightened 2026-09-05 (was firing too late)
     @('swap', $slotFightStyle), @('spam', $keyZ),      # Sanguine Z
     @('swap', $slotFruit),  @('spam', $keyF, $ycKitFWindowMs, $ycSpamIntervalMs), @('spam', $keyZ),   # Kitsune F (300ms window, 2026-09-05), Z
     @('swap', $slotFightStyle), @('spam', $keyX)       # Sanguine X
@@ -816,7 +817,7 @@ $Combo_SanguineAlt = @(
 $Combo_EClaw = @(
                             @('spam', $keyC),          # E claw C
     @('swap', $slotFruit),  @('spam', $keyC, $ycKitCAfterSangCMs, $ycSpamIntervalMs),   # Kitsune C - same wider window as F2/F3, untested for E claw
-    @('swap', $slotSword),  @('spam', $keyX, $ycYamaXWindowMs, $ycSpamIntervalMs),   # Yama X - 120ms window (was global 260), 2026-09-05
+    @('swap', $slotSword),  @('spam', $keyX, $ycYamaXWindowMs, $ycYamaXIntervalMs),   # Yama X - own window/interval, tightened 2026-09-05 (was firing too late)
     @('swap', $slotFruit),  @('spam', $keyZ), @('spam', $keyX),   # Kitsune Z, X
     @('swap', $slotFightStyle), @('spam', $keyX),      # E claw X
     @('swap', $slotFruit),  @('spam', $keyF, $ycKitFWindowMs, $ycSpamIntervalMs),   # Kitsune F - 300ms window, 2026-09-05
