@@ -162,14 +162,15 @@ $ycKitCAfterGodCTapMs = 700
 # extra press attempt at the 40ms cadence. F4/F5's Kit F uses its own
 # $spamKitFDurationMs (already 300) and is unchanged.
 $ycKitFWindowMs = 300
-# Yama X window in every step-list combo. 260 -> 120 -> 200 (2026-09-05, per
-# user: 120 was firing too late - 3 presses at 40ms apart wasn't enough
-# density, so most were landing well after the ready-moment instead of right
-# on it). Own tighter interval too ($ycYamaXIntervalMs, 40 -> 25) instead of
-# widening the window alone, so the first successful press comes SOONER, not
-# just "more chances eventually". ~8 presses now vs ~3 before.
-$ycYamaXWindowMs = 200
-$ycYamaXIntervalMs = 25
+# Yama X window in every step-list combo. 260 -> 120 -> 200 -> 300
+# (2026-09-05, per user: still too slow after 200/25 - "0 delay, super dense
+# spam"). Interval cut to the floor: $slotKeyHoldMs-equivalent 10ms keydown
+# is the shortest a press can be and still register as a discrete press, so
+# 15ms between presses is close to back-to-back. Window widened to 300 so
+# the much denser spam still gets a real number of attempts (~20) instead of
+# ending early.
+$ycYamaXWindowMs = 300
+$ycYamaXIntervalMs = 15
 
 # --- Timings (ms). Researched 2026-09-02: no source anywhere (wiki, patch
 # notes, guides, community macro threads) publishes exact animation/channel
