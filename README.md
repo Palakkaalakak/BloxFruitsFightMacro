@@ -341,8 +341,8 @@ Estimated totals with these defaults: **F1 ≈ 2.8 s, F2 ≈ 2.6 s, F3 ≈ 2.6 s
 Two steps are already widened because the style's C move animates long and
 Kit C was being skipped at 260 (both confirmed in testing 2026-09-04):
 
-- **Kit C after Sang C** (F2/F3): `$ycKitCAfterSangCMs` = 450 ms
-- **Kit C after held Godhuman C** (F1): `$ycKitCAfterGodCMs` = 550 ms
+- **Kit C after Sang C** (F2/F3): `$ycKitCAfterSangCMs` = 360 ms (450 → 360, 2026-09-05)
+- **Kit C after held Godhuman C** (F1): `$ycKitCAfterGodCMs` = 560 ms (550 → 700 → 560, 2026-09-05)
 
 **The trade-off:** 260 ms is shorter than some moves' own animations (the old
 combo's logs show Sanguine C needing ~600 ms before Z would fire, and Kitsune
