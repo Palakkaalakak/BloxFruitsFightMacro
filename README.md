@@ -262,6 +262,25 @@ Hotbar: **1 = fighting style** (whichever is equipped), **2 = Kitsune**,
 | *(unbound)* | E claw C → Kit C → Yama X → Kit Z, X → E claw X → Kit F → E claw Z (or E claw Z, X → Kit F) | E claw equipped | Aim dependent. Saved as `$Combo_EClaw`; set `$hotkeyEClaw` to bind |
 | **Esc** / **Tab** | abort | | |
 
+### The timing model (user, 2026-09-05) — read before changing any window
+
+**You can swap slots the instant an ability has fired. You just can't fire the
+next ability until the previous animation ends.** So the macro should: press
+until it fires → swap immediately → start spamming the next key straight
+away, so the first press after the previous animation ends casts with zero gap.
+
+What that means for the numbers:
+
+- A spam window is **not** "how long this move takes". It is "how long until
+  the *previous* move's animation is over" plus a little slack.
+- The **first move** of a combo has nothing animating before it, so it fires
+  on press 1. Its window is now **80 ms** (`$ycGodCTapWindowMs` for tapped
+  Godhuman C, `$ycOpenerWindowMs` for Sanguine C / E claw C) — one retry for
+  an eaten press, then swap. It was 260, which was ~180 ms of dead time.
+- Swaps cost only the 60 ms keypress, zero buffer either side, and never wait
+  for an animation. `Run-Steps` already does swap → spam back-to-back; this
+  model changes how windows are *sized*, not the mechanics.
+
 ### F8 — held vs tapped Godhuman C (2026-09-05; was F9 for a few hours)
 
 The hardest part of F1 to execute is the opening Godhuman C: the held version

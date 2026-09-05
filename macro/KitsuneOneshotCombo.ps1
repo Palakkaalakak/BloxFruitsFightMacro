@@ -92,6 +92,24 @@ $hotkeySwapTest = 'F7'       # was F4 - isolated swap test (2026-09-03): Kitsune
 $hotkeyEClaw    = ''         # E claw combo is saved ($Combo_EClaw) but NOT bound. Set to e.g. 'F10' (and add F10 = 0x79 to $VK) to enable. F8 is now the held/tap toggle.
 $hotkeyGodCTapToggle = 'F8'  # F9 -> F8 (2026-09-05, per user). 2026-09-05: toggles F1's Godhuman C between HELD and TAPPED. Starts in HELD mode ($godCTapModeDefault).
 
+# --- THE TIMING MODEL (user, 2026-09-05) - read before touching any window ---
+# You can SWAP hotbar slots the instant an ability has FIRED; you just cannot
+# FIRE the next ability until the previous one's animation ends. So the
+# right shape for every step is: press the key until it fires -> swap
+# immediately -> start spamming the next key straight away, so the first
+# press that lands after the previous animation ends casts with zero gap.
+# Consequences for the numbers below:
+#   * A spam window is NOT "how long this move takes". It is "how long until
+#     the PREVIOUS move's animation is over" plus a little slack, because
+#     the window has to keep pressing until this move becomes castable.
+#   * The FIRST move of a combo (nothing animating before it) fires on its
+#     first press. Its window should be near zero - just enough retries to
+#     cover one eaten press - then swap. Every ms past that is dead time.
+#   * Swaps cost only the 60ms key press. Zero buffer either side, never
+#     wait for an animation before swapping.
+# Run-Steps already does swap->spam back-to-back with no wait; what this
+# model changes is how the windows are SIZED, not the mechanics.
+
 # --- Yama combos (F1/F2/F3) spam settings, 2026-09-04 ---------------------
 # Every ability in the new combos is spammed for a window instead of tapped
 # once, because none of their inter-move timings are known yet. A press that
@@ -151,7 +169,11 @@ $ycKitCAfterGodCMs = 700     # 550 -> 700 (2026-09-05, per user - was still bein
 # setting. In tap mode the C press is spammed for $ycGodCTapWindowMs like any
 # other ability (10ms keydown per press = unambiguously a tap).
 $godCTapModeDefault = $false   # $false = F1 starts in HELD mode; $true = starts in TAPPED. $hotkeyGodCTapToggle flips it at runtime either way.
-$ycGodCTapWindowMs  = 260      # spam window for tapped Godhuman C. It is the first move, nothing is animating, so the first press fires - kept at the global for retries only.
+$ycGodCTapWindowMs  = 80       # 260 -> 80 (2026-09-05). FIRST move, nothing animating, fires on press 1; 80ms = 3 presses is enough to cover one eaten press. Swap follows immediately - Godhuman C's own animation is covered by $ycKitCAfterGodCTapMs, not by this.
+# Opening style-C window for F2 / F3 / E claw (Sanguine C, E claw C). Same
+# logic: first move, fires on press 1. 260 -> 80 (2026-09-05). The long
+# Sanguine C animation is what $ycKitCAfterSangCMs is for.
+$ycOpenerWindowMs   = 80
 # Kit C window after a TAPPED Godhuman C. The tap animation is shorter than
 # the held dash->seize->punch, so this can probably be trimmed below the held
 # value, but no data yet - starts equal to $ycKitCAfterGodCMs. Trim toward
@@ -804,8 +826,8 @@ $Combo_Godhuman = $Combo_Godhuman_OpenHeld + $Combo_Godhuman_Tail
 # F2 - Sanguine C + Kitsune C + Yama X + Kitsune Z X + Sanguine Z + Kit F + Sanguine X
 #      Slower than the others. Sanguine must be the equipped style.
 $Combo_Sanguine = @(
-                            @('spam', $keyC),          # Sanguine C
-    @('swap', $slotFruit),  @('spam', $keyC, $ycKitCAfterSangCMs, $ycSpamIntervalMs),   # Kitsune C - wider window, Sang C animates long
+                            @('spam', $keyC, $ycOpenerWindowMs, $ycSpamIntervalMs),   # Sanguine C - first move, fires on press 1, swap right away
+    @('swap', $slotFruit),  @('spam', $keyC, $ycKitCAfterSangCMs, $ycSpamIntervalMs),   # Kitsune C - window covers Sang C's animation
     @('swap', $slotSword),  @('spam', $keyX, $ycYamaXWindowMs, $ycSpamIntervalMs),   # Yama X - own window, see $ycYamaXWindowMs
     @('swap', $slotFruit),  @('spam', $keyZ, $ycKitZAfterYamaXMs, $ycSpamIntervalMs), @('spam', $keyX),   # Kitsune Z (own window after Yama X), X
     @('swap', $slotFightStyle), @('spam', $keyZ),      # Sanguine Z
@@ -815,8 +837,8 @@ $Combo_Sanguine = @(
 
 # F3 - Sanguine C + Kitsune C + Kitsune X + Yama X + Sanguine Z + Kit F + Kit Z + Sanguine X
 $Combo_SanguineAlt = @(
-                            @('spam', $keyC),          # Sanguine C
-    @('swap', $slotFruit),  @('spam', $keyC, $ycKitCAfterSangCMs, $ycSpamIntervalMs), @('spam', $keyX),   # Kitsune C (wider window, Sang C animates long), X
+                            @('spam', $keyC, $ycOpenerWindowMs, $ycSpamIntervalMs),   # Sanguine C - first move, fires on press 1, swap right away
+    @('swap', $slotFruit),  @('spam', $keyC, $ycKitCAfterSangCMs, $ycSpamIntervalMs), @('spam', $keyX),   # Kitsune C (window covers Sang C's animation), X
     @('swap', $slotSword),  @('spam', $keyX, $ycYamaXWindowMs, $ycSpamIntervalMs),   # Yama X - own window, see $ycYamaXWindowMs
     @('swap', $slotFightStyle), @('spam', $keyZ),      # Sanguine Z
     @('swap', $slotFruit),  @('spam', $keyF, $ycKitFWindowMs, $ycSpamIntervalMs), @('spam', $keyZ),   # Kitsune F (300ms window, 2026-09-05), Z
@@ -827,7 +849,7 @@ $Combo_SanguineAlt = @(
 #      Aim dependent. Alt ending that also works: E claw Z X + Kit F.
 #      Saved for later per user; set $hotkeyEClaw to bind it.
 $Combo_EClaw = @(
-                            @('spam', $keyC),          # E claw C
+                            @('spam', $keyC, $ycOpenerWindowMs, $ycSpamIntervalMs),   # E claw C - first move, fires on press 1, swap right away
     @('swap', $slotFruit),  @('spam', $keyC, $ycKitCAfterSangCMs, $ycSpamIntervalMs),   # Kitsune C - same wider window as F2/F3, untested for E claw
     @('swap', $slotSword),  @('spam', $keyX, $ycYamaXWindowMs, $ycSpamIntervalMs),   # Yama X - own window, see $ycYamaXWindowMs
     @('swap', $slotFruit),  @('spam', $keyZ, $ycKitZAfterYamaXMs, $ycSpamIntervalMs), @('spam', $keyX),   # Kitsune Z (own window after Yama X), X

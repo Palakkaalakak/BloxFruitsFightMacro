@@ -344,6 +344,16 @@ Hotkeys (2026-09-04): F1 Godhuman combo, F2 Sanguine combo, F3 Sanguine alt
 timing recorder; F7 swap test. `$Combo_EClaw` saved but unbound per user
 ("ignore eclaw but save it"). Esc/Tab abort.
 
+**TIMING MODEL (user, 2026-09-05, applies to every window):** swapping slots
+is allowed the instant an ability has FIRED; only FIRING the next ability
+waits for the previous animation to end. So: press until fired -> swap at
+once -> spam the next key so it casts the frame the previous animation ends.
+A window's length is "time until the PREVIOUS move's animation ends", not
+"how long this move takes". First move of any combo fires on press 1 -> its
+window is 80ms (`$ycGodCTapWindowMs`, `$ycOpenerWindowMs`), was 260. Swaps
+are 60ms, no buffers, never wait. Written into the `.ps1` CONFIG as a block
+comment above the Yama-combo settings so it is not re-derived.
+
 **F8 (2026-09-05, was F9 briefly): toggles F1's Godhuman C between HELD (default) and
 TAPPED.** `$script:godCTapMode`, flipped on F8's down-edge in the main loop;
 `Run-Godhuman` reads it when F1 is pressed and runs
