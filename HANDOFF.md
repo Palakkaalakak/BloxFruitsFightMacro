@@ -344,8 +344,8 @@ Hotkeys (2026-09-04): F1 Godhuman combo, F2 Sanguine combo, F3 Sanguine alt
 timing recorder; F7 swap test. `$Combo_EClaw` saved but unbound per user
 ("ignore eclaw but save it"). Esc/Tab abort.
 
-**F9 (2026-09-05): toggles F1's Godhuman C between HELD (default) and
-TAPPED.** `$script:godCTapMode`, flipped on F9's down-edge in the main loop;
+**F8 (2026-09-05, was F9 briefly): toggles F1's Godhuman C between HELD (default) and
+TAPPED.** `$script:godCTapMode`, flipped on F8's down-edge in the main loop;
 `Run-Godhuman` reads it when F1 is pressed and runs
 `$Combo_Godhuman_OpenHeld` or `$Combo_Godhuman_OpenTap` followed by the
 shared `$Combo_Godhuman_Tail`. Reason: the held C has to be aimed for the

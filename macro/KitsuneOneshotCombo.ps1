@@ -34,7 +34,7 @@
 #   F5  old F2           combo v1, opening only
 #   F6  old F3           timing recorder toggle
 #   F7  old F4           isolated swap test
-#   F9  TOGGLE           F1's Godhuman C: HELD (default) <-> TAPPED. Press again to
+#   F8  TOGGLE           F1's Godhuman C: HELD (default) <-> TAPPED. Press again to
 #                        switch back. Added 2026-09-05: the held C is the hardest
 #                        part of F1 to aim (you have to hold the aim while
 #                        reaching from WASD to F1), tapped C is a quick commit.
@@ -89,8 +89,8 @@ $hotkeyAbort   = 'Escape'
 $hotkeyAbort2  = 'Tab'   # second abort key, added 2026-09-02 per user - instant-cancel if a move missed, without needing to reach for Escape
 $hotkeyRecordToggle = 'F6'   # was F3 (and F2 before that) - toggles timing-recorder mode, see "RECORDING MODE" below
 $hotkeySwapTest = 'F7'       # was F4 - isolated swap test (2026-09-03): Kitsune C, then the swap to Sanguine, and nothing else
-$hotkeyEClaw    = ''         # E claw combo is saved ($Combo_EClaw) but NOT bound. Set to e.g. 'F8' (and add it to $VK) to enable.
-$hotkeyGodCTapToggle = 'F9'  # 2026-09-05: toggles F1's Godhuman C between HELD and TAPPED. Starts in HELD mode ($godCTapModeDefault).
+$hotkeyEClaw    = ''         # E claw combo is saved ($Combo_EClaw) but NOT bound. Set to e.g. 'F10' (and add F10 = 0x79 to $VK) to enable. F8 is now the held/tap toggle.
+$hotkeyGodCTapToggle = 'F8'  # F9 -> F8 (2026-09-05, per user). 2026-09-05: toggles F1's Godhuman C between HELD and TAPPED. Starts in HELD mode ($godCTapModeDefault).
 
 # --- Yama combos (F1/F2/F3) spam settings, 2026-09-04 ---------------------
 # Every ability in the new combos is spammed for a window instead of tapped
@@ -143,14 +143,14 @@ $ycKitCAfterSangCMs = 450
 # since the held punch is the longer move; trim toward 450 if it fires with
 # room to spare, raise (700) if it still gets skipped.
 $ycKitCAfterGodCMs = 700     # 550 -> 700 (2026-09-05, per user - was still being skipped at 550)
-# F9 toggle (2026-09-05). Godhuman C's TAP version is a fast dash-punch that
+# F8 toggle (2026-09-05). Godhuman C's TAP version is a fast dash-punch that
 # commits instantly - no aim to hold while you're still coming off WASD. It
 # IS dodgeable where the held one isn't, and its tracking (like every
 # "autoaim" move in this build, Godhuman C included) is weak - miss by a few
 # studs and it whiffs. Trade-off is yours per fight, hence a toggle not a
 # setting. In tap mode the C press is spammed for $ycGodCTapWindowMs like any
 # other ability (10ms keydown per press = unambiguously a tap).
-$godCTapModeDefault = $false   # $false = F1 starts in HELD mode; $true = starts in TAPPED. F9 flips it at runtime either way.
+$godCTapModeDefault = $false   # $false = F1 starts in HELD mode; $true = starts in TAPPED. $hotkeyGodCTapToggle flips it at runtime either way.
 $ycGodCTapWindowMs  = 260      # spam window for tapped Godhuman C. It is the first move, nothing is animating, so the first press fires - kept at the global for retries only.
 # Kit C window after a TAPPED Godhuman C. The tap animation is shorter than
 # the held dash->seize->punch, so this can probably be trimmed below the held
@@ -372,7 +372,7 @@ $VK = @{
 # ---------------------------- STATE -----------------------------------------
 
 $script:running = $false
-$script:godCTapMode = $godCTapModeDefault   # flipped by F9 - see $hotkeyGodCTapToggle
+$script:godCTapMode = $godCTapModeDefault   # flipped by $hotkeyGodCTapToggle - see $hotkeyGodCTapToggle
 
 # Debug logging: prints every raw keypress with a millisecond-precision
 # timestamp so a run can be correlated against what actually happened
@@ -767,7 +767,7 @@ function Run-Steps {
 
 # F1 - Godhuman C + Kitsune C + Yama X + Kitsune Z X + Godhuman X + Kit F + Godhuman Z
 #      Ping / reaction-speed dependent. Godhuman must be the equipped style.
-# Split 2026-09-05 into two OPENERS (picked at run time by the F9 toggle) and
+# Split 2026-09-05 into two OPENERS (picked at run time by the $hotkeyGodCTapToggle toggle) and
 # one shared TAIL, so the order after Kit C is still edited in one place.
 $Combo_Godhuman_OpenHeld = @(
                             @('hold', $keyC),          # Godhuman C (HELD - see $ycHoldGodCMs). Undodgeable, but the aim has to be held.
@@ -826,7 +826,7 @@ $Combo_EClaw = @(
 #   @('swap', $slotFightStyle), @('spam', $keyZ), @('spam', $keyX),   # E claw Z, X
 #   @('swap', $slotFruit),  @('spam', $keyF)                          # Kitsune F
 
-# F1 picks its opener from the F9 toggle at the moment you press F1, so
+# F1 picks its opener from the $hotkeyGodCTapToggle toggle at the moment you press F1, so
 # flipping the toggle mid-fight takes effect on the very next F1.
 function Run-Godhuman {
     if ($script:godCTapMode) {
@@ -893,7 +893,7 @@ try {
     $recordToggleWasDown = $false
     $godCToggleWasDown = $false
     while ($true) {
-        # F9: flip F1's Godhuman C between HELD and TAPPED (down-edge only).
+        # $hotkeyGodCTapToggle (F8): flip F1's Godhuman C between HELD and TAPPED (down-edge only).
         $godCToggleIsDown = ([Native]::GetAsyncKeyState($VK[$hotkeyGodCTapToggle]) -band 0x8000) -ne 0
         if ($godCToggleIsDown -and -not $godCToggleWasDown) {
             $script:godCTapMode = -not $script:godCTapMode

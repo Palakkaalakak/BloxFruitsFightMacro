@@ -251,22 +251,22 @@ Hotbar: **1 = fighting style** (whichever is equipped), **2 = Kitsune**,
 
 | Key | Combo | Start with | Note |
 |---|---|---|---|
-| **F1** | Godhuman C → Kit C → Yama X → Kit Z, X → Godhuman X → Kit F → Godhuman Z | Godhuman equipped | Ping / reaction-speed dependent. Godhuman C is **held** by default; **F9** toggles it to **tapped** and back |
+| **F1** | Godhuman C → Kit C → Yama X → Kit Z, X → Godhuman X → Kit F → Godhuman Z | Godhuman equipped | Ping / reaction-speed dependent. Godhuman C is **held** by default; **F8** toggles it to **tapped** and back |
 | **F2** | Sang C → Kit C → Yama X → Kit Z, X → Sang Z → Kit F → Sang X | Sanguine equipped | Slower than the others |
 | **F3** | Sang C → Kit C → Kit X → Yama X → Sang Z → Kit F → Kit Z → Sang X | Sanguine equipped | Sanguine alt |
 | **F4** | Kit C → Sang C → Sang Z → Kit F → Sang X → Kit X | Kitsune equipped | The old F1 (combo v2, full). Superspeed-tuned 2026-09-04, est. ~2.4 s (was 5.1 s) |
 | **F5** | Kit C → Sang C → Sang Z, stop | Kitsune equipped | The old F2 (combo v1, opening only) |
 | **F6** | timing recorder toggle | — | Was F3 |
 | **F7** | swap test (opening only) | — | Was F4 |
-| **F9** | **toggle F1's Godhuman C: HELD ↔ TAPPED** | — | Added 2026-09-05. Starts HELD. Takes effect on the next F1. Console prints the current mode |
+| **F8** | **toggle F1's Godhuman C: HELD ↔ TAPPED** | — | Added 2026-09-05. Starts HELD. Takes effect on the next F1. Console prints the current mode |
 | *(unbound)* | E claw C → Kit C → Yama X → Kit Z, X → E claw X → Kit F → E claw Z (or E claw Z, X → Kit F) | E claw equipped | Aim dependent. Saved as `$Combo_EClaw`; set `$hotkeyEClaw` to bind |
 | **Esc** / **Tab** | abort | | |
 
-### F9 — held vs tapped Godhuman C (2026-09-05)
+### F8 — held vs tapped Godhuman C (2026-09-05; was F9 for a few hours)
 
 The hardest part of F1 to execute is the opening Godhuman C: the held version
 has to be *aimed for the whole hold*, and you're usually mid-WASD and
-stretching to reach F1 at the same moment. F9 flips F1 between:
+stretching to reach F1 at the same moment. F8 flips F1 between:
 
 - **HELD** (default): `$ycHoldGodCMs` = 350 ms hold. Undodgeable, invulnerable
   during, but you have to keep the aim on them through the hold. Kit C after
@@ -278,8 +278,16 @@ stretching to reach F1 at the same moment. F9 flips F1 between:
   window, `$ycKitCAfterGodCTapMs` (700, same as held for now — trim once tap
   mode is seen working with room).
 
-Press F9 again to go back. The mode persists until you close the macro; set
+Press F8 again to go back. The mode persists until you close the macro; set
 `$godCTapModeDefault = $true` to start in tapped mode.
+
+**Rebinding any hotkey yourself:** every hotkey is one line in the CONFIG
+block at the top of the `.ps1` (`$hotkeyGodhuman = 'F1'`,
+`$hotkeyGodCTapToggle = 'F8'`, etc.). Change the string and restart the macro.
+The key name must exist in the `$VK` table (~line 340); `F1`–`F9`, `Escape`,
+`Tab`, `Z/X/C/F`, `1/2/3` are already there. For other keys add a line with
+the Windows virtual-key code first, e.g. `'F10' = 0x79`, `'F11' = 0x7A`,
+`'F12' = 0x7B`.
 
 **Yama X window** in F1/F2/F3 (and E claw) went **260 → 120 ms**
 (`$ycYamaXWindowMs`, 2026-09-05, per user "decrease by a lot") — ~3 presses
