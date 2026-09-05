@@ -289,13 +289,12 @@ stretching to reach F1 at the same moment. F8 flips F1 between:
 
 - **HELD** (default): `$ycHoldGodCMs` = 350 ms hold. Undodgeable, invulnerable
   during, but you have to keep the aim on them through the hold. Kit C after
-  it: `$ycKitCAfterGodCMs` = **700 ms** (550 → 700, 2026-09-05, still skipping
-  at 550).
+  it: `$ycKitCAfterGodCMs` = **560 ms** (550 → 700 → 560, 2026-09-05; user:
+  Kit C fires sooner than assumed, swap to Yama moderately sooner).
 - **TAPPED**: C is spammed for `$ycGodCTapWindowMs` = 260 ms with 10 ms
   presses. Commits instantly — no aim to hold — but it **is** dodgeable and its
   tracking is weak (a few studs off = whiff). Kit C after it gets its own
-  window, `$ycKitCAfterGodCTapMs` (700, same as held for now — trim once tap
-  mode is seen working with room).
+  window, `$ycKitCAfterGodCTapMs` (560, same as held).
 
 Press F8 again to go back. The mode persists until you close the macro; set
 `$godCTapModeDefault = $true` to start in tapped mode.

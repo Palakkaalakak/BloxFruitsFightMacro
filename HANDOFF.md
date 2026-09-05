@@ -361,11 +361,15 @@ TAPPED.** `$script:godCTapMode`, flipped on F8's down-edge in the main loop;
 shared `$Combo_Godhuman_Tail`. Reason: the held C has to be aimed for the
 whole hold while the user is coming off WASD to reach F1 — the hardest part
 of F1. Tapped C commits instantly but is dodgeable with weak tracking. Knobs:
-`$godCTapModeDefault`, `$ycGodCTapWindowMs` (260), `$ycKitCAfterGodCTapMs`
-(700, untuned — starts equal to the held value).
+`$godCTapModeDefault`, `$ycGodCTapWindowMs` (80), `$ycKitCAfterGodCTapMs`
+(560, same as held).
 
-**`$ycKitCAfterGodCMs` = 700** (550 -> 700, 2026-09-05, per user — Kit C
-still skipping after held Godhuman C at 550).
+**Kit C windows cut ~20% (2026-09-05, user: "Kit C fires sooner than you
+think, switch to Yama moderately sooner"):** `$ycKitCAfterGodCMs` 700 -> 560,
+`$ycKitCAfterGodCTapMs` 700 -> 560, `$ycKitCAfterSangCMs` 450 -> 360. The
+700 had been set when Kit C skipped at 550, but that was before the
+swap-as-soon-as-fired model; the window only needs to last until Kit C
+FIRES, not until its animation ends. Raise only if Kit C itself skips.
 
 **Yama X window `$ycYamaXWindowMs` = 800, Kit Z after Yama X
 `$ycKitZAfterYamaXMs` = 750** (2026-09-05). Sequence: I cut Yama X 260 -> 120
