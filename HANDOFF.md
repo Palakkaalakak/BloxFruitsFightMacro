@@ -357,9 +357,21 @@ of F1. Tapped C commits instantly but is dodgeable with weak tracking. Knobs:
 **`$ycKitCAfterGodCMs` = 700** (550 -> 700, 2026-09-05, per user — Kit C
 still skipping after held Godhuman C at 550).
 
-**Yama X window in the step-list combos: 260 -> 120** (`$ycYamaXWindowMs`,
-2026-09-05, per user "decrease by a lot"). ~3 presses. Raise to 160/200 if it
-skips.
+**Yama X window `$ycYamaXWindowMs` = 800, Kit Z after Yama X
+`$ycKitZAfterYamaXMs` = 750** (2026-09-05). Sequence: I cut Yama X 260 -> 120
+per user; it got skipped; a different assistant session then went 200 ->
+300 -> 1000 (Yama X) and added `$ycKitZWindowMs` = 950, both set to the raw
+fastest F6 hand recording (swap -> last press: Yama X 1011/1365/1079, Kit Z
+952/1313), plus separate 15ms intervals, Kit F 400/15, a `.gitignore` for
+the log, and an **F10 "flick-up" that sends relative mouse movement during
+Godhuman Z**. User: lower quality, revert it, keep it fast, "remove the gh z
+flick". I restored the `.ps1` to `fe418f4` (drops F10 flick, MouseMoveRelative,
+15ms intervals, Kit F 400, the gitignore) and re-applied only the two window
+sizes at fastest-hand-trial minus ~200ms reaction lag. **Rule that came out
+of this: hand recordings measure when the user NOTICED the move fire, not
+when it became castable — subtract reaction time, don't copy the raw
+number.** And: no mouse movement, ever — that was an explicit 2026-09-02
+requirement and the flick broke it.
 
 **Kit F window in the step-list combos: 260 -> 300** (`$ycKitFWindowMs`,
 2026-09-05, per user "slightly increase"). F4/F5's `$spamKitFDurationMs` was

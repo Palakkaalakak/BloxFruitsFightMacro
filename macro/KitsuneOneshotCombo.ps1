@@ -89,7 +89,6 @@ $hotkeyAbort   = 'Escape'
 $hotkeyAbort2  = 'Tab'   # second abort key, added 2026-09-02 per user - instant-cancel if a move missed, without needing to reach for Escape
 $hotkeyRecordToggle = 'F6'   # was F3 (and F2 before that) - toggles timing-recorder mode, see "RECORDING MODE" below
 $hotkeySwapTest = 'F7'       # was F4 - isolated swap test (2026-09-03): Kitsune C, then the swap to Sanguine, and nothing else
-$hotkeyFlickTest = 'F10'    # EXPERIMENTAL (2026-09-05): swap to Godhuman, Godhuman Z, with the flick-up nudge - see $flickUp* config and Do-FlickUp
 $hotkeyEClaw    = ''         # E claw combo is saved ($Combo_EClaw) but NOT bound. Set to e.g. 'F10' (and add F10 = 0x79 to $VK) to enable. F8 is now the held/tap toggle.
 $hotkeyGodCTapToggle = 'F8'  # F9 -> F8 (2026-09-05, per user). 2026-09-05: toggles F1's Godhuman C between HELD and TAPPED. Starts in HELD mode ($godCTapModeDefault).
 
@@ -158,37 +157,31 @@ $ycGodCTapWindowMs  = 260      # spam window for tapped Godhuman C. It is the fi
 # value, but no data yet - starts equal to $ycKitCAfterGodCMs. Trim toward
 # 550 once tap mode has been seen firing Kit C with room to spare.
 $ycKitCAfterGodCTapMs = 700
-# Kit F window in the F1/F2/F3 (and E claw) step lists. 260 -> 300 -> 400
-# (2026-09-05, per user: Kit F isn't firing, "spam more, less delay"). Own
-# tighter interval too ($ycKitFIntervalMs, same fix as Yama X above - the
-# shared 40ms cadence wasn't dense enough, so most presses were landing
-# after the ready-moment instead of on it). ~27 attempts now vs ~8 before.
-$ycKitFWindowMs = 400
-$ycKitFIntervalMs = 15
-# Yama X window in every step-list combo. REAL DATA 2026-09-05 (user's own
-# F6 hand recordings, swap-to-3 -> Yama X actually landing): three trials
-# measured 1011ms, 1365ms, 1079ms. The combo was never "slow" - the 300ms
-# window (before this) was ending 700-1000ms before Yama X could even fire,
-# stalling every move after it too. Set to the FASTEST observed trial per
-# user instruction (~1011ms, rounded). This is real per-move cast time, not
-# macro overhead - it cannot be cut further without either the move getting
-# skipped outright or new data showing a genuinely faster case. Interval
-# stays dense (15ms, ~67 attempts in the window) since spam is free -
-# density was never the problem here, window length was.
-$ycYamaXWindowMs = 1000
-$ycYamaXIntervalMs = 15
-
-# Kitsune Z window, following Yama X in F1/F2/E claw (the swap-to-fruit ->
-# spam Z -> spam X sequence). REAL DATA 2026-09-05 (user's own F6 recording,
-# swap-to-2 -> Z actually landing): 952ms, one trial. Was using the bare
-# 260ms global default, way under this. Same fix pattern as Yama X and Kit F
-# - own window instead of sharing a global that was never sized for this
-# specific move. Only ONE data point so far; if it keeps needing ~950ms
-# across more trials this is solid, if a faster trial shows up cut toward
-# it. Godhuman Z / Sanguine Z / E claw Z are DIFFERENT moves and untouched -
-# no timing data for those yet.
-$ycKitZWindowMs = 950
-$ycKitZIntervalMs = 15
+# Kit F window in the F1/F2/F3 (and E claw) step lists. 260 -> 300
+# (2026-09-05, per user: "slightly increase to make it more robust"). One
+# extra press attempt at the 40ms cadence. F4/F5's Kit F uses its own
+# $spamKitFDurationMs (already 300) and is unchanged.
+$ycKitFWindowMs = 300
+# Yama X window in every step-list combo. History 2026-09-05: 260 -> 120
+# (user: "decrease by a lot") -> Yama X got skipped -> another session took
+# it 200 -> 300 -> 1000 from the user's F6 hand recordings (swap-to-3 ->
+# LAST X press: 1011 / 1365 / 1079ms). User then said the swaps were far too
+# slow and that those recordings include their own hand variance. So: the
+# 120 was wrong (Kit C's own animation is still running when we swap - Yama
+# X is NOT castable straight after the swap, the window has to outlast Kit
+# C's end-lag), and the 1000 was hand-spam-until-you-notice-it-fired, which
+# overshoots the real ready-moment by a reaction time. Set from the FASTEST
+# trial minus ~200ms hand lag. Raise to 900, then 1000, if Yama X gets
+# skipped; that is the only reason to go up. The swap itself costs 60ms -
+# the "slow swap" you see is THIS window draining, and the one before it.
+$ycYamaXWindowMs = 800
+# Kitsune Z where it directly follows Yama X (F1 tail, F2, E claw). Same
+# story: hand data swap-to-2 -> last Z was 952 / 1313ms because Yama X's
+# animation is still playing when we swap back. The 260 global was too
+# short; the 950 the other session set was the raw hand number. Fastest
+# trial minus hand lag. Raise to 850, then 950, if Kit Z gets skipped. F3's
+# Kit Z follows Kit F, not Yama X, and keeps the global.
+$ycKitZAfterYamaXMs = 750
 
 # --- Timings (ms). Researched 2026-09-02: no source anywhere (wiki, patch
 # notes, guides, community macro threads) publishes exact animation/channel
@@ -258,8 +251,8 @@ $spamSangZIntervalMs = 50   # 100 -> 50 (2026-09-04 SUPERSPEED, per user: F4/F5 
 
 $spamKitF = $true
 $spamKitFInitialWaitMs = 0      # equip -> first Kitsune F attempt. 126 -> 40 -> 0 across 2026-09-03 (zero lead-in promoted from combo v3).
-$spamKitFDurationMs = 400   # 600 -> 300 -> 400 (2026-09-05, per user: Kit F isn't firing, "spam more, less delay"). Kit F follows a slot swap, nothing animating on the Kitsune side, so a short window should do - but 300/40 wasn't dense enough.
-$spamKitFIntervalMs = 15   # 80 -> 40 -> 15 (2026-09-05, same reason). ~27 attempts now vs ~8 before.
+$spamKitFDurationMs = 300   # 600 -> 300 (2026-09-04 SUPERSPEED, per user: F4/F5 must be 2-3s like F1-F3). Kit F follows a slot swap, nothing animating on the Kitsune side, so a short window should do. Raise (400) if F gets skipped.     | was: 780 -> 600 on 2026-09-03 per user. Still ~8 attempts at the 80ms interval - the same count 780ms used to deliver, because the per-keypress log write that was inflating every interval by ~85ms is gone.
+$spamKitFIntervalMs = 40   # 80 -> 40 (2026-09-04 SUPERSPEED, per user: F4/F5 must be 2-3s like F1-F3).       | was: densest spam in the combo (150 -> 80 on 2026-09-03 per user): ~8 attempts in the window, vs ~4 before. F has been the least reliable move to come out, so it gets the most retries.
 
 # Equip-swap keys are pressed exactly once (see Press-SlotKey below) - a slot
 # key TOGGLES equip/unequip in Roblox, and both time-based spam and odd-count
@@ -267,24 +260,6 @@ $spamKitFIntervalMs = 15   # 80 -> 40 -> 15 (2026-09-05, same reason). ~27 attem
 # flicker; odd-count redundancy added ~80ms of "equip -> act" latency that
 # was too slow). A dropped equip press is a real but accepted risk now.
 $debugLog = $true    # prints a timestamped log of every keypress to the console. Turn off once timings are dialed in.
-
-# --- EXPERIMENTAL flick-up on Godhuman Z (F10), 2026-09-05, per user -------
-# Sends a small RELATIVE mouse-move up right as Godhuman Z fires, then hands
-# control straight back - see MouseMoveRelative's comment for why this does
-# NOT disable/lock/capture the player's own mouse: the real mouse and this
-# synthetic delta are additive at the OS level, so nothing about the
-# player's ability to keep aiming/dodging is taken away, during or after.
-# Split into several small steps over a short span instead of one big jump
-# for two reasons: (1) it reads as a natural flick rather than a snap-turn,
-# (2) it avoids a single huge single-frame delta that could throw off the
-# player's own aim for the rest of the fight - the actual risk here isn't
-# the mechanism, it's making the nudge big/fast enough to be disorienting.
-# UNTESTED - all three numbers are starting guesses. If the flick is too
-# weak to matter, raise $flickUpTotalDy first; if it overshoots and wrecks
-# aim afterward, lower it before touching the other two.
-$flickUpTotalDy    = -250   # total relative Y movement, negative = up. Magnitude is in the same "mickeys" units MouseMoveRelative takes, not pixels - scale is guesswork until tested in-game.
-$flickUpSteps      = 6      # split across this many sends
-$flickUpStepDelayMs = 8     # gap between steps - ~48ms total flick duration
 
 # ---------------------------- WIN32 P/INVOKE --------------------------------
 
@@ -330,7 +305,6 @@ public static class Native {
     public const uint KEYEVENTF_SCANCODE = 0x0008;
     public const uint MOUSEEVENTF_LEFTDOWN = 0x0002;
     public const uint MOUSEEVENTF_LEFTUP = 0x0004;
-    public const uint MOUSEEVENTF_MOVE = 0x0001;   // RELATIVE delta, no ABSOLUTE flag - additive with real mouse motion, does not warp/lock the cursor
     public const uint MAPVK_VK_TO_VSC = 0x00;
 
     [DllImport("user32.dll", SetLastError = true)]
@@ -380,20 +354,6 @@ public static class Native {
         SendInput(1, inputs, Marshal.SizeOf(typeof(INPUT)));
     }
 
-    // RELATIVE mouse move (dy negative = up in screen space, which Roblox's
-    // default camera reads as the same raw delta a physical mouse produces -
-    // it rotates the camera, it does not warp/teleport the OS cursor and it
-    // does NOT use MOUSEEVENTF_ABSOLUTE. Critically: this never captures or
-    // suppresses the player's real mouse - both sources of movement are
-    // additive at the OS input level, so the player can keep moving their
-    // own mouse through and after this call with zero loss of control.
-    public static void MouseMoveRelative(int dx, int dy) {
-        INPUT[] inputs = new INPUT[1];
-        inputs[0].type = INPUT_MOUSE;
-        inputs[0].U.mi = new MOUSEINPUT { dx = dx, dy = dy, mouseData = 0, dwFlags = MOUSEEVENTF_MOVE, time = 0, dwExtraInfo = IntPtr.Zero };
-        SendInput(1, inputs, Marshal.SizeOf(typeof(INPUT)));
-    }
-
     public static void MouseLeftClick() {
         INPUT[] inputs = new INPUT[2];
         inputs[0].type = INPUT_MOUSE;
@@ -418,7 +378,6 @@ $VK = @{
     'F7' = 0x76
     'F8' = 0x77
     'F9' = 0x78
-    'F10' = 0x79
     'Escape' = 0x1B
     'Tab' = 0x09
 }
@@ -512,21 +471,6 @@ function Tap-Key {
     param([string]$Key, [int]$DelayMs)
     if (-not (Press-Key $Key)) { return $false }
     return Wait-Interruptible $DelayMs
-}
-
-# EXPERIMENTAL (2026-09-05): small relative mouse-move up, split into
-# several steps over a short span - see the $flickUp* config comment for
-# why. Does not take control from the player; see MouseMoveRelative.
-function Do-FlickUp {
-    $perStep = [int]($flickUpTotalDy / $flickUpSteps)
-    for ($i = 0; $i -lt $flickUpSteps; $i++) {
-        if (-not $script:running) { return $false }
-        [Native]::MouseMoveRelative(0, $perStep)
-        if ($i -lt $flickUpSteps - 1) {
-            if (-not (Wait-Interruptible $flickUpStepDelayMs)) { return $false }
-        }
-    }
-    return $true
 }
 
 # Presses $Key repeatedly every $IntervalMs for $DurationMs total, instead of
@@ -847,10 +791,10 @@ $Combo_Godhuman_OpenTap = @(
     @('swap', $slotFruit),  @('spam', $keyC, $ycKitCAfterGodCTapMs, $ycSpamIntervalMs)   # Kitsune C (tap) - own knob, tap animation is shorter than held
 )
 $Combo_Godhuman_Tail = @(
-    @('swap', $slotSword),  @('spam', $keyX, $ycYamaXWindowMs, $ycYamaXIntervalMs),   # Yama X - own window/interval, tightened 2026-09-05 (was firing too late)
-    @('swap', $slotFruit),  @('spam', $keyZ, $ycKitZWindowMs, $ycKitZIntervalMs), @('spam', $keyX),   # Kitsune Z (own window, see $ycKitZWindowMs), X
+    @('swap', $slotSword),  @('spam', $keyX, $ycYamaXWindowMs, $ycSpamIntervalMs),   # Yama X - own window, see $ycYamaXWindowMs
+    @('swap', $slotFruit),  @('spam', $keyZ, $ycKitZAfterYamaXMs, $ycSpamIntervalMs), @('spam', $keyX),   # Kitsune Z (own window after Yama X), X
     @('swap', $slotFightStyle), @('spam', $keyX),      # Godhuman X
-    @('swap', $slotFruit),  @('spam', $keyF, $ycKitFWindowMs, $ycKitFIntervalMs),   # Kitsune F - 300ms window (was global 260), 2026-09-05
+    @('swap', $slotFruit),  @('spam', $keyF, $ycKitFWindowMs, $ycSpamIntervalMs),   # Kitsune F - 300ms window (was global 260), 2026-09-05
     @('swap', $slotFightStyle), @('spam', $keyZ)       # Godhuman Z
 )
 # Kept for reference / anything that still points at it: the held layout as
@@ -862,10 +806,10 @@ $Combo_Godhuman = $Combo_Godhuman_OpenHeld + $Combo_Godhuman_Tail
 $Combo_Sanguine = @(
                             @('spam', $keyC),          # Sanguine C
     @('swap', $slotFruit),  @('spam', $keyC, $ycKitCAfterSangCMs, $ycSpamIntervalMs),   # Kitsune C - wider window, Sang C animates long
-    @('swap', $slotSword),  @('spam', $keyX, $ycYamaXWindowMs, $ycYamaXIntervalMs),   # Yama X - own window/interval, tightened 2026-09-05 (was firing too late)
-    @('swap', $slotFruit),  @('spam', $keyZ, $ycKitZWindowMs, $ycKitZIntervalMs), @('spam', $keyX),   # Kitsune Z (own window, see $ycKitZWindowMs), X
+    @('swap', $slotSword),  @('spam', $keyX, $ycYamaXWindowMs, $ycSpamIntervalMs),   # Yama X - own window, see $ycYamaXWindowMs
+    @('swap', $slotFruit),  @('spam', $keyZ, $ycKitZAfterYamaXMs, $ycSpamIntervalMs), @('spam', $keyX),   # Kitsune Z (own window after Yama X), X
     @('swap', $slotFightStyle), @('spam', $keyZ),      # Sanguine Z
-    @('swap', $slotFruit),  @('spam', $keyF, $ycKitFWindowMs, $ycKitFIntervalMs),   # Kitsune F - 300ms window, 2026-09-05
+    @('swap', $slotFruit),  @('spam', $keyF, $ycKitFWindowMs, $ycSpamIntervalMs),   # Kitsune F - 300ms window, 2026-09-05
     @('swap', $slotFightStyle), @('spam', $keyX)       # Sanguine X
 )
 
@@ -873,9 +817,9 @@ $Combo_Sanguine = @(
 $Combo_SanguineAlt = @(
                             @('spam', $keyC),          # Sanguine C
     @('swap', $slotFruit),  @('spam', $keyC, $ycKitCAfterSangCMs, $ycSpamIntervalMs), @('spam', $keyX),   # Kitsune C (wider window, Sang C animates long), X
-    @('swap', $slotSword),  @('spam', $keyX, $ycYamaXWindowMs, $ycYamaXIntervalMs),   # Yama X - own window/interval, tightened 2026-09-05 (was firing too late)
+    @('swap', $slotSword),  @('spam', $keyX, $ycYamaXWindowMs, $ycSpamIntervalMs),   # Yama X - own window, see $ycYamaXWindowMs
     @('swap', $slotFightStyle), @('spam', $keyZ),      # Sanguine Z
-    @('swap', $slotFruit),  @('spam', $keyF, $ycKitFWindowMs, $ycKitFIntervalMs), @('spam', $keyZ),   # Kitsune F (300ms window, 2026-09-05), Z
+    @('swap', $slotFruit),  @('spam', $keyF, $ycKitFWindowMs, $ycSpamIntervalMs), @('spam', $keyZ),   # Kitsune F (300ms window, 2026-09-05), Z
     @('swap', $slotFightStyle), @('spam', $keyX)       # Sanguine X
 )
 
@@ -885,10 +829,10 @@ $Combo_SanguineAlt = @(
 $Combo_EClaw = @(
                             @('spam', $keyC),          # E claw C
     @('swap', $slotFruit),  @('spam', $keyC, $ycKitCAfterSangCMs, $ycSpamIntervalMs),   # Kitsune C - same wider window as F2/F3, untested for E claw
-    @('swap', $slotSword),  @('spam', $keyX, $ycYamaXWindowMs, $ycYamaXIntervalMs),   # Yama X - own window/interval, tightened 2026-09-05 (was firing too late)
-    @('swap', $slotFruit),  @('spam', $keyZ, $ycKitZWindowMs, $ycKitZIntervalMs), @('spam', $keyX),   # Kitsune Z (own window, see $ycKitZWindowMs), X
+    @('swap', $slotSword),  @('spam', $keyX, $ycYamaXWindowMs, $ycSpamIntervalMs),   # Yama X - own window, see $ycYamaXWindowMs
+    @('swap', $slotFruit),  @('spam', $keyZ, $ycKitZAfterYamaXMs, $ycSpamIntervalMs), @('spam', $keyX),   # Kitsune Z (own window after Yama X), X
     @('swap', $slotFightStyle), @('spam', $keyX),      # E claw X
-    @('swap', $slotFruit),  @('spam', $keyF, $ycKitFWindowMs, $ycKitFIntervalMs),   # Kitsune F - 300ms window, 2026-09-05
+    @('swap', $slotFruit),  @('spam', $keyF, $ycKitFWindowMs, $ycSpamIntervalMs),   # Kitsune F - 300ms window, 2026-09-05
     @('swap', $slotFightStyle), @('spam', $keyZ)       # E claw Z
 )
 # Alt ending (replace the last three lines above):
@@ -909,18 +853,6 @@ function Run-Sanguine    { Invoke-Combo "Sanguine combo (F2)"     { Run-Steps $C
 function Run-SanguineAlt { Invoke-Combo "Sanguine alt combo (F3)" { Run-Steps $Combo_SanguineAlt | Out-Null } }
 function Run-EClaw       { Invoke-Combo "E claw combo"            { Run-Steps $Combo_EClaw       | Out-Null } }
 
-# EXPERIMENTAL (F10), 2026-09-05: swap to Godhuman, press Z, flick up right
-# as it casts. Standalone test, not wired into any real combo - see the
-# $flickUp* config comment and Do-FlickUp for what this actually does and
-# why it doesn't take control from the player.
-function Run-FlickTest {
-    Invoke-Combo "flick-up test (Godhuman Z, F10)" {
-        if (-not (Press-SlotKey $slotFightStyle)) { return }
-        if (-not (Press-Key $keyZ)) { return }
-        Do-FlickUp | Out-Null
-    }
-}
-
 # ---------------------------- MAIN LOOP -------------------------------------
 
 [Native]::TimeBeginPeriod(1) | Out-Null   # fix ~55-60% Start-Sleep inflation for the life of this process - see comment above the P/Invoke declaration
@@ -938,7 +870,6 @@ Write-Host "  Close this window (or Ctrl+C) to stop the macro entirely."
 Write-Host ""
 
 Write-Host "  $hotkeySwapTest = partial test (opening only: Kitsune C -> equip -> Sanguine C -> Sanguine Z, then stop)"
-Write-Host "  $hotkeyFlickTest = EXPERIMENTAL: Godhuman Z with a flick-up nudge (standalone test, not in any real combo)"
 Write-Host "  $hotkeyRecordToggle = toggle timing recorder (times YOUR manual keypresses, not the macro)"
 Write-Host ""
 [Console]::Out.Flush()
@@ -966,7 +897,6 @@ $comboTriggers = [ordered]@{
     $hotkeyTrigger2    = { Run-Combo2 }
     $hotkeyTrigger     = { Run-Combo }
     $hotkeySwapTest    = { Run-SwapTest }
-    $hotkeyFlickTest   = { Run-FlickTest }
 }
 if ($hotkeyEClaw) { $comboTriggers[$hotkeyEClaw] = { Run-EClaw } }
 $triggerWasDown = @{}

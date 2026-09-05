@@ -289,11 +289,17 @@ The key name must exist in the `$VK` table (~line 340); `F1`–`F9`, `Escape`,
 the Windows virtual-key code first, e.g. `'F10' = 0x79`, `'F11' = 0x7A`,
 `'F12' = 0x7B`.
 
-**Yama X window** in F1/F2/F3 (and E claw) went **260 → 120 ms**
-(`$ycYamaXWindowMs`, 2026-09-05, per user "decrease by a lot") — ~3 presses
-instead of ~7, saving ~140 ms per combo. It follows a swap onto a weapon with
-nothing animating, so the first press should fire. If Yama X starts getting
-skipped, raise to 160, then 200.
+**Yama X window** (`$ycYamaXWindowMs`) = **800 ms**, and **Kit Z after Yama X**
+(`$ycKitZAfterYamaXMs`) = **750 ms** (2026-09-05). History: Yama X was cut
+260 → 120 per user, then got skipped; F6 hand recordings (swap → last press)
+measured Yama X at 1011 / 1365 / 1079 ms and Kit Z at 952 / 1313 ms. Another
+session set the raw fastest hand numbers (1000 / 950), which the user found
+far too slow. The recordings include hand reaction time (you keep pressing
+until you *notice* it fired), so both are now set to fastest-trial minus
+~200 ms. **The swap itself is 60 ms** — what feels like a slow swap is the
+previous move's window draining. If Yama X or Kit Z start getting skipped,
+raise in 100 ms steps (900 → 1000, 850 → 950); don't go up for any other
+reason.
 
 **Kit F window** in F1/F2/F3 (and E claw) went **260 → 300 ms**
 (`$ycKitFWindowMs`, 2026-09-05) — one extra press attempt, per user, to make
