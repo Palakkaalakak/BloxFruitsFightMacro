@@ -158,6 +158,23 @@ The user plays this game; the assistant does not. Errors made, in order:
    "seizes" the target and describes Kitsune F as grabbing. **The user clarified
    this is metaphorical — descriptive language for connecting with an enemy, not
    a mechanical grab-lock. Nothing in this build disables target inputs.**
+8. **Mixed up transformed and untransformed Kitsune** (called out 2026-09-05).
+   The wiki's Kitsune page covers both forms; Empyrean (transformed) has
+   tapped/held variants, different CDs and tails costs. This build is
+   **untransformed only**. The "Kitsune C charges on hold" claim that
+   survived in the README moveset table until 2026-09-05 was this error.
+   When reading any Kitsune move, check which form the text is describing.
+9. **Claimed Kitsune C has auto-aim.** It does **not** (user, 2026-09-05).
+   Some moves do track (Godhuman C among them) but the tracking is weak —
+   a few studs of miss = whiff. Never describe any move here as a lock-on.
+10. **Treated inter-move timings as fixed offsets.** The user has said
+    repeatedly that **the offsets change** (distance, hit vs miss, airborne,
+    ping). Do not propose "press X at +Nms" single-tap timings; the spam-
+    window design exists precisely because the offsets are not stable.
+11. **Lost work to a force-push** (2026-09-05). The user committed locally,
+    force-pushed, and my two commits (F9 toggle, Yama X cut) vanished from
+    the remote; they had to be redone. Before pushing, `git fetch` and check
+    the remote head matches what you branched from.
 
 **The pattern to avoid: do not resolve a conflict between the user and a source
 by siding with the source, and do not resolve it by silently siding with the
@@ -218,7 +235,9 @@ guns**.
   with hold, hits above and below. **Both variants break Instinct**; tap can be
   dodged if the blast is near the player and misses the body.
 - **C** — tap: fast dash-punch + knockback. Hold: much higher speed and range,
-  invulnerable. Instinct chart: **"Only tap version can be dodged."**
+  invulnerable. Instinct chart: **"Only tap version can be dodged."** Has
+  tracking, but **weak** (user, 2026-09-05) — miss by a few studs and it
+  whiffs. Not a lock-on.
 
 ## Current combo (updated 2026-09-02, per user request)
 
@@ -324,6 +343,27 @@ Hotkeys (2026-09-04): F1 Godhuman combo, F2 Sanguine combo, F3 Sanguine alt
 (combo v2, `Run-Combo2`); F5 old opening-only (combo v1, `Run-Combo`); F6
 timing recorder; F7 swap test. `$Combo_EClaw` saved but unbound per user
 ("ignore eclaw but save it"). Esc/Tab abort.
+
+**F9 (2026-09-05): toggles F1's Godhuman C between HELD (default) and
+TAPPED.** `$script:godCTapMode`, flipped on F9's down-edge in the main loop;
+`Run-Godhuman` reads it when F1 is pressed and runs
+`$Combo_Godhuman_OpenHeld` or `$Combo_Godhuman_OpenTap` followed by the
+shared `$Combo_Godhuman_Tail`. Reason: the held C has to be aimed for the
+whole hold while the user is coming off WASD to reach F1 — the hardest part
+of F1. Tapped C commits instantly but is dodgeable with weak tracking. Knobs:
+`$godCTapModeDefault`, `$ycGodCTapWindowMs` (260), `$ycKitCAfterGodCTapMs`
+(700, untuned — starts equal to the held value).
+
+**`$ycKitCAfterGodCMs` = 700** (550 -> 700, 2026-09-05, per user — Kit C
+still skipping after held Godhuman C at 550).
+
+**Yama X window in the step-list combos: 260 -> 120** (`$ycYamaXWindowMs`,
+2026-09-05, per user "decrease by a lot"). ~3 presses. Raise to 160/200 if it
+skips.
+
+**Kit F window in the step-list combos: 260 -> 300** (`$ycKitFWindowMs`,
+2026-09-05, per user "slightly increase"). F4/F5's `$spamKitFDurationMs` was
+already 300.
 
 - New combos spam every ability (`$ycSpamDurationMs` 260 / `$ycSpamIntervalMs`
   40, `$ycSwapBufferMs` 0) because no timings are known; slot keys pressed

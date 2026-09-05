@@ -34,6 +34,10 @@
 #   F5  old F2           combo v1, opening only
 #   F6  old F3           timing recorder toggle
 #   F7  old F4           isolated swap test
+#   F9  TOGGLE           F1's Godhuman C: HELD (default) <-> TAPPED. Press again to
+#                        switch back. Added 2026-09-05: the held C is the hardest
+#                        part of F1 to aim (you have to hold the aim while
+#                        reaching from WASD to F1), tapped C is a quick commit.
 #   --  E claw combo     saved as $Combo_EClaw, NOT bound (ignored for now)
 #   Esc / Tab            abort
 #
@@ -86,6 +90,7 @@ $hotkeyAbort2  = 'Tab'   # second abort key, added 2026-09-02 per user - instant
 $hotkeyRecordToggle = 'F6'   # was F3 (and F2 before that) - toggles timing-recorder mode, see "RECORDING MODE" below
 $hotkeySwapTest = 'F7'       # was F4 - isolated swap test (2026-09-03): Kitsune C, then the swap to Sanguine, and nothing else
 $hotkeyEClaw    = ''         # E claw combo is saved ($Combo_EClaw) but NOT bound. Set to e.g. 'F8' (and add it to $VK) to enable.
+$hotkeyGodCTapToggle = 'F9'  # 2026-09-05: toggles F1's Godhuman C between HELD and TAPPED. Starts in HELD mode ($godCTapModeDefault).
 
 # --- Yama combos (F1/F2/F3) spam settings, 2026-09-04 ---------------------
 # Every ability in the new combos is spammed for a window instead of tapped
@@ -137,7 +142,33 @@ $ycKitCAfterSangCMs = 450
 # not the same length as Sanguine C's. Starts higher than the Sanguine one
 # since the held punch is the longer move; trim toward 450 if it fires with
 # room to spare, raise (700) if it still gets skipped.
-$ycKitCAfterGodCMs = 550
+$ycKitCAfterGodCMs = 700     # 550 -> 700 (2026-09-05, per user - was still being skipped at 550)
+# F9 toggle (2026-09-05). Godhuman C's TAP version is a fast dash-punch that
+# commits instantly - no aim to hold while you're still coming off WASD. It
+# IS dodgeable where the held one isn't, and its tracking (like every
+# "autoaim" move in this build, Godhuman C included) is weak - miss by a few
+# studs and it whiffs. Trade-off is yours per fight, hence a toggle not a
+# setting. In tap mode the C press is spammed for $ycGodCTapWindowMs like any
+# other ability (10ms keydown per press = unambiguously a tap).
+$godCTapModeDefault = $false   # $false = F1 starts in HELD mode; $true = starts in TAPPED. F9 flips it at runtime either way.
+$ycGodCTapWindowMs  = 260      # spam window for tapped Godhuman C. It is the first move, nothing is animating, so the first press fires - kept at the global for retries only.
+# Kit C window after a TAPPED Godhuman C. The tap animation is shorter than
+# the held dash->seize->punch, so this can probably be trimmed below the held
+# value, but no data yet - starts equal to $ycKitCAfterGodCMs. Trim toward
+# 550 once tap mode has been seen firing Kit C with room to spare.
+$ycKitCAfterGodCTapMs = 700
+# Kit F window in the F1/F2/F3 (and E claw) step lists. 260 -> 300
+# (2026-09-05, per user: "slightly increase to make it more robust"). One
+# extra press attempt at the 40ms cadence. F4/F5's Kit F uses its own
+# $spamKitFDurationMs (already 300) and is unchanged.
+$ycKitFWindowMs = 300
+# Yama X window in every step-list combo. 260 -> 120 (2026-09-05, per user:
+# "decrease by a lot"). ~3 presses at the 40ms cadence instead of ~7. Yama X
+# follows a slot swap onto a weapon that has nothing animating, so the first
+# press should fire; the remaining two are just insurance against a single
+# eaten press. If Yama X starts getting skipped, raise to 160 then 200 - not
+# back to 260. Below ~80 it becomes a single press with no retry.
+$ycYamaXWindowMs = 120
 
 # --- Timings (ms). Researched 2026-09-02: no source anywhere (wiki, patch
 # notes, guides, community macro threads) publishes exact animation/channel
@@ -333,6 +364,7 @@ $VK = @{
     'F6' = 0x75
     'F7' = 0x76
     'F8' = 0x77
+    'F9' = 0x78
     'Escape' = 0x1B
     'Tab' = 0x09
 }
@@ -340,6 +372,7 @@ $VK = @{
 # ---------------------------- STATE -----------------------------------------
 
 $script:running = $false
+$script:godCTapMode = $godCTapModeDefault   # flipped by F9 - see $hotkeyGodCTapToggle
 
 # Debug logging: prints every raw keypress with a millisecond-precision
 # timestamp so a run can be correlated against what actually happened
@@ -734,25 +767,36 @@ function Run-Steps {
 
 # F1 - Godhuman C + Kitsune C + Yama X + Kitsune Z X + Godhuman X + Kit F + Godhuman Z
 #      Ping / reaction-speed dependent. Godhuman must be the equipped style.
-$Combo_Godhuman = @(
-                            @('hold', $keyC),          # Godhuman C (HELD - see $ycHoldGodCMs)
-    @('swap', $slotFruit),  @('spam', $keyC, $ycKitCAfterGodCMs, $ycSpamIntervalMs),   # Kitsune C (tap) - wider window, held Godhuman C animates long
-    @('swap', $slotSword),  @('spam', $keyX),          # Yama X
+# Split 2026-09-05 into two OPENERS (picked at run time by the F9 toggle) and
+# one shared TAIL, so the order after Kit C is still edited in one place.
+$Combo_Godhuman_OpenHeld = @(
+                            @('hold', $keyC),          # Godhuman C (HELD - see $ycHoldGodCMs). Undodgeable, but the aim has to be held.
+    @('swap', $slotFruit),  @('spam', $keyC, $ycKitCAfterGodCMs, $ycSpamIntervalMs)   # Kitsune C (tap) - wider window, held Godhuman C animates long
+)
+$Combo_Godhuman_OpenTap = @(
+                            @('spam', $keyC, $ycGodCTapWindowMs, $ycSpamIntervalMs),   # Godhuman C (TAPPED - 10ms presses). Commits instantly, dodgeable, weak tracking.
+    @('swap', $slotFruit),  @('spam', $keyC, $ycKitCAfterGodCTapMs, $ycSpamIntervalMs)   # Kitsune C (tap) - own knob, tap animation is shorter than held
+)
+$Combo_Godhuman_Tail = @(
+    @('swap', $slotSword),  @('spam', $keyX, $ycYamaXWindowMs, $ycSpamIntervalMs),   # Yama X - 120ms window (was global 260), 2026-09-05
     @('swap', $slotFruit),  @('spam', $keyZ), @('spam', $keyX),   # Kitsune Z, X
     @('swap', $slotFightStyle), @('spam', $keyX),      # Godhuman X
-    @('swap', $slotFruit),  @('spam', $keyF),          # Kitsune F
+    @('swap', $slotFruit),  @('spam', $keyF, $ycKitFWindowMs, $ycSpamIntervalMs),   # Kitsune F - 300ms window (was global 260), 2026-09-05
     @('swap', $slotFightStyle), @('spam', $keyZ)       # Godhuman Z
 )
+# Kept for reference / anything that still points at it: the held layout as
+# one flat list, identical to OpenHeld + Tail.
+$Combo_Godhuman = $Combo_Godhuman_OpenHeld + $Combo_Godhuman_Tail
 
 # F2 - Sanguine C + Kitsune C + Yama X + Kitsune Z X + Sanguine Z + Kit F + Sanguine X
 #      Slower than the others. Sanguine must be the equipped style.
 $Combo_Sanguine = @(
                             @('spam', $keyC),          # Sanguine C
     @('swap', $slotFruit),  @('spam', $keyC, $ycKitCAfterSangCMs, $ycSpamIntervalMs),   # Kitsune C - wider window, Sang C animates long
-    @('swap', $slotSword),  @('spam', $keyX),          # Yama X
+    @('swap', $slotSword),  @('spam', $keyX, $ycYamaXWindowMs, $ycSpamIntervalMs),   # Yama X - 120ms window (was global 260), 2026-09-05
     @('swap', $slotFruit),  @('spam', $keyZ), @('spam', $keyX),   # Kitsune Z, X
     @('swap', $slotFightStyle), @('spam', $keyZ),      # Sanguine Z
-    @('swap', $slotFruit),  @('spam', $keyF),          # Kitsune F
+    @('swap', $slotFruit),  @('spam', $keyF, $ycKitFWindowMs, $ycSpamIntervalMs),   # Kitsune F - 300ms window, 2026-09-05
     @('swap', $slotFightStyle), @('spam', $keyX)       # Sanguine X
 )
 
@@ -760,9 +804,9 @@ $Combo_Sanguine = @(
 $Combo_SanguineAlt = @(
                             @('spam', $keyC),          # Sanguine C
     @('swap', $slotFruit),  @('spam', $keyC, $ycKitCAfterSangCMs, $ycSpamIntervalMs), @('spam', $keyX),   # Kitsune C (wider window, Sang C animates long), X
-    @('swap', $slotSword),  @('spam', $keyX),          # Yama X
+    @('swap', $slotSword),  @('spam', $keyX, $ycYamaXWindowMs, $ycSpamIntervalMs),   # Yama X - 120ms window (was global 260), 2026-09-05
     @('swap', $slotFightStyle), @('spam', $keyZ),      # Sanguine Z
-    @('swap', $slotFruit),  @('spam', $keyF), @('spam', $keyZ),   # Kitsune F, Z
+    @('swap', $slotFruit),  @('spam', $keyF, $ycKitFWindowMs, $ycSpamIntervalMs), @('spam', $keyZ),   # Kitsune F (300ms window, 2026-09-05), Z
     @('swap', $slotFightStyle), @('spam', $keyX)       # Sanguine X
 )
 
@@ -772,17 +816,26 @@ $Combo_SanguineAlt = @(
 $Combo_EClaw = @(
                             @('spam', $keyC),          # E claw C
     @('swap', $slotFruit),  @('spam', $keyC, $ycKitCAfterSangCMs, $ycSpamIntervalMs),   # Kitsune C - same wider window as F2/F3, untested for E claw
-    @('swap', $slotSword),  @('spam', $keyX),          # Yama X
+    @('swap', $slotSword),  @('spam', $keyX, $ycYamaXWindowMs, $ycSpamIntervalMs),   # Yama X - 120ms window (was global 260), 2026-09-05
     @('swap', $slotFruit),  @('spam', $keyZ), @('spam', $keyX),   # Kitsune Z, X
     @('swap', $slotFightStyle), @('spam', $keyX),      # E claw X
-    @('swap', $slotFruit),  @('spam', $keyF),          # Kitsune F
+    @('swap', $slotFruit),  @('spam', $keyF, $ycKitFWindowMs, $ycSpamIntervalMs),   # Kitsune F - 300ms window, 2026-09-05
     @('swap', $slotFightStyle), @('spam', $keyZ)       # E claw Z
 )
 # Alt ending (replace the last three lines above):
 #   @('swap', $slotFightStyle), @('spam', $keyZ), @('spam', $keyX),   # E claw Z, X
 #   @('swap', $slotFruit),  @('spam', $keyF)                          # Kitsune F
 
-function Run-Godhuman    { Invoke-Combo "Godhuman combo (F1)"     { Run-Steps $Combo_Godhuman    | Out-Null } }
+# F1 picks its opener from the F9 toggle at the moment you press F1, so
+# flipping the toggle mid-fight takes effect on the very next F1.
+function Run-Godhuman {
+    if ($script:godCTapMode) {
+        Invoke-Combo "Godhuman combo (F1, C TAPPED)" { Run-Steps ($Combo_Godhuman_OpenTap  + $Combo_Godhuman_Tail) | Out-Null }
+    } else {
+        Invoke-Combo "Godhuman combo (F1, C HELD)"   { Run-Steps ($Combo_Godhuman_OpenHeld + $Combo_Godhuman_Tail) | Out-Null }
+    }
+}
+function Get-GodCModeText { if ($script:godCTapMode) { 'TAPPED' } else { 'HELD' } }
 function Run-Sanguine    { Invoke-Combo "Sanguine combo (F2)"     { Run-Steps $Combo_Sanguine    | Out-Null } }
 function Run-SanguineAlt { Invoke-Combo "Sanguine alt combo (F3)" { Run-Steps $Combo_SanguineAlt | Out-Null } }
 function Run-EClaw       { Invoke-Combo "E claw combo"            { Run-Steps $Combo_EClaw       | Out-Null } }
@@ -792,7 +845,8 @@ function Run-EClaw       { Invoke-Combo "E claw combo"            { Run-Steps $C
 [Native]::TimeBeginPeriod(1) | Out-Null   # fix ~55-60% Start-Sleep inflation for the life of this process - see comment above the P/Invoke declaration
 
 Write-Host "Kitsune combo macro - running.  Hotbar: $slotFightStyle = style, $slotFruit = Kitsune, $slotSword = Yama" -ForegroundColor Cyan
-Write-Host "  $hotkeyGodhuman = Godhuman combo   (Godhuman C held -> Kit C -> Yama X -> Kit Z X -> Godhuman X -> Kit F -> Godhuman Z)  [start with Godhuman equipped]"
+Write-Host "  $hotkeyGodhuman = Godhuman combo   (Godhuman C -> Kit C -> Yama X -> Kit Z X -> Godhuman X -> Kit F -> Godhuman Z)  [start with Godhuman equipped]"
+Write-Host "       Godhuman C is currently $(Get-GodCModeText). Press $hotkeyGodCTapToggle to toggle HELD <-> TAPPED." -ForegroundColor Cyan
 Write-Host "  $hotkeySanguine = Sanguine combo   (Sang C -> Kit C -> Yama X -> Kit Z X -> Sang Z -> Kit F -> Sang X)  [start with Sanguine equipped]"
 Write-Host "  $hotkeySanguineAlt = Sanguine alt    (Sang C -> Kit C -> Kit X -> Yama X -> Sang Z -> Kit F -> Kit Z -> Sang X)  [start with Sanguine equipped]"
 Write-Host "  $hotkeyTrigger2 = old FULL combo   (Kit C -> Sang C -> Sang Z -> Kit F -> Sang X -> Kit X)  [start with Kitsune equipped]"
@@ -837,7 +891,17 @@ foreach ($k in $comboTriggers.Keys) { $triggerWasDown[$k] = $false }
 
 try {
     $recordToggleWasDown = $false
+    $godCToggleWasDown = $false
     while ($true) {
+        # F9: flip F1's Godhuman C between HELD and TAPPED (down-edge only).
+        $godCToggleIsDown = ([Native]::GetAsyncKeyState($VK[$hotkeyGodCTapToggle]) -band 0x8000) -ne 0
+        if ($godCToggleIsDown -and -not $godCToggleWasDown) {
+            $script:godCTapMode = -not $script:godCTapMode
+            Write-Host ("--- F1 Godhuman C is now {0} ---" -f (Get-GodCModeText)) -ForegroundColor Cyan
+            [Console]::Out.Flush()
+        }
+        $godCToggleWasDown = $godCToggleIsDown
+
         foreach ($k in $comboTriggers.Keys) {
             $isDown = ([Native]::GetAsyncKeyState($VK[$k]) -band 0x8000) -ne 0
             if ($isDown -and -not $triggerWasDown[$k] -and -not $script:running) {

@@ -97,11 +97,31 @@ where you'd otherwise be exposed.
 | TAP | Normal Attack | — | 0.5s | — | 5 slashes. **At 3 tails**: ticking burn 4–5s, +base damage. Up to ~10k with a damage accessory |
 | Z | Accursed Enchantment | 1 | 9s | 20 | Hit: flames circle, then strike multiple times (**delayed damage**). Miss: weak AoE. **Does not break Instinct** (changed in a recent update) |
 | X | Tails of Burning Agony | 50 | 12s | 40 | Zig-zag, **stuns ~0.65s**. No Instinct break, drains only. **31.4: now channels on hit — you cannot cast another ability until the animation finishes.** Usable mid-combo, but the move *after* it needs a delay long enough to clear that channel or it gets silently dropped |
-| C | Fox Fire Disruption | 100 | 15s | 80 | **Charge on hold, fires on release. BREAKS INSTINCT** — the only confirmed break in this build |
+| C | Fox Fire Disruption | 100 | 15s | 80 | **Quick TAP** (user-corrected 2026-09-02 — the "charge on hold" description belongs to the *transformed* form, not this one). **BREAKS INSTINCT** — the only confirmed break in this build. **No auto-aim / no tracking of any kind** (user, 2026-09-05) |
 | F | Wild Assault | 200 | 9s | 60 | Dash → claw flurry on connect. **Does not break Instinct.** Initial hit dodgeable |
 | V | Transformation | 300 | 3s | 20 | Immune to basic damage 1s while transforming. **Disables fighting style / sword / gun** |
 
 Tails cost per use: M1 7.5%, Z 10%, X 12.5%, C 15%, F 10%, V 30%.
+
+**Untransformed vs transformed (Empyrean) Kitsune are different movesets.**
+Everything in this build is *untransformed* — V is never pressed, and
+transforming would disable the fighting style anyway. The transformed form's
+tapped/held Z split, shorter cooldowns and higher tails costs do **not**
+apply here. Earlier revisions of this doc mixed the two (the "charge on
+hold" C above was one instance); if a Kitsune move here is described with a
+hold/charge variant, treat it as suspect and check the *untransformed* Kitsune
+page, not the Empyrean one.
+
+**Auto-aim / tracking (user, 2026-09-05):** Kitsune C has **none**. Some
+other moves do have tracking — Godhuman C is one — but it is **weak**: miss
+the target by a few studs and the move whiffs. Nothing in this build should
+be treated as a lock-on; every opener still has to be aimed by hand.
+
+**Timing is not fixed.** The gap between one move finishing and the next
+becoming castable **changes from run to run** — distance to target, whether
+the move connected, airborne vs grounded, ping. That is why every ability is
+spammed for a window instead of pressed once at a fixed offset; a fixed
+offset that works on a dummy will not work on a moving player.
 
 ### Sanguine Art
 
@@ -231,15 +251,45 @@ Hotbar: **1 = fighting style** (whichever is equipped), **2 = Kitsune**,
 
 | Key | Combo | Start with | Note |
 |---|---|---|---|
-| **F1** | Godhuman C(held) → Kit C → Yama X → Kit Z, X → Godhuman X → Kit F → Godhuman Z | Godhuman equipped | Ping / reaction-speed dependent |
+| **F1** | Godhuman C → Kit C → Yama X → Kit Z, X → Godhuman X → Kit F → Godhuman Z | Godhuman equipped | Ping / reaction-speed dependent. Godhuman C is **held** by default; **F9** toggles it to **tapped** and back |
 | **F2** | Sang C → Kit C → Yama X → Kit Z, X → Sang Z → Kit F → Sang X | Sanguine equipped | Slower than the others |
 | **F3** | Sang C → Kit C → Kit X → Yama X → Sang Z → Kit F → Kit Z → Sang X | Sanguine equipped | Sanguine alt |
 | **F4** | Kit C → Sang C → Sang Z → Kit F → Sang X → Kit X | Kitsune equipped | The old F1 (combo v2, full). Superspeed-tuned 2026-09-04, est. ~2.4 s (was 5.1 s) |
 | **F5** | Kit C → Sang C → Sang Z, stop | Kitsune equipped | The old F2 (combo v1, opening only) |
 | **F6** | timing recorder toggle | — | Was F3 |
 | **F7** | swap test (opening only) | — | Was F4 |
+| **F9** | **toggle F1's Godhuman C: HELD ↔ TAPPED** | — | Added 2026-09-05. Starts HELD. Takes effect on the next F1. Console prints the current mode |
 | *(unbound)* | E claw C → Kit C → Yama X → Kit Z, X → E claw X → Kit F → E claw Z (or E claw Z, X → Kit F) | E claw equipped | Aim dependent. Saved as `$Combo_EClaw`; set `$hotkeyEClaw` to bind |
 | **Esc** / **Tab** | abort | | |
+
+### F9 — held vs tapped Godhuman C (2026-09-05)
+
+The hardest part of F1 to execute is the opening Godhuman C: the held version
+has to be *aimed for the whole hold*, and you're usually mid-WASD and
+stretching to reach F1 at the same moment. F9 flips F1 between:
+
+- **HELD** (default): `$ycHoldGodCMs` = 350 ms hold. Undodgeable, invulnerable
+  during, but you have to keep the aim on them through the hold. Kit C after
+  it: `$ycKitCAfterGodCMs` = **700 ms** (550 → 700, 2026-09-05, still skipping
+  at 550).
+- **TAPPED**: C is spammed for `$ycGodCTapWindowMs` = 260 ms with 10 ms
+  presses. Commits instantly — no aim to hold — but it **is** dodgeable and its
+  tracking is weak (a few studs off = whiff). Kit C after it gets its own
+  window, `$ycKitCAfterGodCTapMs` (700, same as held for now — trim once tap
+  mode is seen working with room).
+
+Press F9 again to go back. The mode persists until you close the macro; set
+`$godCTapModeDefault = $true` to start in tapped mode.
+
+**Yama X window** in F1/F2/F3 (and E claw) went **260 → 120 ms**
+(`$ycYamaXWindowMs`, 2026-09-05, per user "decrease by a lot") — ~3 presses
+instead of ~7, saving ~140 ms per combo. It follows a swap onto a weapon with
+nothing animating, so the first press should fire. If Yama X starts getting
+skipped, raise to 160, then 200.
+
+**Kit F window** in F1/F2/F3 (and E claw) went **260 → 300 ms**
+(`$ycKitFWindowMs`, 2026-09-05) — one extra press attempt, per user, to make
+it more robust. F4/F5's Kit F was already at 300 and is unchanged.
 
 ### How the F1–F3 combos time themselves
 
